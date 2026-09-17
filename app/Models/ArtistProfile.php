@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\VerificationStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,7 @@ class ArtistProfile extends Model
         return [
             'is_published' => 'boolean',
             'verified_at' => 'datetime',
+            'verification_status' => VerificationStatus::class,
         ];
     }
 

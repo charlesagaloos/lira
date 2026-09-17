@@ -188,7 +188,9 @@ export default function Edit({ profile }: Props) {
                 </div>
 
                 <p>
-                    Verification Status: {profile.verification_status}
+                    Verification Status:{' '}
+                    {profile.verification_status.charAt(0).toUpperCase() +
+                        profile.verification_status.slice(1)}
                 </p>
 
                 <button type="submit" disabled={form.processing}>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\VerificationStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -78,7 +79,7 @@ class ArtistProfileController extends Controller
 
         $request->user()->artistProfile()->create([
             ...$validated,
-            'verification_status' => 'pending',
+            'verification_status' => VerificationStatus::Pending,
         ]);
 
         return redirect()
