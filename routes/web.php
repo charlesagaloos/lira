@@ -8,6 +8,7 @@ use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PublicPortfolioController;
 use App\Http\Controllers\PublicProjectController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PortfolioSettingsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -88,3 +89,11 @@ Route::delete('/dashboard/projects/{project}', [ProjectController::class, 'destr
 Route::patch('/dashboard/projects/{project}/visibility', [ProjectController::class, 'toggleVisibility'])
     ->middleware(['auth', 'verified'])
     ->name('projects.visibility');
+
+Route::get('/dashboard/portfolio/settings', [PortfolioSettingsController::class, 'edit'])
+    ->middleware(['auth', 'verified'])
+    ->name('portfolio.settings.edit');
+
+Route::put('/dashboard/portfolio/settings', [PortfolioSettingsController::class, 'update'])
+    ->middleware(['auth', 'verified'])
+    ->name('portfolio.settings.update');

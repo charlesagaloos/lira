@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'user_id',
@@ -44,5 +45,10 @@ class ArtistProfile extends Model
     {
         return $this->hasMany(Project::class)
             ->orderBy('position');
+    }
+
+    public function portfolioSettings(): HasOne
+    {
+        return $this->hasOne(PortfolioSetting::class);
     }
 }

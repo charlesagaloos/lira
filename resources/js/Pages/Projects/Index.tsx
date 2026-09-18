@@ -1,4 +1,5 @@
 import { Link, router } from '@inertiajs/react';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 interface Project {
     id: number;
@@ -7,6 +8,11 @@ interface Project {
     description: string | null;
     project_type: string | null;
     thumbnail: string | null;
+    thumbnail_position_x: number;
+    thumbnail_position_y: number;
+    thumbnail_zoom: number;
+    thumbnail_offset_x: number;
+    thumbnail_offset_y: number;
     url: string | null;
     position: number;
     is_visible: boolean;
@@ -14,6 +20,66 @@ interface Project {
 
 interface Props {
     projects: Project[];
+}
+
+function ProjectThumbnail({ project }: { project: Project }) {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    const [offsetX, setOffsetX] = useState(0);
+    const [offsetY, setOffsetY] = useState(0);
+
+    useLayoutEffect(() => {
+        const container = containerRef.current;
+
+        if (!container) {
+            return;
+        }
+
+        const updateOffsets = () => {
+            setOffsetX(
+                (project.thumbnail_offset_x / 100) *
+                container.clientWidth,
+            );
+
+            setOffsetY(
+                (project.thumbnail_offset_y / 100) *
+                container.clientHeight,
+            );
+        };
+
+        updateOffsets();
+
+        const resizeObserver = new ResizeObserver(updateOffsets);
+
+        resizeObserver.observe(container);
+
+        return () => resizeObserver.disconnect();
+    }, [
+        project.thumbnail_offset_x,
+        project.thumbnail_offset_y,
+    ]);
+
+    return (
+        <div
+            ref={containerRef}
+            className="relative aspect-[4/3] overflow-hidden"
+        >
+            <img
+                src={`/storage/${project.thumbnail}`}
+                alt={project.title}
+                className="h-full w-full select-none object-cover"
+                draggable={false}
+                style={{
+                    objectPosition: `${project.thumbnail_position_x}% ${project.thumbnail_position_y}%`,
+                    transform: `
+                        translate(${offsetX}px, ${offsetY}px)
+                        scale(${project.thumbnail_zoom / 100})
+                    `,
+                    transformOrigin: 'center',
+                }}
+            />
+        </div>
+    );
 }
 
 export default function Index({ projects }: Props) {
@@ -58,10 +124,8 @@ export default function Index({ projects }: Props) {
                                 className="overflow-hidden rounded-2xl border border-white/10 bg-zinc-900"
                             >
                                 {project.thumbnail ? (
-                                    <img
-                                        src={project.thumbnail}
-                                        alt={project.title}
-                                        className="aspect-[4/3] w-full object-cover"
+                                    <ProjectThumbnail
+                                        project={project}
                                     />
                                 ) : (
                                     <div className="flex aspect-[4/3] items-center justify-center bg-zinc-800">
@@ -132,7 +196,9 @@ export default function Index({ projects }: Props) {
                                                     : 'text-zinc-500 transition hover:text-zinc-300'
                                             }
                                         >
-                                            {project.is_visible ? 'Visible' : 'Hidden'}
+                                            {project.is_visible
+                                                ? 'Visible'
+                                                : 'Hidden'}
                                         </button>
                                     </div>
                                 </div>

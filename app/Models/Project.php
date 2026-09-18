@@ -16,6 +16,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'url',
     'position',
     'is_visible',
+    'thumbnail_position_x',
+    'thumbnail_position_y',
+    'thumbnail_zoom',
+    'thumbnail_offset_x',
+    'thumbnail_offset_y',
 ])]
 class Project extends Model
 {
@@ -24,6 +29,11 @@ class Project extends Model
         return [
             'is_visible' => 'boolean',
             'position' => 'integer',
+            'thumbnail_position_x' => 'integer',
+            'thumbnail_position_y' => 'integer',
+            'thumbnail_zoom' => 'integer',
+            'thumbnail_offset_x' => 'float',
+            'thumbnail_offset_y' => 'float',
         ];
     }
 

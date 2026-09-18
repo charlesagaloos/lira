@@ -12,7 +12,8 @@ class PublicPortfolioController extends Controller
     {
         $profile = ArtistProfile::query()
             ->with([
-                'projects' => fn ($query) => $query->where('is_visible', true),
+                'portfolioSettings',
+                'projects' => fn($query) => $query->where('is_visible', true),
             ])
             ->where('username', $username)
             ->where('is_published', true)

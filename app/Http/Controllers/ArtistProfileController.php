@@ -77,10 +77,12 @@ class ArtistProfileController extends Controller
             ],
         ]);
 
-        $request->user()->artistProfile()->create([
+        $profile = $request->user()->artistProfile()->create([
             ...$validated,
             'verification_status' => VerificationStatus::Pending,
         ]);
+
+        $profile->portfolioSettings()->create();
 
         return redirect()
             ->route('dashboard')

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -68,7 +69,21 @@ class ProjectController extends Controller
                 'url',
                 'max:2048',
             ],
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:15360',
+            ],
         ]);
+
+        $thumbnail = null;
+
+        if ($request->hasFile('image')) {
+            $thumbnail = $request->file('image')->store('projects', 'public');
+        }
+
+        unset($validated['image']);
 
         $slug = Str::slug($validated['title']);
 
@@ -88,6 +103,7 @@ class ProjectController extends Controller
 
         $profile->projects()->create([
             ...$validated,
+            'thumbnail' => $thumbnail,
             'slug' => $slug,
             'position' => $position,
             'is_visible' => true,
@@ -129,15 +145,64 @@ class ProjectController extends Controller
                 'url',
                 'max:2048',
             ],
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:15360',
+            ],
+            'thumbnail_position_x' => [
+                'required',
+                'numeric',
+                'between:0,100',
+            ],
+
+            'thumbnail_position_y' => [
+                'required',
+                'numeric',
+                'between:0,100',
+            ],
+
+            'thumbnail_zoom' => [
+                'required',
+                'integer',
+                'between:100,200',
+            ],
+            'thumbnail_offset_x' => [
+                'required',
+                'numeric',
+                'between:-100,100',
+            ],
+
+            'thumbnail_offset_y' => [
+                'required',
+                'numeric',
+                'between:-100,100',
+            ],
         ]);
+
+
+
+        if ($request->hasFile('image')) {
+            $oldThumbnail = $project->thumbnail;
+
+            $thumbnail = $request->file('image')->store('projects', 'public');
+
+            $validated['thumbnail'] = $thumbnail;
+
+            if ($oldThumbnail) {
+                Storage::disk('public')->delete($oldThumbnail);
+            }
+        }
+
+        unset($validated['image']);
 
         $project->update($validated);
 
         return redirect()
-            ->route('projects.index')
+            ->route('projects.edit', $project->id)
             ->with('success', 'Project updated successfully.');
     }
-
     public function destroy(Request $request, int $project): RedirectResponse
     {
         $profile = $request->user()->artistProfile;
@@ -166,7 +231,7 @@ class ProjectController extends Controller
             ->firstOrFail();
 
         $project->update([
-            'is_visible' => ! $project->is_visible,
+            'is_visible' => !$project->is_visible,
         ]);
 
         return redirect()

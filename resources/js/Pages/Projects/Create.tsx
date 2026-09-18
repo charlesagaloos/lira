@@ -6,16 +6,24 @@ export default function Create() {
     const [description, setDescription] = useState('');
     const [projectType, setProjectType] = useState('');
     const [url, setUrl] = useState('');
+    const [image, setImage] = useState<File | null>(null);
 
     function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        router.post('/dashboard/projects', {
-            title,
-            description,
-            project_type: projectType,
-            url,
-        });
+        router.post(
+            '/dashboard/projects',
+            {
+                title,
+                description,
+                project_type: projectType,
+                url,
+                image,
+            },
+            {
+                forceFormData: true,
+            },
+        );
     }
 
     return (
@@ -98,6 +106,29 @@ export default function Create() {
                             rows={6}
                             className="w-full resize-none rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-white outline-none transition focus:border-white/30"
                         />
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="image"
+                            className="mb-2 block text-sm font-medium text-zinc-300"
+                        >
+                            Project Image
+                        </label>
+
+                        <input
+                            id="image"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            onChange={(event) =>
+                                setImage(event.target.files?.[0] ?? null)
+                            }
+                            className="w-full rounded-xl border border-white/10 bg-zinc-900 px-4 py-3 text-sm text-zinc-300 outline-none transition file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-4 file:py-2 file:text-sm file:font-semibold file:text-zinc-950 hover:file:bg-zinc-200 focus:border-white/30"
+                        />
+
+                        <p className="mt-2 text-xs text-zinc-500">
+                            JPG, PNG, or WebP. Maximum file size: 5 MB.
+                        </p>
                     </div>
 
                     <div>

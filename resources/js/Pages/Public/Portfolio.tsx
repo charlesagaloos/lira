@@ -1,3 +1,77 @@
+import { useLayoutEffect, useRef, useState } from 'react';
+
+function ProjectThumbnail({ project }: { project: Project }) {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    const [offsetX, setOffsetX] = useState(0);
+    const [offsetY, setOffsetY] = useState(0);
+
+    useLayoutEffect(() => {
+        const container = containerRef.current;
+
+        if (!container) {
+            return;
+        }
+
+        const updateOffsets = () => {
+            setOffsetX(
+                (project.thumbnail_offset_x / 100) *
+                container.clientWidth,
+            );
+
+            setOffsetY(
+                (project.thumbnail_offset_y / 100) *
+                container.clientHeight,
+            );
+        };
+
+        updateOffsets();
+
+        const resizeObserver = new ResizeObserver(updateOffsets);
+
+        resizeObserver.observe(container);
+
+        return () => {
+            resizeObserver.disconnect();
+        };
+    }, [
+        project.thumbnail_offset_x,
+        project.thumbnail_offset_y,
+    ]);
+
+    return (
+        <div
+            ref={containerRef}
+            className="relative aspect-[4/3] overflow-hidden"
+        >
+            <img
+                src={project.thumbnail ?? ''}
+                alt={project.title}
+                className="h-full w-full object-cover select-none"
+                draggable={false}
+                style={{
+                    objectPosition: `${project.thumbnail_position_x}% ${project.thumbnail_position_y}%`,
+                    transform: `
+                        translate(${offsetX}px, ${offsetY}px)
+                        scale(${project.thumbnail_zoom / 100})
+                    `,
+                    transformOrigin: 'center',
+                }}
+            />
+        </div>
+    );
+}
+
+interface PortfolioSettings {
+    template: string;
+    primary_color: string;
+    background_color: string;
+    text_color: string;
+    accent_color: string;
+    card_background_color: string;
+    card_text_color: string;
+    card_accent_color: string;
+}
 interface Project {
     id: number;
     title: string;
@@ -5,6 +79,13 @@ interface Project {
     description: string | null;
     project_type: string | null;
     thumbnail: string | null;
+
+    thumbnail_position_x: number;
+    thumbnail_position_y: number;
+    thumbnail_zoom: number;
+    thumbnail_offset_x: number;
+    thumbnail_offset_y: number;
+
     url: string | null;
 }
 
@@ -17,6 +98,7 @@ interface Profile {
     website: string | null;
     avatar: string | null;
     cover_image: string | null;
+    portfolio_settings: PortfolioSettings;
     projects: Project[];
 }
 
@@ -33,7 +115,15 @@ export default function Portfolio({ profile }: Props) {
         .toUpperCase();
 
     return (
-        <main className="min-h-screen bg-zinc-950 text-white">
+        <main
+            className="min-h-screen"
+            style={{
+                backgroundColor: profile.portfolio_settings.background_color,
+                color: profile.portfolio_settings.text_color,
+                '--portfolio-primary': profile.portfolio_settings.primary_color,
+                '--portfolio-accent': profile.portfolio_settings.accent_color,
+            } as React.CSSProperties}
+        >
             <section className="relative flex min-h-screen items-end overflow-hidden">
                 {/* Cover Image */}
                 {profile.cover_image ? (
@@ -71,7 +161,12 @@ export default function Portfolio({ profile }: Props) {
                         </p>
 
                         {/* Artist Name */}
-                        <h1 className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-8xl">
+                        <h1
+                            className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-8xl"
+                            style={{
+                                color: 'var(--portfolio-primary)',
+                            }}
+                        >
                             {profile.display_name}
                         </h1>
 
@@ -119,7 +214,12 @@ export default function Portfolio({ profile }: Props) {
                     </div>
                 </div>
             </section>
-            <section className="border-t border-white/10 bg-zinc-950 px-6 py-24 sm:px-8 lg:px-12">
+            <section
+                className="border-t border-white/10 px-6 py-24 sm:px-8 lg:px-12"
+                style={{
+                    backgroundColor: profile.portfolio_settings.background_color,
+                }}
+            >
                 <div className="mx-auto max-w-6xl">
                     <div className="grid gap-12 lg:grid-cols-[1fr_2fr]">
                         <div>
@@ -130,11 +230,21 @@ export default function Portfolio({ profile }: Props) {
 
                         <div>
                             {profile.bio ? (
-                                <p className="text-2xl leading-relaxed text-zinc-200 sm:text-3xl">
+                                <p
+                                    className="text-2xl leading-relaxed sm:text-3xl"
+                                    style={{
+                                        color: profile.portfolio_settings.text_color,
+                                    }}
+                                >
                                     {profile.bio}
                                 </p>
                             ) : (
-                                <p className="text-xl text-zinc-500">
+                                <p
+                                    className="text-xl"
+                                    style={{
+                                        color: profile.portfolio_settings.text_color,
+                                    }}
+                                >
                                     This artist hasn&apos;t added an introduction yet.
                                 </p>
                             )}
@@ -143,68 +253,184 @@ export default function Portfolio({ profile }: Props) {
                 </div>
             </section>
             {profile.projects.length > 0 && (
-                <section className="border-t border-white/10 bg-zinc-900 px-6 py-24 sm:px-8 lg:px-12">
+                <section
+                    className="border-t border-white/10 px-6 py-24 sm:px-8 lg:px-12"
+                    style={{
+                        backgroundColor: profile.portfolio_settings.background_color,
+                    }}
+                >
                     <div className="mx-auto max-w-6xl">
                         <div className="mb-12">
                             <p className="text-sm font-medium uppercase tracking-[0.3em] text-zinc-500">
                                 Selected Work
                             </p>
 
-                            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+                            <h2
+                                className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl"
+                                style={{
+                                    color: 'var(--portfolio-primary)',
+                                }}
+                            >
                                 Projects
                             </h2>
                         </div>
 
-                        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                            {profile.projects.map((project) => (
-                                <a
+                        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                            {profile.projects.map((project, index) => (
+                                <article
                                     key={project.id}
-                                    href={`/@${profile.username}/project/${project.slug}`}
-                                    className="group block overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 transition hover:border-white/20"
+                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-black/20 transition-all duration-500 hover:-translate-y-1 hover:border-white/20"
+                                    style={{
+                                        backgroundColor:
+                                            profile.portfolio_settings.card_background_color,
+                                    }}
                                 >
-                                    {project.thumbnail ? (
-                                        <img
-                                            src={project.thumbnail}
-                                            alt={project.title}
-                                            className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105"
-                                        />
-                                    ) : (
-                                        <div className="flex aspect-[4/3] items-center justify-center bg-zinc-800">
-                                            <span className="text-sm uppercase tracking-[0.2em] text-zinc-500">
-                                                {project.project_type ?? 'Project'}
-                                            </span>
+                                    <a
+                                        href={`/@${profile.username}/project/${project.slug}`}
+                                        className="block"
+                                    >
+                                        {/* Project Visual */}
+                                        <div className="relative aspect-[4/3] overflow-hidden">
+                                            {project.thumbnail ? (
+                                                <>
+                                                    <ProjectThumbnail project={project} />
+
+                                                    {/* Image Overlay */}
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-100" />
+
+                                                    {/* Project Number */}
+                                                    <span className="absolute right-5 top-5 text-xs font-medium tracking-[0.2em] text-white/50">
+                                                        {String(index + 1).padStart(2, '0')}
+                                                    </span>
+
+                                                    {/* Hover Indicator */}
+                                                    <div className="absolute bottom-5 right-5 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full border border-white/20 bg-black/30 text-white opacity-0 backdrop-blur-sm transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                                                        <span className="text-lg">↗</span>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div
+                                                    className="relative flex h-full w-full items-center justify-center overflow-hidden"
+                                                    style={{
+                                                        backgroundColor:
+                                                            profile.portfolio_settings.background_color,
+                                                    }}
+                                                >
+                                                    {/* Decorative Background */}
+                                                    <div
+                                                        className="absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-10 blur-3xl"
+                                                        style={{
+                                                            backgroundColor:
+                                                                profile.portfolio_settings.primary_color,
+                                                        }}
+                                                    />
+
+                                                    <div
+                                                        className="absolute -bottom-20 -left-20 h-56 w-56 rounded-full opacity-5 blur-3xl"
+                                                        style={{
+                                                            backgroundColor:
+                                                                profile.portfolio_settings.accent_color,
+                                                        }}
+                                                    />
+
+                                                    {/* Project Type */}
+                                                    <div className="relative z-10 text-center">
+                                                        <p
+                                                            className="text-[10px] font-medium uppercase tracking-[0.35em]"
+                                                            style={{
+                                                                color:
+                                                                    profile.portfolio_settings.card_text_color,
+                                                            }}
+                                                        >
+                                                            {project.project_type ?? 'Project'}
+                                                        </p>
+
+                                                        <div
+                                                            className="mx-auto mt-4 h-px w-10"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    profile.portfolio_settings.primary_color,
+                                                            }}
+                                                        />
+                                                    </div>
+
+                                                    {/* Project Number */}
+                                                    <span className="absolute right-5 top-5 text-xs font-medium tracking-[0.2em] text-white/20">
+                                                        {String(index + 1).padStart(2, '0')}
+                                                    </span>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
 
-                                    <div className="p-6">
-                                        {project.project_type && (
-                                            <p className="text-xs font-medium uppercase tracking-[0.2em] text-zinc-500">
-                                                {project.project_type}
-                                            </p>
-                                        )}
+                                        {/* Project Information */}
+                                        <div className="p-6 sm:p-7">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div>
+                                                    {project.project_type && (
+                                                        <p
+                                                            className="text-[10px] font-medium uppercase tracking-[0.3em]"
+                                                            style={{
+                                                                color:
+                                                                    profile.portfolio_settings.card_text_color,
+                                                            }}
+                                                        >
+                                                            {project.project_type}
+                                                        </p>
+                                                    )}
 
-                                        <h3 className="mt-2 text-xl font-semibold transition group-hover:text-zinc-300">
-                                            {project.title}
-                                        </h3>
+                                                    <h3
+                                                        className="mt-2 text-xl font-semibold tracking-tight transition-opacity duration-300 group-hover:opacity-80"
+                                                        style={{
+                                                            color:
+                                                                profile.portfolio_settings.card_accent_color,
+                                                        }}
+                                                    >
+                                                        {project.title}
+                                                    </h3>
+                                                </div>
 
-                                        {project.description && (
-                                            <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-zinc-400">
-                                                {project.description}
-                                            </p>
-                                        )}
+                                                <span
+                                                    className="mt-1 text-sm opacity-40 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
+                                                    style={{
+                                                        color:
+                                                            profile.portfolio_settings.card_accent_color,
+                                                    }}
+                                                >
+                                                    →
+                                                </span>
+                                            </div>
 
-                                        {project.url && (
-                                            <a
-                                                href={project.url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="mt-5 inline-flex text-sm font-medium text-white underline decoration-zinc-600 underline-offset-4 transition hover:decoration-white"
+                                            {project.description && (
+                                                <p
+                                                    className="mt-4 line-clamp-2 text-sm leading-relaxed opacity-70"
+                                                    style={{
+                                                        color:
+                                                            profile.portfolio_settings.card_text_color,
+                                                    }}
+                                                >
+                                                    {project.description}
+                                                </p>
+                                            )}
+
+                                            <div
+                                                className="mt-6 border-t pt-4"
+                                                style={{
+                                                    borderColor: 'rgba(255,255,255,0.08)',
+                                                }}
                                             >
-                                                View Project
-                                            </a>
-                                        )}
-                                    </div>
-                                </a>
+                                                <span
+                                                    className="text-[10px] font-medium uppercase tracking-[0.25em] opacity-50"
+                                                    style={{
+                                                        color:
+                                                            profile.portfolio_settings.card_text_color,
+                                                    }}
+                                                >
+                                                    View Project
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
+                                </article>
                             ))}
                         </div>
                     </div>
