@@ -10,8 +10,21 @@ class DashboardController extends Controller
 {
     public function index(Request $request): Response
     {
+        $user = $request->user();
+
+        $profile = $user->artistProfile;
+
+        if ($profile) {
+            $profile->loadCount('portfolioViews');
+        }
+
         return Inertia::render('Dashboard', [
-            'profile' => $request->user()->artistProfile,
+            'profile' => $profile,
+            'projects' => $profile
+                ? $profile->projects()
+                    ->limit(3)
+                    ->get()
+                : collect(),
         ]);
     }
 }

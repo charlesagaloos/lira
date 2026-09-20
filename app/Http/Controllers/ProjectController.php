@@ -18,6 +18,13 @@ class ProjectController extends Controller
         abort_unless($profile, 404);
 
         return Inertia::render('Projects/Index', [
+            'profile' => $profile->only([
+                'id',
+                'username',
+                'display_name',
+                'verification_status',
+                'is_published',
+            ]),
             'projects' => $profile->projects,
         ]);
     }
@@ -75,12 +82,42 @@ class ProjectController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:15360',
             ],
+
+            // Image positioning
+            'thumbnail_position_x' => [
+                'required',
+                'numeric',
+                'between:0,100',
+            ],
+            'thumbnail_position_y' => [
+                'required',
+                'numeric',
+                'between:0,100',
+            ],
+            'thumbnail_zoom' => [
+                'required',
+                'integer',
+                'between:100,200',
+            ],
+            'thumbnail_offset_x' => [
+                'required',
+                'numeric',
+                'between:-100,100',
+            ],
+            'thumbnail_offset_y' => [
+                'required',
+                'numeric',
+                'between:-100,100',
+            ],
         ]);
 
         $thumbnail = null;
 
         if ($request->hasFile('image')) {
-            $thumbnail = $request->file('image')->store('projects', 'public');
+            $thumbnail = $request->file('image')->store(
+                'projects',
+                'public'
+            );
         }
 
         unset($validated['image']);

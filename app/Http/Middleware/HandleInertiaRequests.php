@@ -38,6 +38,18 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
 
+            'auth' => [
+                'user' => $request->user(),
+            ],
+
+            'profile' => fn() => $request->user()?->artistProfile?->only([
+                'id',
+                'username',
+                'display_name',
+                'verification_status',
+                'is_published',
+            ]),
+
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
             ],

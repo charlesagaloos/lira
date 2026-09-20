@@ -51,4 +51,15 @@ class ArtistProfile extends Model
     {
         return $this->hasOne(PortfolioSetting::class);
     }
+
+    public function socialLinks(): HasMany
+    {
+        return $this->hasMany(ArtistSocialLink::class)
+            ->orderBy('position');
+    }
+
+    public function portfolioViews(): HasMany
+    {
+        return $this->hasMany(PortfolioView::class);
+    }
 }

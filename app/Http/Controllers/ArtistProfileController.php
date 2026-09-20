@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\VerificationStatus;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,10 +20,23 @@ class ArtistProfileController extends Controller
         return Inertia::render('Profile/Create');
     }
 
+    public function show(Request $request): Response
+    {
+        return Inertia::render('Profile/View', [
+            'profile' => $request->user()
+                ->artistProfile()
+                ->with('socialLinks')
+                ->firstOrFail(),
+        ]);
+    }
+
     public function edit(Request $request): Response
     {
         return Inertia::render('Profile/Edit', [
-            'profile' => $request->user()->artistProfile,
+            'profile' => $request->user()
+                ->artistProfile()
+                ->with('socialLinks')
+                ->firstOrFail(),
         ]);
     }
 
@@ -61,28 +75,44 @@ class ArtistProfileController extends Controller
                 'url',
                 'max:2048',
             ],
-            'spotify_artist_url' => [
+            'social_links' => [
                 'nullable',
-                'url',
-                'max:2048',
-                'required_without:apple_music_artist_url',
-                'regex:/^https?:\/\/open\.spotify\.com\/artist\/[A-Za-z0-9]+(?:\?.*)?$/',
+                'array',
+                'max:8',
             ],
-            'apple_music_artist_url' => [
-                'nullable',
+            'social_links.*.platform' => [
+                'required',
+                'string',
+                'distinct',
+                'in:spotify,apple_music,instagram,youtube,tiktok,x,facebook,soundcloud',
+            ],
+            'social_links.*.url' => [
+                'required',
                 'url',
                 'max:2048',
-                'required_without:spotify_artist_url',
-                'regex:/^https?:\/\/music\.apple\.com\/[a-z]{2}\/artist\/[^\/]+\/\d+(?:\?.*)?$/i',
             ],
         ]);
 
-        $profile = $request->user()->artistProfile()->create([
-            ...$validated,
-            'verification_status' => VerificationStatus::Pending,
-        ]);
+        $socialLinks = $validated['social_links'] ?? [];
 
-        $profile->portfolioSettings()->create();
+        unset($validated['social_links']);
+
+        DB::transaction(function () use ($request, $validated, $socialLinks, &$profile) {
+            $profile = $request->user()->artistProfile()->create([
+                ...$validated,
+                'verification_status' => VerificationStatus::Pending,
+            ]);
+
+            foreach ($socialLinks as $position => $socialLink) {
+                $profile->socialLinks()->create([
+                    'platform' => $socialLink['platform'],
+                    'url' => $socialLink['url'],
+                    'position' => $position,
+                ]);
+            }
+
+            $profile->portfolioSettings()->create();
+        });
 
         return redirect()
             ->route('dashboard')
@@ -126,23 +156,42 @@ class ArtistProfileController extends Controller
                 'url',
                 'max:2048',
             ],
-            'spotify_artist_url' => [
+            'social_links' => [
                 'nullable',
-                'url',
-                'max:2048',
-                'required_without:apple_music_artist_url',
-                'regex:/^https?:\/\/open\.spotify\.com\/artist\/[A-Za-z0-9]+(?:\?.*)?$/',
+                'array',
+                'max:8',
             ],
-            'apple_music_artist_url' => [
-                'nullable',
+            'social_links.*.platform' => [
+                'required',
+                'string',
+                'distinct',
+                'in:spotify,apple_music,instagram,youtube,tiktok,x,facebook,soundcloud',
+            ],
+            'social_links.*.url' => [
+                'required',
                 'url',
                 'max:2048',
-                'required_without:spotify_artist_url',
-                'regex:/^https?:\/\/music\.apple\.com\/[a-z]{2}\/artist\/[^\/]+\/\d+(?:\?.*)?$/i',
             ],
         ]);
 
-        $profile->update($validated);
+        $socialLinks = $validated['social_links'] ?? [];
+
+        unset($validated['social_links']);
+
+        DB::transaction(function () use ($profile, $validated, $socialLinks) {
+            $profile->update($validated);
+
+            $profile->socialLinks()->delete();
+
+            foreach ($socialLinks as $position => $socialLink) {
+                $profile->socialLinks()->create([
+                    'platform' => $socialLink['platform'],
+                    'url' => $socialLink['url'],
+                    'position' => $position,
+                    'is_visible' => true,
+                ]);
+            }
+        });
 
         return redirect()
             ->route('profile.edit')
