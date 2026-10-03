@@ -425,9 +425,7 @@ export default function Edit({ project }: Props) {
         }
     }
 
-    function submit(
-        event: FormEvent<HTMLFormElement>,
-    ) {
+    function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         const editor = imageEditorRef.current;

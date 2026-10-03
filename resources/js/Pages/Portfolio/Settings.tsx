@@ -1,3 +1,5 @@
+import type { FormDataConvertible } from '@inertiajs/core';
+
 import {
     ChangeEvent,
     FormEvent,
@@ -11,6 +13,7 @@ import {
 import { Link, router } from '@inertiajs/react';
 
 import DashboardLayout from '../../Components/Dashboard/d_layout';
+import templates from '../Public/templates';
 
 import {
     ArrowLeft,
@@ -18,22 +21,110 @@ import {
     CheckIcon,
 } from '../../Components/Icons';
 
+/* Settings UI */
+
+const SETTINGS_UI_ACCENT = '#7de7ff';
+
+const MAX_GALLERY_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_GALLERY_REQUEST_BYTES = 50 * 1024 * 1024;
+
 interface Settings {
+    /* Template */
     template: string;
+
+    /* Global Colors */
     primary_color: string;
     background_color: string;
     text_color: string;
     accent_color: string;
+    hover_color: string;
+    surface_color: string;
+    muted_text_color: string;
+    border_color: string;
+
+    /* Project Card Colors */
     card_background_color: string;
     card_text_color: string;
     card_accent_color: string;
+    card_primary_color: string;
+    card_hover_color: string;
 
+    /* Cover */
     cover_image: string | null;
     cover_image_position_x: number;
     cover_image_position_y: number;
     cover_image_zoom: number;
     cover_image_offset_x: number;
     cover_image_offset_y: number;
+
+    /* Hero */
+    show_hero: boolean;
+    hero_label: string | null;
+    hero_statement: string | null;
+
+    /* Canvas */
+    canvas_background_text: string | null;
+
+    /* Work */
+    show_work: boolean;
+    work_label: string | null;
+    work_description: string | null;
+
+    /* About */
+    show_about: boolean;
+    about_label: string | null;
+
+    /* Artist Message */
+    show_artist_message: boolean;
+    artist_message_label: string | null;
+    artist_message: string | null;
+
+    /* Gallery */
+
+    show_gallery: boolean;
+    gallery_label: string | null;
+    gallery_description: string | null;
+
+    gallery_display:
+    | 'grid'
+    | 'masonry'
+    | 'editorial'
+    | 'freeform';
+
+    gallery_columns: number;
+
+    gallery_image_aspect:
+    | 'original'
+    | 'square'
+    | 'portrait'
+    | 'landscape';
+
+    gallery_responsive:
+    GalleryResponsiveSettingsMap | null;
+
+    gallery_show_captions: boolean;
+    gallery_show_titles: boolean;
+    gallery_enable_lightbox: boolean;
+
+    /* Music */
+    show_music: boolean;
+    music_label: string | null;
+    music_release_display: 'latest' | 'all';
+    music_release_limit: number;
+    featured_release_id: number | null;
+    show_music_links: boolean;
+
+    /* Navigation */
+    show_navigation: boolean;
+
+    /* Footer */
+    show_footer: boolean;
+    footer_label: string | null;
+    footer_message: string | null;
+    show_footer_socials: boolean;
+    footer_logo: string | null;
+    copyright_text: string | null;
+    show_powered_by_lira: boolean;
 }
 
 interface Project {
@@ -46,6 +137,55 @@ interface Project {
     url: string | null;
 }
 
+interface Release {
+    id: number;
+    title: string;
+    release_type: string;
+    artwork: string | null;
+    release_date: string | null;
+    is_visible: boolean;
+    spotify_url: string | null;
+    apple_music_url: string | null;
+    youtube_url: string | null;
+    soundcloud_url: string | null;
+    bandcamp_url: string | null;
+}
+
+type GalleryResponsiveSettings = Record<
+    'display' | 'columns' | 'image_aspect',
+    string | number
+> & {
+    display:
+    | 'grid'
+    | 'masonry'
+    | 'editorial'
+    | 'freeform';
+
+    columns: number;
+
+    image_aspect:
+    | 'original'
+    | 'square'
+    | 'portrait'
+    | 'landscape';
+};
+
+type GalleryResponsiveSettingsMap = Record<
+    'desktop' | 'tablet' | 'mobile',
+    GalleryResponsiveSettings
+>;
+
+interface GalleryImage {
+    id: number | null;
+    image: string | null;
+    title: string;
+    caption: string;
+    alt_text: string;
+    sort_order: number;
+    file?: File | null;
+    preview?: string | null;
+}
+
 interface Profile {
     username: string;
     display_name: string;
@@ -56,11 +196,23 @@ interface Profile {
     avatar: string | null;
     cover_image: string | null;
     projects: Project[];
+    releases?: Release[];
+}
+
+interface NavigationItem {
+    id?: number;
+    label: string;
+    destination: string;
+    url: string | null;
+    sort_order: number;
+    is_visible: boolean;
 }
 
 interface Props {
     settings: Settings;
     profile: Profile;
+    navigationItems: NavigationItem[];
+    galleryImages: GalleryImage[];
 }
 
 interface ColorFieldProps {
@@ -77,9 +229,15 @@ interface Palette {
     background: string;
     text: string;
     accent: string;
+    hover: string;
+    surface: string;
+    mutedText: string;
+    border: string;
     cardBackground: string;
     cardText: string;
     cardAccent: string;
+    cardPrimary: string;
+    cardHover: string;
 }
 
 function getImageUrl(path: string | null): string | null {
@@ -111,37 +269,38 @@ function getImageUrl(path: string | null): string | null {
     return `/storage/${path}`;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Glass Section
-|--------------------------------------------------------------------------
-*/
+/* Glass Section */
 
 function GlassSection({
+    id,
     eyebrow,
     title,
     description,
     children,
 }: {
+    id?: string;
     eyebrow?: string;
     title: string;
     description?: string;
     children: React.ReactNode;
 }) {
     return (
-        <section className="relative overflow-hidden rounded-[28px] border border-white/[0.08] bg-white/[0.025] shadow-[0_20px_80px_rgba(0,0,0,0.24)] backdrop-blur-2xl">
+        <section
+            id={id}
+            className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] shadow-[0_20px_80px_rgba(0,0,0,0.24)] backdrop-blur-2xl sm:rounded-[24px] lg:rounded-[28px]"
+        >
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.045),transparent_35%,rgba(255,255,255,0.012))]" />
 
-            <div className="relative p-6 sm:p-8">
+            <div className="relative p-4 sm:p-6 lg:p-8">
                 {(eyebrow || title || description) && (
-                    <div className="mb-8">
+                    <div className="mb-6 sm:mb-8">
                         {eyebrow && (
                             <p className="text-[9px] uppercase tracking-[0.24em] text-zinc-600">
                                 {eyebrow}
                             </p>
                         )}
 
-                        <h2 className="mt-2 text-xl font-semibold tracking-tight text-white">
+                        <h2 className="mt-2 text-lg font-semibold tracking-tight text-white sm:text-xl">
                             {title}
                         </h2>
 
@@ -159,11 +318,7 @@ function GlassSection({
     );
 }
 
-/*
-|--------------------------------------------------------------------------
-| Color Field
-|--------------------------------------------------------------------------
-*/
+// Color Field
 
 function ColorField({
     id,
@@ -222,11 +377,7 @@ function ColorField({
     );
 }
 
-/*
-|--------------------------------------------------------------------------
-| Palette Button
-|--------------------------------------------------------------------------
-*/
+// Palette Button
 
 function PaletteButton({
     palette,
@@ -252,34 +403,30 @@ function PaletteButton({
                 </div>
             )}
 
-            <div className="flex gap-1.5">
+            <div className="flex items-center gap-1.5">
                 <span
-                    className="h-8 flex-1 rounded-lg"
-                    style={{
-                        backgroundColor: palette.background,
-                    }}
+                    className="h-4 w-4 rounded-full border border-white/20"
+                    style={{ backgroundColor: palette.primary }}
                 />
 
                 <span
-                    className="h-8 w-8 rounded-lg"
-                    style={{
-                        backgroundColor: palette.primary,
-                    }}
+                    className="h-4 w-4 rounded-full border border-white/20"
+                    style={{ backgroundColor: palette.accent }}
                 />
 
                 <span
-                    className="h-8 w-8 rounded-lg"
-                    style={{
-                        backgroundColor: palette.accent,
-                    }}
+                    className="h-4 w-4 rounded-full border border-white/20"
+                    style={{ backgroundColor: palette.hover }}
                 />
 
                 <span
-                    className="h-8 w-8 rounded-lg"
-                    style={{
-                        backgroundColor:
-                            palette.cardBackground,
-                    }}
+                    className="h-4 w-4 rounded-full border border-white/20"
+                    style={{ backgroundColor: palette.surface }}
+                />
+
+                <span
+                    className="h-4 w-4 rounded-full border border-white/20"
+                    style={{ backgroundColor: palette.cardPrimary }}
                 />
             </div>
 
@@ -290,11 +437,7 @@ function PaletteButton({
     );
 }
 
-/*
-|--------------------------------------------------------------------------
-| Cover Image Preview
-|--------------------------------------------------------------------------
-*/
+// Cover Image Preview
 
 function CoverImagePreview({
     coverImage,
@@ -303,11 +446,11 @@ function CoverImagePreview({
     zoom,
     offsetX,
     offsetY,
+    aspectRatio,
     onPointerDown,
     onPointerMove,
     onPointerUp,
     isDragging,
-    deviceGuide,
 }: {
     coverImage: string | null;
     positionX: number;
@@ -315,6 +458,7 @@ function CoverImagePreview({
     zoom: number;
     offsetX: number;
     offsetY: number;
+    aspectRatio: number;
     onPointerDown: (
         event: PointerEvent<HTMLDivElement>,
     ) => void;
@@ -325,17 +469,17 @@ function CoverImagePreview({
         event: PointerEvent<HTMLDivElement>,
     ) => void;
     isDragging: boolean;
-    deviceGuide: 'desktop' | 'tablet' | 'mobile';
 }) {
     return (
         <div
-            className={`group relative aspect-[266/114] overflow-hidden bg-black select-none ${coverImage && isDragging
+            className={`group relative overflow-hidden bg-black select-none ${coverImage && isDragging
                 ? 'cursor-grabbing'
                 : coverImage
                     ? 'cursor-grab'
                     : 'cursor-pointer'
                 }`}
             style={{
+                aspectRatio,
                 touchAction: coverImage
                     ? 'none'
                     : 'auto',
@@ -346,16 +490,24 @@ function CoverImagePreview({
             onPointerCancel={onPointerUp}
         >
             {coverImage ? (
-                <img
-                    src={coverImage}
-                    alt="Cover preview"
-                    draggable={false}
-                    className="pointer-events-none absolute inset-0 h-full w-full max-w-none object-cover select-none"
+                <div
+                    className="absolute inset-0"
                     style={{
-                        objectPosition: `${positionX}% ${positionY}%`,
-                        transform: `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`,
+                        transform: `translate(${offsetX}px, ${offsetY}px)`,
                     }}
-                />
+                >
+                    <img
+                        src={coverImage}
+                        alt="Cover preview"
+                        draggable={false}
+                        className="pointer-events-none absolute inset-0 h-full w-full max-w-none object-cover select-none"
+                        style={{
+                            objectPosition: `${positionX}% ${positionY}%`,
+                            transform: `scale(${zoom})`,
+                            transformOrigin: 'center',
+                        }}
+                    />
+                </div>
             ) : (
                 <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-zinc-800 via-zinc-950 to-black">
                     <div className="text-center">
@@ -399,26 +551,7 @@ function CoverImagePreview({
                 </div>
             )}
 
-            {coverImage && (
-                <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                    <div
-                        className={`relative border border-white/25 shadow-[0_0_0_9999px_rgba(0,0,0,0.16)] ${deviceGuide === 'desktop'
-                            ? 'h-[72%] w-[88%]'
-                            : deviceGuide === 'tablet'
-                                ? 'h-[76%] w-[58%]'
-                                : 'h-[86%] w-[24%]'
-                            }`}
-                    >
-                        <div className="absolute left-2 top-2 rounded-md border border-white/15 bg-black/45 px-2 py-1 text-[7px] uppercase tracking-[0.16em] text-white/55 backdrop-blur-sm">
-                            {deviceGuide === 'desktop'
-                                ? 'Desktop · 1440 × 900'
-                                : deviceGuide === 'tablet'
-                                    ? 'Tablet · 1024 × 1366'
-                                    : 'Mobile · 390 × 844'}
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
@@ -445,190 +578,1026 @@ function CoverImagePreview({
     );
 }
 
-/*
-|--------------------------------------------------------------------------
-| Default Portfolio Preview
-|--------------------------------------------------------------------------
-|
-| This mirrors the actual Public/Portfolio.tsx structure.
-|
-*/
+// Wireframe helpers
 
-function DefaultPortfolioPreview({
-    settings,
+function WireText({
+    width = 'w-full',
+    strong = false,
 }: {
-    settings: Settings;
+    width?: string;
+    strong?: boolean;
+}) {
+    return (
+        <span
+            className={`block h-[2px] rounded-full ${strong ? 'bg-current opacity-45' : 'bg-current opacity-15'
+                } ${width}`}
+        />
+    );
+}
+
+function WireImage({
+    className = '',
+    label = 'IMAGE',
+    accentColor,
+    light = false,
+}: {
+    className?: string;
+    label?: string;
+    accentColor: string;
+    light?: boolean;
 }) {
     return (
         <div
-            className="overflow-hidden rounded-2xl border border-white/[0.08] bg-black shadow-2xl"
-            style={{
-                backgroundColor: settings.background_color,
-                color: settings.text_color,
-            }}
+            className={`relative overflow-hidden border ${light
+                ? 'border-black/10 bg-black/[0.035] text-black/35'
+                : 'border-white/[0.08] bg-white/[0.025] text-white/30'
+                } ${className}`}
         >
-            {/* ================================================================
-                DEFAULT TEMPLATE WIREFRAME
-            ================================================================= */}
+            <div
+                className="absolute inset-0 opacity-30"
+                style={{
+                    backgroundImage: `linear-gradient(135deg, transparent 49.35%, ${accentColor} 49.7%, transparent 50.05%)`,
+                    backgroundSize: '14px 14px',
+                }}
+            />
+            <div
+                className={`absolute inset-x-0 top-1/2 h-px ${light ? 'bg-black/8' : 'bg-white/[0.06]'
+                    }`}
+            />
+            <div
+                className={`absolute inset-y-0 left-1/2 w-px ${light ? 'bg-black/8' : 'bg-white/[0.06]'
+                    }`}
+            />
+            <span className="absolute left-2 top-2 text-[5px] uppercase tracking-[0.2em]">
+                {label}
+            </span>
+        </div>
+    );
+}
 
-            <div className="relative">
-                <div className="absolute right-4 top-4 z-20 rounded-full border border-white/[0.08] bg-black/60 px-3 py-1.5 text-[7px] uppercase tracking-[0.18em] text-zinc-500 backdrop-blur-md">
-                    Structure Preview
+function WireNav({
+    light = false,
+    compact = false,
+}: {
+    light?: boolean;
+    compact?: boolean;
+}) {
+    return (
+        <div
+            className={`flex items-center justify-between border-b px-3 ${compact ? 'py-2' : 'py-2.5'
+                } ${light
+                    ? 'border-black/10 text-black'
+                    : 'border-white/[0.08] text-white'
+                }`}
+        >
+            <div
+                className={`h-1.5 ${compact ? 'w-8' : 'w-10'
+                    } rounded-full ${light ? 'bg-black/55' : 'bg-white/55'}`}
+            />
+            <div className="flex items-center gap-2">
+                {[0, 1, 2].map((item) => (
+                    <span
+                        key={item}
+                        className={`h-1 w-5 rounded-full ${light ? 'bg-black/20' : 'bg-white/20'
+                            }`}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function WireLabel({
+    children,
+    light = false,
+}: {
+    children: React.ReactNode;
+    light?: boolean;
+}) {
+    return (
+        <p
+            className={`text-[5px] uppercase tracking-[0.22em] ${light ? 'text-black/40' : 'text-white/35'
+                }`}
+        >
+            {children}
+        </p>
+    );
+}
+
+function WireDot({
+    accentColor,
+    light = false,
+}: {
+    accentColor: string;
+    light?: boolean;
+}) {
+    return (
+        <span
+            className={`h-1.5 w-1.5 rounded-full ${light ? 'border border-black/20' : 'border border-white/20'
+                }`}
+            style={{
+                backgroundColor: `${accentColor}88`,
+                boxShadow: `0 0 8px ${accentColor}44`,
+            }}
+        />
+    );
+}
+
+// Default wireframe
+
+function DefaultWireframe({ accentColor }: { accentColor: string }) {
+    return (
+        <div className="overflow-hidden bg-[#090a0b] text-white">
+            <WireNav />
+
+            <div className="relative px-3 pb-3 pt-3">
+                <WireImage
+                    className="aspect-[1.45/1] w-full"
+                    label="HERO IMAGE"
+                    accentColor={accentColor}
+                />
+
+                <div className="absolute bottom-6 left-5 right-5">
+                    <div className="max-w-[72%] space-y-1.5">
+                        <WireText width="w-full" strong />
+                        <WireText width="w-3/4" strong />
+                        <WireText width="w-1/2" />
+                    </div>
                 </div>
 
-                {/* HERO */}
-                <section className="relative flex min-h-[430px] items-end overflow-hidden border-b border-white/[0.08]">
-                    <div className="absolute inset-4 rounded-xl border border-dashed border-white/[0.14]">
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="flex flex-col items-center gap-2 text-center">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.02]">
-                                    <span className="text-[12px] text-zinc-600">
-                                        +
+                <div className="absolute right-5 top-5 flex items-center gap-1">
+                    <WireDot accentColor={accentColor} />
+                    <span className="text-[5px] uppercase tracking-[0.16em] text-white/35">
+                        Artist
+                    </span>
+                </div>
+            </div>
+
+            <div className="px-3 pb-4">
+                <div className="mb-2 flex items-end justify-between">
+                    <WireLabel>Selected Work</WireLabel>
+                    <span className="text-[5px] text-white/25">01 / 06</span>
+                </div>
+
+                <WireImage
+                    className="aspect-[1.55/1] w-full"
+                    label="FEATURED PROJECT"
+                    accentColor={accentColor}
+                />
+
+                <div className="mt-2 flex items-end justify-between">
+                    <div className="space-y-1.5">
+                        <WireText width="w-24" strong />
+                        <WireText width="w-16" />
+                    </div>
+                    <span className="text-[5px] text-white/25">VIEW</span>
+                </div>
+
+                <div className="mt-3 grid grid-cols-3 gap-1.5">
+                    <WireImage
+                        className="aspect-square"
+                        label="01"
+                        accentColor={accentColor}
+                    />
+                    <WireImage
+                        className="aspect-square"
+                        label="02"
+                        accentColor={accentColor}
+                    />
+                    <WireImage
+                        className="aspect-square"
+                        label="03"
+                        accentColor={accentColor}
+                    />
+                </div>
+            </div>
+
+            <div className="border-y border-white/[0.08] px-3 py-4">
+                <div className="mb-2 flex items-center justify-between">
+                    <WireLabel>Music</WireLabel>
+                    <span className="text-[5px] text-white/25">LATEST RELEASES</span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                    {[0, 1].map((item) => (
+                        <div key={item}>
+                            <WireImage
+                                className="aspect-square"
+                                label={`RELEASE 0${item + 1}`}
+                                accentColor={accentColor}
+                            />
+                            <div className="mt-1.5 space-y-1">
+                                <WireText width="w-3/4" strong />
+                                <WireText width="w-1/2" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-[1.15fr_0.85fr] gap-3 px-3 py-4">
+                <div className="space-y-2">
+                    <WireLabel>About</WireLabel>
+                    <WireText width="w-full" />
+                    <WireText width="w-full" />
+                    <WireText width="w-5/6" />
+                    <WireText width="w-2/3" />
+                </div>
+
+                <WireImage
+                    className="aspect-square"
+                    label="PORTRAIT"
+                    accentColor={accentColor}
+                />
+            </div>
+        </div>
+    );
+}
+
+// Editorial wireframe
+
+function EditorialWireframe({ accentColor }: { accentColor: string }) {
+    return (
+        <div className="overflow-hidden bg-[#f0eee8] text-[#171717]">
+            <WireNav light />
+
+            <div className="grid grid-cols-[1.02fr_0.98fr] gap-3 px-3 py-4">
+                <div className="flex flex-col justify-between py-2">
+                    <div>
+                        <p className="text-[5px] uppercase tracking-[0.2em] text-black/35">
+                            Visual Artist / Photographer
+                        </p>
+
+                        <div className="mt-5 space-y-2">
+                            <div className="h-3 w-full bg-black/65" />
+                            <div className="h-3 w-4/5 bg-black/65" />
+                            <div className="h-3 w-3/5 bg-black/65" />
+                        </div>
+                    </div>
+
+                    <div className="mt-8 space-y-1.5">
+                        <WireText width="w-full" strong />
+                        <WireText width="w-5/6" />
+                        <WireText width="w-2/3" />
+                    </div>
+                </div>
+
+                <WireImage
+                    className="aspect-[0.78/1]"
+                    label="PORTRAIT"
+                    accentColor={accentColor}
+                    light
+                />
+            </div>
+
+            <div className="border-y border-black/10 px-3 py-4">
+                <div className="mb-3 flex items-center justify-between">
+                    <WireLabel light>Selected Work</WireLabel>
+                    <span className="text-[5px] text-black/30">WORK / 2026</span>
+                </div>
+
+                <div className="space-y-3">
+                    {[
+                        ['01', 'FRAGMENTS OF HOME'],
+                        ['02', 'BETWEEN SPACES'],
+                        ['03', 'SILENT MOTION'],
+                    ].map(([number, title]) => (
+                        <div
+                            key={number}
+                            className="grid grid-cols-[18px_1fr] gap-2"
+                        >
+                            <span className="pt-1 text-[8px] font-light text-black/65">
+                                {number}
+                            </span>
+
+                            <div>
+                                <WireImage
+                                    className="aspect-[2.2/1]"
+                                    label={title}
+                                    accentColor={accentColor}
+                                    light
+                                />
+                                <div className="mt-1 flex items-center justify-between">
+                                    <span className="text-[5px] uppercase tracking-[0.14em] text-black/55">
+                                        {title}
+                                    </span>
+                                    <span className="text-[5px] text-black/30">
+                                        2026
                                     </span>
                                 </div>
-
-                                <span className="text-[7px] uppercase tracking-[0.2em] text-zinc-700">
-                                    Cover Image
-                                </span>
                             </div>
                         </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-[0.9fr_1.1fr] gap-3 px-3 py-4">
+                <div className="flex flex-col justify-between">
+                    <p className="text-[7px] leading-4 text-black/60">
+                        A short statement about the artist, process, and visual
+                        language.
+                    </p>
+                    <div className="mt-5 space-y-1.5">
+                        <WireText width="w-full" />
+                        <WireText width="w-4/5" />
+                    </div>
+                </div>
+
+                <WireImage
+                    className="aspect-[1.35/1]"
+                    label="EDITORIAL IMAGE"
+                    accentColor={accentColor}
+                    light
+                />
+            </div>
+        </div>
+    );
+}
+
+// Canvas wireframe
+
+function CanvasWireframe({ accentColor }: { accentColor: string }) {
+    return (
+        <div className="relative overflow-hidden bg-[#08090a] text-white">
+            <div className="absolute inset-2 border border-dashed border-white/[0.08]" />
+
+            <div className="relative min-h-[620px] p-3">
+                <div className="flex items-start justify-between">
+                    <div>
+                        <WireText width="w-10" strong />
+                        <p className="mt-1 text-[5px] uppercase tracking-[0.22em] text-white/30">
+                            Artist / Creative
+                        </p>
                     </div>
 
-                    <div className="relative z-10 w-full px-5 pb-8">
-                        <div className="mb-4 h-14 w-14 rounded-full border border-white/[0.16] bg-white/[0.025]" />
+                    <div className="text-right">
+                        <p className="text-[5px] uppercase tracking-[0.18em] text-white/25">
+                            ARTBOARD
+                        </p>
+                        <p className="mt-1 text-[5px] text-white/20">01 — 05</p>
+                    </div>
+                </div>
 
-                        <div className="mb-2 h-1.5 w-16 rounded-full bg-white/[0.12]" />
+                <WireImage
+                    className="absolute left-[9%] top-[12%] h-[150px] w-[43%] rotate-[-4deg]"
+                    label="HERO"
+                    accentColor={accentColor}
+                />
 
-                        <div
-                            className="h-5 w-36 rounded-full"
-                            style={{
-                                backgroundColor: `${settings.primary_color}28`,
-                                border: `1px solid ${settings.primary_color}35`,
-                            }}
+                <div className="absolute right-[8%] top-[18%] w-[36%] rotate-[5deg]">
+                    <p className="font-mono text-[10px] uppercase leading-3 text-white/55">
+                        ART
+                        <br />
+                        CREATES
+                        <br />
+                        SPACE
+                    </p>
+                    <div className="mt-3 space-y-1.5">
+                        <WireText width="w-full" />
+                        <WireText width="w-4/5" />
+                        <WireText width="w-2/3" />
+                    </div>
+                </div>
+
+                <div
+                    className="absolute right-[13%] top-[35%] h-8 w-8 rounded-full border"
+                    style={{ borderColor: `${accentColor}77` }}
+                />
+
+                <div className="absolute left-[11%] top-[42%] w-[48%] rotate-[-2deg]">
+                    <WireLabel>Selected Work</WireLabel>
+                    <div className="mt-2 space-y-2">
+                        <WireImage
+                            className="aspect-[1.25/1]"
+                            label="01"
+                            accentColor={accentColor}
                         />
-
-                        <div className="mt-4 flex items-center gap-2">
-                            <span className="h-1.5 w-12 rounded-full bg-white/[0.08]" />
-                            <span className="h-1.5 w-1.5 rounded-full bg-white/[0.06]" />
-                            <span className="h-1.5 w-16 rounded-full bg-white/[0.08]" />
+                        <div className="grid grid-cols-2 gap-2">
+                            <WireImage
+                                className="aspect-square"
+                                label="02"
+                                accentColor={accentColor}
+                            />
+                            <WireImage
+                                className="aspect-square"
+                                label="03"
+                                accentColor={accentColor}
+                            />
                         </div>
-
-                        <div
-                            className="mt-5 h-7 w-24 rounded-full border"
-                            style={{
-                                borderColor: `${settings.accent_color}35`,
-                                backgroundColor: `${settings.accent_color}12`,
-                            }}
-                        />
                     </div>
-                </section>
+                </div>
 
-                {/* ABOUT */}
-                <section
-                    className="border-b px-5 py-10"
-                    style={{
-                        borderColor: `${settings.text_color}18`,
-                    }}
-                >
-                    <div className="mb-6 h-1.5 w-12 rounded-full bg-white/[0.12]" />
-
-                    <div className="space-y-2">
-                        <div
-                            className="h-3 w-32 rounded-full"
-                            style={{
-                                backgroundColor: `${settings.text_color}20`,
-                            }}
-                        />
-                        <div
-                            className="h-2 w-full max-w-[280px] rounded-full"
-                            style={{
-                                backgroundColor: `${settings.text_color}0d`,
-                            }}
-                        />
-                        <div
-                            className="h-2 w-4/5 max-w-[230px] rounded-full"
-                            style={{
-                                backgroundColor: `${settings.text_color}0d`,
-                            }}
-                        />
+                <div className="absolute right-[7%] top-[52%] w-[31%] rotate-[7deg]">
+                    <WireImage
+                        className="aspect-square"
+                        label="04"
+                        accentColor={accentColor}
+                    />
+                    <div className="mt-2 space-y-1.5">
+                        <WireText width="w-full" />
+                        <WireText width="w-4/5" />
                     </div>
-                </section>
+                </div>
 
-                {/* PROJECTS */}
-                <section className="border-b px-5 py-10">
-                    <div className="mb-6">
-                        <div className="mb-3 h-1.5 w-16 rounded-full bg-white/[0.12]" />
-
-                        <div
-                            className="h-4 w-24 rounded-full"
-                            style={{
-                                backgroundColor: `${settings.primary_color}20`,
-                            }}
-                        />
+                <div className="absolute bottom-[7%] left-[9%] right-[9%]">
+                    <div className="mb-2 flex items-center justify-between">
+                        <WireLabel>Music</WireLabel>
+                        <span className="text-[5px] uppercase tracking-[0.18em] text-white/25">
+                            Releases
+                        </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-4 gap-2">
                         {[1, 2, 3, 4].map((item) => (
-                            <div
+                            <WireImage
                                 key={item}
-                                className="overflow-hidden rounded-xl border"
-                                style={{
-                                    backgroundColor:
-                                        settings.card_background_color,
-                                    borderColor:
-                                        `${settings.card_text_color}18`,
-                                }}
-                            >
-                                <div className="relative aspect-[4/3] border-b border-white/[0.06]">
-                                    <div className="absolute inset-2 rounded-lg border border-dashed border-white/[0.08]" />
-
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-[6px] uppercase tracking-[0.15em] text-zinc-700">
-                                            Project Image
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2 p-3">
-                                    <div className="h-1.5 w-10 rounded-full bg-white/[0.08]" />
-
-                                    <div
-                                        className="h-2.5 w-20 rounded-full"
-                                        style={{
-                                            backgroundColor:
-                                                `${settings.card_accent_color}22`,
-                                        }}
-                                    />
-
-                                    <div className="h-1.5 w-full rounded-full bg-white/[0.05]" />
-                                    <div className="h-1.5 w-3/4 rounded-full bg-white/[0.05]" />
-                                </div>
-                            </div>
+                                className="aspect-square"
+                                label={`0${item}`}
+                                accentColor={accentColor}
+                            />
                         ))}
                     </div>
-                </section>
+                </div>
 
-                {/* FOOTER */}
-                <div className="px-5 py-5 text-center">
-                    <div className="mx-auto h-1.5 w-20 rounded-full bg-white/[0.06]" />
+                <div className="absolute bottom-[2.5%] right-[8%] text-[5px] uppercase tracking-[0.2em] text-white/25">
+                    SCROLL / EXPLORE
                 </div>
             </div>
         </div>
     );
 }
 
-/*
-|--------------------------------------------------------------------------
-| Main Settings Page
-|--------------------------------------------------------------------------
-*/
+// Motion wireframe
+
+function MotionWireframe({ accentColor }: { accentColor: string }) {
+    const projects = [
+        ['01', 'URBAN RHYTHMS'],
+        ['02', 'PARALLEL LIVES'],
+        ['03', 'AFTERGLOW'],
+    ];
+
+    return (
+        <div className="overflow-hidden bg-[#07090d] text-white">
+            <WireNav />
+
+            <div className="relative overflow-hidden px-3 pb-5 pt-7">
+                <div className="relative z-10">
+                    <p className="text-[5px] uppercase tracking-[0.22em] text-white/30">
+                        Visual Artist / Filmmaker
+                    </p>
+
+                    <div className="mt-4 space-y-1">
+                        <div className="text-[24px] font-light uppercase leading-[0.78] tracking-[-0.06em] text-white/80">
+                            MOVE
+                        </div>
+                        <div className="text-[24px] font-light uppercase leading-[0.78] tracking-[-0.06em] text-white/80">
+                            CREATE
+                        </div>
+                        <div
+                            className="text-[24px] font-light uppercase leading-[0.78] tracking-[-0.06em]"
+                            style={{ color: `${accentColor}bb` }}
+                        >
+                            REPEAT
+                        </div>
+                    </div>
+                </div>
+
+                <div className="absolute -right-10 top-12 h-28 w-[75%] rotate-[-9deg] border-y border-white/[0.08] bg-white/[0.02]" />
+
+                <div className="relative z-10 mt-7 ml-[16%] w-[76%]">
+                    <WireImage
+                        className="aspect-[1.5/1]"
+                        label="HERO MOTION"
+                        accentColor={accentColor}
+                    />
+                </div>
+
+                <div className="mt-2 flex items-center justify-between pl-[16%]">
+                    <WireText width="w-24" strong />
+                    <WireDot accentColor={accentColor} />
+                </div>
+            </div>
+
+            <div className="border-y border-white/[0.08] px-3 py-4">
+                <div className="mb-3 flex items-center justify-between">
+                    <WireLabel>Selected Work</WireLabel>
+                    <span className="text-[5px] text-white/25">01 — 03</span>
+                </div>
+
+                <div className="space-y-4">
+                    {projects.map(([number, title], index) => (
+                        <div
+                            key={number}
+                            className={`grid grid-cols-[22px_1fr] gap-2 ${index === 1 ? 'ml-[10%]' : ''
+                                }`}
+                        >
+                            <span className="pt-1 text-[10px] font-light text-white/45">
+                                {number}
+                            </span>
+
+                            <div>
+                                <WireImage
+                                    className={`aspect-[1.7/1] ${index === 1 ? 'rotate-[1deg]' : ''
+                                        }`}
+                                    label={title}
+                                    accentColor={accentColor}
+                                />
+
+                                <div className="mt-1.5 flex items-center justify-between">
+                                    <span className="text-[6px] uppercase tracking-[0.12em] text-white/55">
+                                        {title}
+                                    </span>
+                                    <span className="text-[5px] text-white/25">
+                                        VIEW
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="px-3 py-4">
+                <div className="flex items-center justify-between">
+                    <WireLabel>About</WireLabel>
+                    <WireText width="w-16" />
+                </div>
+                <div className="mt-2 grid grid-cols-[1fr_0.75fr] gap-3">
+                    <div className="space-y-1.5">
+                        <WireText width="w-full" />
+                        <WireText width="w-full" />
+                        <WireText width="w-4/5" />
+                    </div>
+                    <WireImage
+                        className="aspect-square"
+                        label="DETAIL"
+                        accentColor={accentColor}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Musician wireframe
+
+function MusicianWireframe({ accentColor }: { accentColor: string }) {
+    return (
+        <div className="overflow-hidden bg-[#08090b] text-white">
+            <WireNav />
+
+            <div className="grid grid-cols-[1.02fr_0.98fr] gap-3 px-3 py-4">
+                <div className="flex flex-col justify-end pb-2">
+                    <p className="text-[5px] uppercase tracking-[0.22em] text-white/30">
+                        Singer / Songwriter
+                    </p>
+
+                    <div className="mt-4 space-y-1.5">
+                        <WireText width="w-full" strong />
+                        <WireText width="w-4/5" strong />
+                    </div>
+
+                    <div className="mt-4 flex gap-1.5">
+                        <span
+                            className="rounded-full border px-2 py-1 text-[5px] uppercase tracking-[0.12em]"
+                            style={{
+                                borderColor: `${accentColor}55`,
+                                color: `${accentColor}aa`,
+                            }}
+                        >
+                            Listen
+                        </span>
+                        <span className="rounded-full border border-white/10 px-2 py-1 text-[5px] uppercase tracking-[0.12em] text-white/35">
+                            Watch
+                        </span>
+                    </div>
+                </div>
+
+                <WireImage
+                    className="aspect-[0.82/1]"
+                    label="ARTIST"
+                    accentColor={accentColor}
+                />
+            </div>
+
+            <div className="border-y border-white/[0.08] px-3 py-4">
+                <div className="mb-2 flex items-center justify-between">
+                    <WireLabel>New Release</WireLabel>
+                    <WireDot accentColor={accentColor} />
+                </div>
+
+                <div className="grid grid-cols-[0.42fr_1fr] gap-3">
+                    <WireImage
+                        className="aspect-square"
+                        label="SINGLE"
+                        accentColor={accentColor}
+                    />
+
+                    <div className="flex flex-col justify-center space-y-2">
+                        <WireText width="w-full" strong />
+                        <WireText width="w-2/3" />
+
+                        <div className="mt-2 flex items-center gap-1.5">
+                            <WireDot accentColor={accentColor} />
+                            <WireDot accentColor={accentColor} />
+                            <WireDot accentColor={accentColor} />
+                            <span className="ml-1 text-[5px] text-white/25">
+                                STREAMING
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="px-3 py-4">
+                <div className="mb-2 flex items-center justify-between">
+                    <WireLabel>All Releases</WireLabel>
+                    <span className="text-[5px] text-white/25">VIEW ALL</span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                    {['01', '02', '03'].map((item) => (
+                        <div key={item}>
+                            <WireImage
+                                className="aspect-square"
+                                label={`RELEASE ${item}`}
+                                accentColor={accentColor}
+                            />
+                            <div className="mt-1.5 space-y-1">
+                                <WireText width="w-4/5" strong />
+                                <WireText width="w-1/2" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-[1fr_0.9fr] gap-3 border-t border-white/[0.08] px-3 py-4">
+                <div className="space-y-2">
+                    <WireLabel>About</WireLabel>
+                    <WireText width="w-full" />
+                    <WireText width="w-full" />
+                    <WireText width="w-5/6" />
+                    <WireText width="w-2/3" />
+                </div>
+
+                <WireImage
+                    className="aspect-square"
+                    label="PORTRAIT"
+                    accentColor={accentColor}
+                />
+            </div>
+
+            <div className="border-t border-white/[0.08] px-3 py-4">
+                <div className="mb-2 flex items-center justify-between">
+                    <WireLabel>Live / Tour</WireLabel>
+                    <span className="text-[5px] text-white/25">2026</span>
+                </div>
+
+                <div className="space-y-2">
+                    {['APR 12', 'MAY 17', 'JUN 08'].map((date, index) => (
+                        <div
+                            key={date}
+                            className="grid grid-cols-[42px_1fr_0.8fr] items-center gap-2 border-b border-white/[0.06] pb-1.5"
+                        >
+                            <span className="text-[5px] text-white/40">
+                                {date}
+                            </span>
+                            <span className="h-[2px] rounded-full bg-white/15" />
+                            <span className="h-[2px] w-3/4 rounded-full bg-white/10" />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function WireframePreview({
+    template,
+    accentColor,
+}: {
+    template: string;
+    accentColor: string;
+}) {
+    if (template === 'editorial') {
+        return <EditorialWireframe accentColor={accentColor} />;
+    }
+
+    if (template === 'canvas') {
+        return <CanvasWireframe accentColor={accentColor} />;
+    }
+
+    if (template === 'motion') {
+        return <MotionWireframe accentColor={accentColor} />;
+    }
+
+    if (template === 'musician') {
+        return <MusicianWireframe accentColor={accentColor} />;
+    }
+
+    return <DefaultWireframe accentColor={accentColor} />;
+}
+
+function PortfolioSettingsLoading() {
+    return (
+        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#050608] px-6 text-white">
+            {/* Atmospheric background */}
+            <div className="pointer-events-none absolute inset-0">
+                <div className="absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(139,108,255,0.13)_0%,rgba(53,223,255,0.07)_28%,transparent_68%)] blur-3xl" />
+
+                <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
+
+                <span className="absolute left-[18%] top-[24%] h-1 w-1 animate-pulse rounded-full bg-white/70 shadow-[0_0_18px_rgba(255,255,255,0.65)]" />
+                <span className="absolute right-[22%] top-[31%] h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-200/70 shadow-[0_0_20px_rgba(53,223,255,0.7)] [animation-delay:400ms]" />
+                <span className="absolute bottom-[25%] left-[27%] h-1 w-1 animate-pulse rounded-full bg-fuchsia-200/60 shadow-[0_0_18px_rgba(240,90,191,0.65)] [animation-delay:800ms]" />
+            </div>
+
+            {/* Loading mark */}
+            <div className="relative z-10 flex w-full max-w-sm flex-col items-center text-center">
+                <div className="relative mb-8 flex h-28 w-28 items-center justify-center">
+                    <div className="absolute inset-0 rounded-full border border-white/[0.07]" />
+
+                    <div className="absolute inset-2 animate-[spin_10s_linear_infinite] rounded-full border border-dashed border-cyan-200/20" />
+
+                    <div className="absolute inset-5 animate-[spin_7s_linear_infinite_reverse] rounded-full border border-dashed border-fuchsia-200/20" />
+
+                    <div className="absolute inset-[31%] rounded-full bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.9),rgba(139,108,255,0.35)_28%,rgba(53,223,255,0.12)_58%,transparent_72%)] shadow-[0_0_45px_rgba(139,108,255,0.22)]" />
+
+                    <img
+                        src="/images/brand/Lira_logo.png"
+                        alt="LIRA"
+                        className="relative z-10 h-auto w-14 object-contain opacity-90 sm:w-16"
+                    />
+                </div>
+
+                <p className="text-[9px] uppercase tracking-[0.42em] text-zinc-600">
+                    LIRA / STUDIO / PORTFOLIO
+                </p>
+
+                <h1 className="mt-4 text-2xl font-light tracking-[-0.03em] text-white sm:text-3xl">
+                    Building your <span className="bg-[linear-gradient(90deg,#fff,#9eeaff,#a393ff,#f28bd7)] bg-clip-text text-transparent">space.</span>
+                </h1>
+
+                <p className="mt-3 max-w-xs text-xs leading-6 text-zinc-500">
+                    Preparing your portfolio settings. Just a moment while we shape everything for you.
+                </p>
+
+                <div className="mt-7 h-px w-32 overflow-hidden bg-white/[0.06]">
+                    <div className="h-full w-1/2 animate-[loading_1.2s_ease-in-out_infinite] bg-[linear-gradient(90deg,transparent,#35dfff,#a393ff,#f28bd7,transparent)]" />
+                </div>
+            </div>
+
+            <style>{`
+                @keyframes loading {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(200%); }
+                }
+            `}</style>
+        </div>
+    );
+}
 
 export default function Settings({
     settings,
     profile,
+    navigationItems: initialNavigationItems,
+    galleryImages: initialGalleryImages,
 }: Props) {
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+    useEffect(() => {
+        const timer = window.setTimeout(() => {
+            setIsInitialLoading(false);
+        }, 1500);
+
+        return () => window.clearTimeout(timer);
+    }, []);
+
     const [template, setTemplate] = useState(
         settings.template,
+    );
+
+    const selectedTemplate = templates[template] ?? templates.default;
+    const releases = profile.releases ?? [];
+
+    /* Section Settings */
+
+    const [showHero, setShowHero] = useState(
+        settings.show_hero ?? true,
+    );
+
+    const [heroLabel, setHeroLabel] = useState(
+        settings.hero_label ?? '',
+    );
+
+    const [heroStatement, setHeroStatement] = useState(
+        settings.hero_statement ?? '',
+    );
+
+    const [canvasBackgroundText, setCanvasBackgroundText] =
+        useState(settings.canvas_background_text ?? '');
+
+    const [showWork, setShowWork] = useState(
+        settings.show_work ?? true,
+    );
+
+    const [workLabel, setWorkLabel] = useState(
+        settings.work_label ?? '',
+    );
+
+    const [workDescription, setWorkDescription] = useState(
+        settings.work_description ?? '',
+    );
+
+    const [showAbout, setShowAbout] = useState(
+        settings.show_about ?? true,
+    );
+
+    const [aboutLabel, setAboutLabel] = useState(
+        settings.about_label ?? '',
+    );
+
+    const [showArtistMessage, setShowArtistMessage] =
+        useState(settings.show_artist_message ?? false);
+
+    const [artistMessageLabel, setArtistMessageLabel] =
+        useState(settings.artist_message_label ?? '');
+
+    const [artistMessage, setArtistMessage] =
+        useState(settings.artist_message ?? '');
+
+    const [showGallery, setShowGallery] = useState(
+        settings.show_gallery ?? false,
+    );
+
+    const [galleryLabel, setGalleryLabel] = useState(
+        settings.gallery_label ?? '',
+    );
+
+    const [galleryDescription, setGalleryDescription] =
+        useState(settings.gallery_description ?? '');
+
+    const defaultGalleryResponsive: GalleryResponsiveSettingsMap = {
+        desktop: {
+            display:
+                settings.gallery_responsive?.desktop?.display ??
+                settings.gallery_display ??
+                'grid',
+
+            columns: Number(
+                settings.gallery_responsive?.desktop?.columns ??
+                settings.gallery_columns ??
+                3,
+            ),
+
+            image_aspect:
+                settings.gallery_responsive?.desktop?.image_aspect ??
+                settings.gallery_image_aspect ??
+                'original',
+        },
+
+        tablet: {
+            display:
+                settings.gallery_responsive?.tablet?.display ??
+                settings.gallery_display ??
+                'grid',
+
+            columns: Number(
+                settings.gallery_responsive?.tablet?.columns ??
+                Math.min(settings.gallery_columns ?? 3, 3),
+            ),
+
+            image_aspect:
+                settings.gallery_responsive?.tablet?.image_aspect ??
+                settings.gallery_image_aspect ??
+                'original',
+        },
+
+        mobile: {
+            display:
+                settings.gallery_responsive?.mobile?.display ??
+                settings.gallery_display ??
+                'grid',
+
+            columns: Number(
+                settings.gallery_responsive?.mobile?.columns ?? 1,
+            ),
+
+            image_aspect:
+                settings.gallery_responsive?.mobile?.image_aspect ??
+                settings.gallery_image_aspect ??
+                'original',
+        },
+    };
+
+    const [galleryResponsive, setGalleryResponsive] =
+        useState<GalleryResponsiveSettingsMap>(
+            defaultGalleryResponsive,
+        );
+
+    const [galleryDevice, setGalleryDevice] = useState<
+        'desktop' | 'tablet' | 'mobile'
+    >('desktop');
+
+    const [galleryShowCaptions, setGalleryShowCaptions] =
+        useState(settings.gallery_show_captions ?? true);
+
+    const [galleryShowTitles, setGalleryShowTitles] =
+        useState(settings.gallery_show_titles ?? true);
+
+    const [galleryEnableLightbox, setGalleryEnableLightbox] =
+        useState(settings.gallery_enable_lightbox ?? true);
+
+    const [galleryImages, setGalleryImages] = useState<
+        GalleryImage[]
+    >(
+        (initialGalleryImages ?? []).map((image) => ({
+            id: image.id,
+            image: image.image,
+            title: image.title ?? '',
+            caption: image.caption ?? '',
+            alt_text: image.alt_text ?? '',
+            sort_order: image.sort_order ?? 0,
+            file: null,
+            preview: null,
+        })),
+    );
+
+    const [musicLabel, setMusicLabel] = useState(
+        settings.music_label ?? '',
+    );
+
+    const [showNavigation, setShowNavigation] = useState(
+        settings.show_navigation ?? true,
+    );
+
+    const [navigationItemState, setNavigationItemState] =
+        useState<NavigationItem[]>(
+            initialNavigationItems.map((item, index) => ({
+                ...item,
+                sort_order: item.sort_order ?? index,
+                url: item.url ?? null,
+            })),
+        );
+
+    const [showFooter, setShowFooter] = useState(
+        settings.show_footer ?? true,
+    );
+
+    const [footerLabel, setFooterLabel] = useState(
+        settings.footer_label ?? '',
+    );
+
+    const [footerMessage, setFooterMessage] = useState(
+        settings.footer_message ?? '',
+    );
+
+    const [showFooterSocials, setShowFooterSocials] =
+        useState(settings.show_footer_socials ?? true);
+
+    const [footerLogo, setFooterLogo] = useState<File | null>(
+        null,
+    );
+
+    const [footerLogoPreview, setFooterLogoPreview] =
+        useState<string | null>(
+            getImageUrl(settings.footer_logo),
+        );
+
+    const [removeFooterLogo, setRemoveFooterLogo] =
+        useState(false);
+
+    const [copyrightText, setCopyrightText] = useState(
+        settings.copyright_text ?? '',
+    );
+
+    const [showPoweredByLira, setShowPoweredByLira] =
+        useState(settings.show_powered_by_lira ?? true);
+
+    // Music Settings
+
+    const [showMusic, setShowMusic] = useState(
+        settings.show_music ?? true,
+    );
+
+    const [musicReleaseDisplay, setMusicReleaseDisplay] =
+        useState<'latest' | 'all'>(
+            settings.music_release_display ?? 'latest',
+        );
+
+    const [musicReleaseLimit, setMusicReleaseLimit] =
+        useState(
+            Number(settings.music_release_limit ?? 6),
+        );
+
+    const [featuredReleaseId, setFeaturedReleaseId] =
+        useState<number | null>(
+            settings.featured_release_id ?? null,
+        );
+
+    const [showMusicLinks, setShowMusicLinks] = useState(
+        settings.show_music_links ?? true,
     );
 
     const [primaryColor, setPrimaryColor] = useState(
@@ -646,6 +1615,22 @@ export default function Settings({
         settings.accent_color,
     );
 
+    const [hoverColor, setHoverColor] = useState(
+        settings.hover_color,
+    );
+
+    const [surfaceColor, setSurfaceColor] = useState(
+        settings.surface_color,
+    );
+
+    const [mutedTextColor, setMutedTextColor] = useState(
+        settings.muted_text_color,
+    );
+
+    const [borderColor, setBorderColor] = useState(
+        settings.border_color,
+    );
+
     const [cardBackgroundColor, setCardBackgroundColor] =
         useState(settings.card_background_color);
 
@@ -656,11 +1641,15 @@ export default function Settings({
     const [cardAccentColor, setCardAccentColor] =
         useState(settings.card_accent_color);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cover Image State
-    |--------------------------------------------------------------------------
-    */
+    const [cardPrimaryColor, setCardPrimaryColor] = useState(
+        settings.card_primary_color,
+    );
+
+    const [cardHoverColor, setCardHoverColor] = useState(
+        settings.card_hover_color,
+    );
+
+    // Cover Image State
 
     const [coverImage, setCoverImage] =
         useState<File | null>(null);
@@ -720,15 +1709,70 @@ export default function Settings({
 
     const [saving, setSaving] = useState(false);
 
-    const [deviceGuide, setDeviceGuide] = useState<
-        'desktop' | 'tablet' | 'mobile'
-    >('desktop');
+    const [validationErrors, setValidationErrors] = useState<
+        Record<string, string>
+    >({});
 
-    /*
-    |--------------------------------------------------------------------------
-    | Load saved offsets into pixel values
-    |--------------------------------------------------------------------------
-    */
+    const [galleryUploadError, setGalleryUploadError] =
+        useState<string | null>(null);
+
+    const galleryUploadErrorRef =
+        useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        if (!galleryUploadError) {
+            return;
+        }
+
+        window.requestAnimationFrame(() => {
+            const errorElement =
+                galleryUploadErrorRef.current;
+
+            if (!errorElement) {
+                return;
+            }
+
+            errorElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+
+            errorElement.focus({
+                preventScroll: true,
+            });
+        });
+    }, [galleryUploadError]);
+
+    const [activeSection, setActiveSection] =
+        useState('foundation');
+
+    const [viewportRatio, setViewportRatio] = useState(
+        () => window.innerWidth / window.innerHeight,
+    );
+
+    useEffect(() => {
+        function updateViewportRatio() {
+            setViewportRatio(
+                window.innerWidth / window.innerHeight,
+            );
+        }
+
+        updateViewportRatio();
+
+        window.addEventListener(
+            'resize',
+            updateViewportRatio,
+        );
+
+        return () => {
+            window.removeEventListener(
+                'resize',
+                updateViewportRatio,
+            );
+        };
+    }, []);
+
+    // Load saved offsets into pixel values
 
     useLayoutEffect(() => {
         const editor = coverPreviewRef.current;
@@ -751,11 +1795,7 @@ export default function Settings({
         settings.cover_image_offset_y,
     ]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Blob Preview Cleanup
-    |--------------------------------------------------------------------------
-    */
+    // Blob Preview Cleanup
 
     useEffect(() => {
         return () => {
@@ -769,11 +1809,7 @@ export default function Settings({
         };
     }, [coverImagePreview]);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cover Image Validation
-    |--------------------------------------------------------------------------
-    */
+    // Cover Image Validation
 
     function validateCoverImageDimensions(
         file: File,
@@ -817,11 +1853,7 @@ export default function Settings({
         });
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Cover Image Upload
-    |--------------------------------------------------------------------------
-    */
+    // Cover Image Upload
 
     async function handleCoverImageChange(
         event: ChangeEvent<HTMLInputElement>,
@@ -864,14 +1896,14 @@ export default function Settings({
         const dimensions =
             await validateCoverImageDimensions(file);
 
-        if (!dimensions.valid) {
-            setCoverImage(null);
-            setCoverImageError(
-                `The cover image must be at least 2660 × 1140 px. This image is ${dimensions.width} × ${dimensions.height} px.`,
-            );
-            event.target.value = '';
-            return;
-        }
+        // if (!dimensions.valid) {
+        //     setCoverImage(null);
+        //     setCoverImageError(
+        //         `The cover image must be at least 2660 × 1140 px. This image is ${dimensions.width} × ${dimensions.height} px.`,
+        //     );
+        //     event.target.value = '';
+        //     return;
+        // }
 
         const previousPreview =
             coverImagePreview;
@@ -884,11 +1916,7 @@ export default function Settings({
 
         setRemoveCoverImage(false);
 
-        /*
-        |----------------------------------------------------------------------
-        | Reset New Image Position
-        |----------------------------------------------------------------------
-        */
+        // Reset New Image Position
 
         setCoverImagePositionX(50);
         setCoverImagePositionY(50);
@@ -905,21 +1933,13 @@ export default function Settings({
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Open File Picker
-    |--------------------------------------------------------------------------
-    */
+    // Open File Picker
 
     function openCoverImagePicker() {
         fileInputRef.current?.click();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Remove Cover Image
-    |--------------------------------------------------------------------------
-    */
+    // Remove Cover Image
 
     function handleRemoveCoverImage() {
         setCoverImage(null);
@@ -938,11 +1958,7 @@ export default function Settings({
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Drag Cover Image
-    |--------------------------------------------------------------------------
-    */
+    // Drag Cover Image
 
     function handleCoverPointerDown(
         event: PointerEvent<HTMLDivElement>,
@@ -955,11 +1971,7 @@ export default function Settings({
         const target =
             event.target as HTMLElement;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Don't start dragging from controls.
-        |--------------------------------------------------------------------------
-        */
+        // Don't start dragging from controls.
 
         if (
             target.closest('button') ||
@@ -1012,11 +2024,7 @@ export default function Settings({
                 rect.height) *
             100;
 
-        /*
-        |--------------------------------------------------------------------------
-        | Same crop-position behaviour as the project editor.
-        |--------------------------------------------------------------------------
-        */
+        // Same crop-position behaviour as the project editor.
 
         setCoverImagePositionX(
             Math.max(
@@ -1040,11 +2048,7 @@ export default function Settings({
             ),
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Additional pixel movement available from zoom.
-        |--------------------------------------------------------------------------
-        */
+        // Additional pixel movement available from zoom.
 
         const zoomFactor = coverImageZoom;
 
@@ -1100,11 +2104,7 @@ export default function Settings({
         dragStartRef.current = null;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Palettes
-    |--------------------------------------------------------------------------
-    */
+    // Palettes
 
     const palettes: Palette[] = [
         {
@@ -1113,9 +2113,15 @@ export default function Settings({
             background: '#050607',
             text: '#f5f5f5',
             accent: '#7de7ff',
+            hover: '#35dfff',
+            surface: '#0d0f12',
+            mutedText: '#8a8f98',
+            border: '#ffffff',
             cardBackground: '#0b0d0f',
             cardText: '#f5f5f5',
             cardAccent: '#9d8cff',
+            cardPrimary: '#ffffff',
+            cardHover: '#35dfff',
         },
         {
             name: 'Nocturne',
@@ -1123,9 +2129,15 @@ export default function Settings({
             background: '#0b0810',
             text: '#f4efff',
             accent: '#c084fc',
+            hover: '#e9b8ff',
+            surface: '#15101d',
+            mutedText: '#9b91aa',
+            border: '#d9c7ff',
             cardBackground: '#15101d',
             cardText: '#eee6ff',
             cardAccent: '#f0abfc',
+            cardPrimary: '#fff5ff',
+            cardHover: '#f0abfc',
         },
         {
             name: 'Mono',
@@ -1133,9 +2145,15 @@ export default function Settings({
             background: '#080808',
             text: '#ffffff',
             accent: '#b8b8b8',
+            hover: '#ffffff',
+            surface: '#141414',
+            mutedText: '#858585',
+            border: '#ffffff',
             cardBackground: '#141414',
             cardText: '#f2f2f2',
             cardAccent: '#ffffff',
+            cardPrimary: '#ffffff',
+            cardHover: '#d8d8d8',
         },
         {
             name: 'Aurora',
@@ -1143,9 +2161,15 @@ export default function Settings({
             background: '#06100f',
             text: '#e9fffb',
             accent: '#58e6cf',
+            hover: '#8ef5e4',
+            surface: '#0b1917',
+            mutedText: '#7ea39c',
+            border: '#58e6cf',
             cardBackground: '#0b1917',
             cardText: '#d9f8f2',
             cardAccent: '#8ef5e4',
+            cardPrimary: '#d9fff8',
+            cardHover: '#58e6cf',
         },
         {
             name: 'Electric',
@@ -1153,9 +2177,15 @@ export default function Settings({
             background: '#070914',
             text: '#edf0ff',
             accent: '#6685ff',
+            hover: '#8ba1ff',
+            surface: '#0d1224',
+            mutedText: '#7e87a8',
+            border: '#6685ff',
             cardBackground: '#0d1224',
             cardText: '#dce2ff',
             cardAccent: '#8ba1ff',
+            cardPrimary: '#e9ecff',
+            cardHover: '#6685ff',
         },
         {
             name: 'Gallery',
@@ -1163,9 +2193,15 @@ export default function Settings({
             background: '#f2f0eb',
             text: '#222222',
             accent: '#111111',
+            hover: '#000000',
+            surface: '#ffffff',
+            mutedText: '#77736d',
+            border: '#171717',
             cardBackground: '#ffffff',
             cardText: '#555555',
             cardAccent: '#171717',
+            cardPrimary: '#171717',
+            cardHover: '#000000',
         },
         {
             name: 'Rose',
@@ -1173,9 +2209,15 @@ export default function Settings({
             background: '#13080d',
             text: '#ffeef4',
             accent: '#f05abf',
+            hover: '#ff8ed3',
+            surface: '#211018',
+            mutedText: '#a77d90',
+            border: '#f05abf',
             cardBackground: '#211018',
             cardText: '#f8dce8',
             cardAccent: '#ff8ed3',
+            cardPrimary: '#fff1f7',
+            cardHover: '#f05abf',
         },
         {
             name: 'Ivory',
@@ -1183,33 +2225,33 @@ export default function Settings({
             background: '#eee9df',
             text: '#302b25',
             accent: '#9b7750',
+            hover: '#b88d5c',
+            surface: '#f8f5ee',
+            mutedText: '#7c7267',
+            border: '#9b7750',
             cardBackground: '#f8f5ee',
             cardText: '#5e564d',
             cardAccent: '#8a6744',
+            cardPrimary: '#201c17',
+            cardHover: '#9b7750',
         },
     ];
 
-    function applyPalette(
-        palette: Palette,
-    ) {
+    const applyPalette = (palette: Palette) => {
         setPrimaryColor(palette.primary);
         setBackgroundColor(palette.background);
         setTextColor(palette.text);
         setAccentColor(palette.accent);
-        setCardBackgroundColor(
-            palette.cardBackground,
-        );
+        setHoverColor(palette.hover);
+        setSurfaceColor(palette.surface);
+        setMutedTextColor(palette.mutedText);
+        setBorderColor(palette.border);
+        setCardBackgroundColor(palette.cardBackground);
         setCardTextColor(palette.cardText);
-        setCardAccentColor(
-            palette.cardAccent,
-        );
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Preview Settings
-    |--------------------------------------------------------------------------
-    */
+        setCardAccentColor(palette.cardAccent);
+        setCardPrimaryColor(palette.cardPrimary);
+        setCardHoverColor(palette.cardHover);
+    };
 
     const coverEditorWidth =
         coverPreviewRef.current?.clientWidth ?? 0;
@@ -1227,43 +2269,371 @@ export default function Settings({
             ? (coverImageOffsetY / coverEditorHeight) * 100
             : Number(settings.cover_image_offset_y ?? 0);
 
-    const previewSettings: Settings = {
-        template,
-        primary_color: primaryColor,
-        background_color: backgroundColor,
-        text_color: textColor,
-        accent_color: accentColor,
-        card_background_color:
-            cardBackgroundColor,
-        card_text_color:
-            cardTextColor,
-        card_accent_color:
-            cardAccentColor,
+    /* Navigation */
 
-        cover_image:
-            coverImagePreview,
-        cover_image_position_x:
-            coverImagePositionX,
-        cover_image_position_y:
-            coverImagePositionY,
-        cover_image_zoom:
-            coverImageZoom,
-        cover_image_offset_x:
-            coverImageOffsetXPercent,
-        cover_image_offset_y:
-            coverImageOffsetYPercent,
-    };
+    function getAvailableNavigationDestination() {
+        return (
+            navigationDestinations.find(
+                (destination) =>
+                    destination.value === 'external' ||
+                    !navigationItemState.some(
+                        (item) =>
+                            item.destination ===
+                            destination.value,
+                    ),
+            )?.value ?? 'external'
+        );
+    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Submit
-    |--------------------------------------------------------------------------
-    */
+    function addNavigationItem() {
+        const availableDestination =
+            navigationDestinations.find(
+                (destination) =>
+                    destination.value === 'external' ||
+                    !navigationItemState.some(
+                        (item) =>
+                            item.destination ===
+                            destination.value,
+                    ),
+            )?.value ?? 'external';
 
-    function submit(
-        event: FormEvent<HTMLFormElement>,
+        getAvailableNavigationDestination();
+
+        setNavigationItemState((items) => [
+            ...items,
+            {
+                label: 'New Link',
+                destination: availableDestination,
+                url: null,
+                sort_order: items.length,
+                is_visible: true,
+            },
+        ]);
+    }
+
+    function updateNavigationItem(
+        index: number,
+        updates: Partial<NavigationItem>,
     ) {
+        setNavigationItemState((items) =>
+            items.map((item, itemIndex) =>
+                itemIndex === index
+                    ? { ...item, ...updates }
+                    : item,
+            ),
+        );
+    }
+
+    function removeNavigationItem(index: number) {
+        setNavigationItemState((items) =>
+            items
+                .filter((_, itemIndex) => itemIndex !== index)
+                .map((item, itemIndex) => ({
+                    ...item,
+                    sort_order: itemIndex,
+                })),
+        );
+    }
+
+    function moveNavigationItem(
+        index: number,
+        direction: 'up' | 'down',
+    ) {
+        setNavigationItemState((items) => {
+            const targetIndex =
+                direction === 'up'
+                    ? index - 1
+                    : index + 1;
+
+            if (
+                targetIndex < 0 ||
+                targetIndex >= items.length
+            ) {
+                return items;
+            }
+
+            const nextItems = [...items];
+
+            [
+                nextItems[index],
+                nextItems[targetIndex],
+            ] = [
+                    nextItems[targetIndex],
+                    nextItems[index],
+                ];
+
+            return nextItems.map((item, itemIndex) => ({
+                ...item,
+                sort_order: itemIndex,
+            }));
+        });
+    }
+
+    const navigationDestinations = [
+        { value: 'home', label: 'Home' },
+        { value: 'work', label: 'Selected Work' },
+        { value: 'gallery', label: 'Gallery' },
+        { value: 'music', label: 'Music' },
+        { value: 'about', label: 'About' },
+        { value: 'artist_message', label: 'Artist Message' },
+        { value: 'contact', label: 'Contact' },
+        { value: 'footer', label: 'Footer' },
+        { value: 'external', label: 'External URL' },
+    ];
+
+    function isNavigationDestinationUsed(
+        destination: string,
+        currentIndex: number,
+    ) {
+        if (destination === 'external') {
+            return false;
+        }
+
+        return navigationItemState.some(
+            (item, index) =>
+                index !== currentIndex &&
+                item.destination === destination,
+        );
+    }
+
+    /* Gallery */
+
+    function updateGalleryResponsive(
+        updates: Partial<GalleryResponsiveSettings>,
+    ) {
+        setGalleryResponsive((current) => ({
+            ...current,
+
+            [galleryDevice]: {
+                ...current[galleryDevice],
+                ...updates,
+            },
+        }));
+    }
+
+    function getGalleryColumnOptions() {
+        switch (galleryDevice) {
+            case 'mobile':
+                return [1, 2];
+
+            case 'tablet':
+                return [2, 3, 4];
+
+            case 'desktop':
+            default:
+                return [2, 3, 4, 5];
+        }
+    }
+
+    function addGalleryImage() {
+        setGalleryUploadError(null);
+
+        setGalleryImages((current) => [
+            ...current,
+            {
+                id: null,
+                image: null,
+                title: '',
+                caption: '',
+                alt_text: '',
+                sort_order: current.length,
+                file: null,
+                preview: null,
+            },
+        ]);
+    }
+
+    function updateGalleryImage(
+        index: number,
+        updates: Partial<GalleryImage>,
+    ) {
+        setGalleryImages((current) =>
+            current.map((image, imageIndex) =>
+                imageIndex === index
+                    ? {
+                        ...image,
+                        ...updates,
+                    }
+                    : image,
+            ),
+        );
+    }
+
+    function removeGalleryImage(index: number) {
+        setGalleryUploadError(null);
+
+        setGalleryImages((current) => {
+            const image = current[index];
+
+            if (image?.preview?.startsWith('blob:')) {
+                URL.revokeObjectURL(image.preview);
+            }
+
+            return current
+                .filter(
+                    (_, imageIndex) =>
+                        imageIndex !== index,
+                )
+                .map((item, imageIndex) => ({
+                    ...item,
+                    sort_order: imageIndex,
+                }));
+        });
+    }
+
+    function moveGalleryImage(
+        index: number,
+        direction: 'up' | 'down',
+    ) {
+        setGalleryImages((current) => {
+            const next = [...current];
+
+            const targetIndex =
+                direction === 'up'
+                    ? index - 1
+                    : index + 1;
+
+            if (
+                targetIndex < 0 ||
+                targetIndex >= next.length
+            ) {
+                return current;
+            }
+
+            [
+                next[index],
+                next[targetIndex],
+            ] = [
+                    next[targetIndex],
+                    next[index],
+                ];
+
+            return next.map((image, imageIndex) => ({
+                ...image,
+                sort_order: imageIndex,
+            }));
+        });
+    }
+
+    function handleGalleryImageChange(
+        index: number,
+        file: File | null,
+    ) {
+        if (!file) {
+            return;
+        }
+
+        if (file.size > MAX_GALLERY_IMAGE_BYTES) {
+            setValidationErrors((current) => ({
+                ...current,
+                [`gallery_images.${index}.image`]:
+                    'This image is too large. Gallery images must be 10 MB or smaller.',
+            }));
+
+            return;
+        }
+
+        setGalleryUploadError(null);
+
+        setValidationErrors((current) => {
+            const next = { ...current };
+
+            delete next[`gallery_images.${index}.image`];
+
+            return next;
+        });
+
+        const preview = URL.createObjectURL(file);
+
+        updateGalleryImage(index, {
+            file,
+            preview,
+        });
+    }
+
+    /* Settings Navigation */
+
+    function selectSettingsSection(id: string) {
+        setActiveSection(id);
+    }
+
+    const settingsGroups = [
+        {
+            id: 'foundation',
+            label: 'Foundation',
+            description: 'Templates',
+        },
+        {
+            id: 'theme',
+            label: 'Theme',
+            description: 'Presets, colors, and project cards',
+        },
+        {
+            id: 'hero',
+            label: 'Hero',
+            description: 'Cover image and hero',
+        },
+        {
+            id: 'content',
+            label: 'Content',
+            description: 'Work, about, message, and gallery',
+        },
+        {
+            id: 'media',
+            label: 'Media',
+            description: 'Music',
+        },
+        {
+            id: 'site',
+            label: 'Site',
+            description: 'Navigation and footer',
+        },
+    ] as const;
+
+    /* Submit */
+
+    function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+
+        setGalleryUploadError(null);
+
+        const newGalleryFiles = galleryImages
+            .map((image) => image.file)
+            .filter((file): file is File => Boolean(file));
+
+        const oversizedGalleryImage =
+            newGalleryFiles.find(
+                (file) => file.size > MAX_GALLERY_IMAGE_BYTES,
+            );
+
+        if (oversizedGalleryImage) {
+            setGalleryUploadError(
+                'One or more gallery images are larger than 10 MB. Please replace them before saving.',
+            );
+            setSaving(false);
+            return;
+        }
+
+        const totalGalleryUploadBytes =
+            newGalleryFiles.reduce(
+                (total, file) => total + file.size,
+                0,
+            );
+
+        if (
+            totalGalleryUploadBytes >
+            MAX_GALLERY_REQUEST_BYTES
+        ) {
+            const totalMegabytes =
+                totalGalleryUploadBytes /
+                (1024 * 1024);
+
+            setGalleryUploadError(
+                `The gallery upload is too large. Your new gallery images total ${totalMegabytes.toFixed(1)} MB, but a single save request can contain up to 50 MB of images. Remove or replace some images, then save again.`,
+            );
+            setSaving(false);
+            return;
+        }
 
         setSaving(true);
 
@@ -1278,6 +2648,27 @@ export default function Settings({
             ? (coverImageOffsetY / editor.clientHeight) * 100
             : Number(settings.cover_image_offset_y ?? 0);
 
+        const galleryResponsivePayload = {
+            desktop: {
+                display: galleryResponsive.desktop.display,
+                columns: galleryResponsive.desktop.columns,
+                image_aspect:
+                    galleryResponsive.desktop.image_aspect,
+            },
+            tablet: {
+                display: galleryResponsive.tablet.display,
+                columns: galleryResponsive.tablet.columns,
+                image_aspect:
+                    galleryResponsive.tablet.image_aspect,
+            },
+            mobile: {
+                display: galleryResponsive.mobile.display,
+                columns: galleryResponsive.mobile.columns,
+                image_aspect:
+                    galleryResponsive.mobile.image_aspect,
+            },
+        };
+
         router.post(
             '/dashboard/portfolio/settings',
             {
@@ -1285,51 +2676,125 @@ export default function Settings({
 
                 template,
 
-                primary_color:
-                    primaryColor,
+                primary_color: primaryColor,
+                background_color: backgroundColor,
+                text_color: textColor,
+                accent_color: accentColor,
+                hover_color: hoverColor,
+                surface_color: surfaceColor,
+                muted_text_color: mutedTextColor,
+                border_color: borderColor,
+                card_background_color: cardBackgroundColor,
+                card_text_color: cardTextColor,
+                card_accent_color: cardAccentColor,
 
-                background_color:
-                    backgroundColor,
+                cover_image: coverImage,
+                remove_cover_image: removeCoverImage,
+                cover_image_position_x: coverImagePositionX,
+                cover_image_position_y: coverImagePositionY,
+                cover_image_zoom: coverImageZoom,
+                cover_image_offset_x: offsetXPercent,
+                cover_image_offset_y: offsetYPercent,
 
-                text_color:
-                    textColor,
+                show_music: showMusic,
+                music_release_display: musicReleaseDisplay,
+                music_release_limit: musicReleaseLimit,
+                featured_release_id: featuredReleaseId,
+                show_music_links: showMusicLinks,
 
-                accent_color:
-                    accentColor,
+                card_primary_color: cardPrimaryColor,
+                card_hover_color: cardHoverColor,
 
-                card_background_color:
-                    cardBackgroundColor,
+                show_hero: showHero,
+                hero_label: heroLabel || null,
+                hero_statement: heroStatement || null,
+                canvas_background_text:
+                    canvasBackgroundText || null,
 
-                card_text_color:
-                    cardTextColor,
+                show_work: showWork,
+                work_label: workLabel || null,
+                work_description: workDescription || null,
 
-                card_accent_color:
-                    cardAccentColor,
+                show_about: showAbout,
+                about_label: aboutLabel || null,
 
-                cover_image:
-                    coverImage,
+                show_artist_message: showArtistMessage,
+                artist_message_label: artistMessageLabel || null,
+                artist_message: artistMessage || null,
 
-                remove_cover_image:
-                    removeCoverImage,
+                show_gallery: showGallery,
+                gallery_label: galleryLabel || null,
+                gallery_description:
+                    galleryDescription || null,
 
-                cover_image_position_x:
-                    coverImagePositionX,
+                gallery_display:
+                    galleryResponsive.desktop.display,
 
-                cover_image_position_y:
-                    coverImagePositionY,
+                gallery_columns:
+                    galleryResponsive.desktop.columns,
 
-                cover_image_zoom:
-                    coverImageZoom,
+                gallery_image_aspect:
+                    galleryResponsive.desktop.image_aspect,
 
-                cover_image_offset_x:
-                    offsetXPercent,
+                gallery_responsive:
+                    galleryResponsive as FormDataConvertible,
 
-                cover_image_offset_y:
-                    offsetYPercent,
+                gallery_show_captions:
+                    galleryShowCaptions,
+
+                gallery_show_titles:
+                    galleryShowTitles,
+
+                gallery_enable_lightbox:
+                    galleryEnableLightbox,
+
+                gallery_images: galleryImages.map(
+                    (image, index) => ({
+                        id: image.id,
+                        image: image.file ?? null,
+                        title: image.title || null,
+                        caption: image.caption || null,
+                        alt_text: image.alt_text || null,
+                        sort_order: index,
+                    }),
+                ),
+
+                music_label: musicLabel || null,
+
+                show_navigation: showNavigation,
+
+                navigation_items: navigationItemState.map(
+                    (item, index) => ({
+                        ...(item.id ? { id: item.id } : {}),
+                        label: item.label,
+                        destination: item.destination,
+                        url: item.destination === 'external'
+                            ? item.url
+                            : null,
+                        sort_order: index,
+                        is_visible: item.is_visible,
+                    }),
+                ),
+
+                show_footer: showFooter,
+                footer_label: footerLabel || null,
+                footer_message: footerMessage || null,
+                show_footer_socials: showFooterSocials,
+                footer_logo: footerLogo,
+                remove_footer_logo: removeFooterLogo,
+                copyright_text: copyrightText || null,
+                show_powered_by_lira: showPoweredByLira,
+
             },
             {
                 forceFormData: true,
                 preserveScroll: true,
+
+                onError: (errors) => {
+                    setValidationErrors(
+                        errors as Record<string, string>,
+                    );
+                },
 
                 onFinish: () => {
                     setSaving(false);
@@ -1338,14 +2803,16 @@ export default function Settings({
         );
     }
 
+    if (isInitialLoading) {
+        return <PortfolioSettingsLoading />;
+    }
+
     return (
         <DashboardLayout>
-            <div className="mx-auto max-w-[1400px] px-6 py-10 sm:px-8 lg:px-12 lg:py-12">
-                {/* ============================================================
-                    PAGE HEADER
-                ============================================================= */}
+            <div className="mx-auto w-full max-w-[1920px] px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-24 lg:px-8 lg:py-10 lg:pb-24 xl:pb-10 2xl:px-10">
+                {/* PAGE HEADER */}
 
-                <div className="mb-12">
+                <div className="mb-6 sm:mb-8 lg:mb-10">
                     <div className="mb-5 flex items-center gap-3">
                         <span className="h-px w-8 bg-[linear-gradient(90deg,#ffffff,#7d8991,transparent)]" />
 
@@ -1354,14 +2821,14 @@ export default function Settings({
                         </span>
                     </div>
 
-                    <h1 className="text-4xl font-light tracking-[-0.055em] text-white sm:text-5xl">
+                    <h1 className="text-2xl font-light tracking-[-0.055em] text-white sm:text-4xl lg:text-5xl">
                         Shape your{' '}
                         <span className="bg-[linear-gradient(90deg,#fff_0%,#bdefff_24%,#9d8cff_58%,#f08bd7_82%,#fff_100%)] bg-clip-text text-transparent">
                             space.
                         </span>
                     </h1>
 
-                    <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-500 sm:text-base">
+                    <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-500 sm:mt-4 sm:text-base sm:leading-7">
                         Customize the visual identity of your
                         public portfolio and see your changes
                         reflected in the actual template.
@@ -1370,492 +2837,2489 @@ export default function Settings({
 
                 <form
                     onSubmit={submit}
-                    className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]"
+                    className="grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[190px_minmax(0,1fr)] lg:gap-6 xl:grid-cols-[220px_minmax(0,1fr)_300px] 2xl:grid-cols-[240px_minmax(0,1fr)_340px]"
                 >
-                    {/* ========================================================
-                        SETTINGS
-                    ========================================================= */}
+                    {/* Section Navigation */}
 
-                    <div className="space-y-6">
-                        {/* Template */}
+                    <aside className="xl:sticky xl:top-24 xl:self-start">
+                        <div className="hidden rounded-2xl border border-white/[0.07] bg-[#0a0b0d]/90 p-2 shadow-[0_16px_40px_rgba(0,0,0,0.2)] backdrop-blur-xl lg:block">
+                            <div className="px-3 pb-3 pt-3">
+                                <p className="text-[8px] uppercase tracking-[0.24em] text-zinc-600">
+                                    Portfolio Settings
+                                </p>
 
-                        <GlassSection
-                            eyebrow="01 / TEMPLATE"
-                            title="Choose your foundation."
-                            description="Templates control the overall visual structure of your public portfolio."
-                        >
-                            <div className="grid gap-4">
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        setTemplate(
-                                            'default',
-                                        )
-                                    }
-                                    className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition ${template ===
-                                        'default'
-                                        ? 'border-white/[0.22] bg-white/[0.06]'
-                                        : 'border-white/[0.07] bg-black/20 hover:border-white/[0.14]'
-                                        }`}
-                                >
-                                    <div className="grid gap-5 sm:grid-cols-[180px_1fr] sm:items-center">
-                                        <div className="relative aspect-[16/10] overflow-hidden rounded-xl border border-white/[0.07] bg-black">
-                                            {coverImagePreview ? (
-                                                <img
-                                                    src={
-                                                        coverImagePreview
-                                                    }
-                                                    alt=""
-                                                    className="absolute inset-0 h-full w-full object-cover"
+                                <p className="mt-1 text-xs leading-5 text-zinc-400">
+                                    Choose a category to customize.
+                                </p>
+                            </div>
+
+                            <nav
+                                aria-label="Portfolio settings categories"
+                                className="space-y-1"
+                            >
+                                {settingsGroups.map(
+                                    (group, index) => {
+                                        const active =
+                                            activeSection === group.id;
+
+                                        return (
+                                            <button
+                                                key={group.id}
+                                                type="button"
+                                                onClick={() =>
+                                                    selectSettingsSection(
+                                                        group.id,
+                                                    )
+                                                }
+                                                className={`group flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition ${active
+                                                    ? 'bg-white/[0.07] text-white'
+                                                    : 'text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
+                                                    }`}
+                                            >
+                                                <span
+                                                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-[9px] font-medium tabular-nums transition"
                                                     style={{
-                                                        objectPosition: `${coverImagePositionX}% ${coverImagePositionY}%`,
-                                                        transform: `translate(${coverImageOffsetX}%, ${coverImageOffsetY}%) scale(${coverImageZoom})`,
+                                                        borderColor: active
+                                                            ? `${SETTINGS_UI_ACCENT}45`
+                                                            : 'rgba(255,255,255,0.08)',
+                                                        backgroundColor: active
+                                                            ? `${SETTINGS_UI_ACCENT}10`
+                                                            : 'rgba(255,255,255,0.02)',
+                                                        color: active
+                                                            ? SETTINGS_UI_ACCENT
+                                                            : 'rgba(255,255,255,0.35)',
                                                     }}
-                                                />
-                                            ) : (
-                                                <div className="absolute inset-0 bg-gradient-to-br from-zinc-700 via-zinc-950 to-black" />
-                                            )}
+                                                >
+                                                    {String(index + 1).padStart(
+                                                        2,
+                                                        '0',
+                                                    )}
+                                                </span>
 
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+                                                <span className="min-w-0">
+                                                    <span className="block text-[10px] font-medium">
+                                                        {group.label}
+                                                    </span>
 
-                                            <div className="absolute bottom-3 left-3">
-                                                <div className="h-2 w-14 rounded-full bg-white/80" />
-
-                                                <div className="mt-1.5 h-1 w-8 rounded-full bg-white/40" />
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-center justify-between gap-4">
-                                            <div>
-                                                <p className="text-sm font-medium text-zinc-200">
-                                                    Default
-                                                </p>
-
-                                                <p className="mt-1 text-xs leading-5 text-zinc-600">
-                                                    LIRA&apos;s current
-                                                    portfolio experience
-                                                    with hero, about, and
-                                                    selected work sections.
-                                                </p>
-                                            </div>
-
-                                            {template ===
-                                                'default' && (
-                                                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#7de7ff]/20 bg-[#7de7ff]/[0.06]">
-                                                        <CheckIcon className="h-3.5 w-3.5 text-[#7de7ff]" />
-                                                    </div>
-                                                )}
-                                        </div>
-                                    </div>
-                                </button>
-                            </div>
-                        </GlassSection>
-
-                        {/* Color System */}
-
-                        <GlassSection
-                            eyebrow="02 / COLOR SYSTEM"
-                            title="Define your visual language."
-                            description="Set the colors that shape the actual public portfolio."
-                        >
-                            <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2">
-                                <ColorField
-                                    id="primary_color"
-                                    label="Primary Color"
-                                    description="Artist name and major portfolio headings."
-                                    value={
-                                        primaryColor
-                                    }
-                                    onChange={
-                                        setPrimaryColor
-                                    }
-                                />
-
-                                <ColorField
-                                    id="accent_color"
-                                    label="Accent Color"
-                                    description="Interactive elements and portfolio highlights."
-                                    value={
-                                        accentColor
-                                    }
-                                    onChange={
-                                        setAccentColor
-                                    }
-                                />
-
-                                <ColorField
-                                    id="background_color"
-                                    label="Background Color"
-                                    description="Main background behind portfolio sections."
-                                    value={
-                                        backgroundColor
-                                    }
-                                    onChange={
-                                        setBackgroundColor
-                                    }
-                                />
-
-                                <ColorField
-                                    id="text_color"
-                                    label="Text Color"
-                                    description="Main typography throughout the portfolio."
-                                    value={textColor}
-                                    onChange={
-                                        setTextColor
-                                    }
-                                />
-                            </div>
-                        </GlassSection>
-
-                        {/* Cards */}
-
-                        <GlassSection
-                            eyebrow="03 / PROJECT CARDS"
-                            title="Style your work."
-                            description="Control how your projects appear inside the Default portfolio."
-                        >
-                            <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2">
-                                <ColorField
-                                    id="card_background_color"
-                                    label="Card Background"
-                                    description="Background behind project information."
-                                    value={
-                                        cardBackgroundColor
-                                    }
-                                    onChange={
-                                        setCardBackgroundColor
-                                    }
-                                />
-
-                                <ColorField
-                                    id="card_text_color"
-                                    label="Card Text"
-                                    description="Project type and description text."
-                                    value={
-                                        cardTextColor
-                                    }
-                                    onChange={
-                                        setCardTextColor
-                                    }
-                                />
-
-                                <ColorField
-                                    id="card_accent_color"
-                                    label="Card Accent"
-                                    description="Project titles and card emphasis."
-                                    value={
-                                        cardAccentColor
-                                    }
-                                    onChange={
-                                        setCardAccentColor
-                                    }
-                                />
-                            </div>
-                        </GlassSection>
-
-                        {/* Cover Image */}
-
-                        <GlassSection
-                            eyebrow="04 / COVER IMAGE"
-                            title="Set the atmosphere."
-                            description="Upload and position the image that becomes the hero background of your public portfolio."
-                        >
-                            <div className="space-y-5">
-                                <div
-                                    ref={
-                                        coverPreviewRef
-                                    }
-                                    className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-black/30"
-                                >
-                                    <CoverImagePreview
-                                        coverImage={
-                                            coverImagePreview
-                                        }
-                                        positionX={
-                                            coverImagePositionX
-                                        }
-                                        positionY={
-                                            coverImagePositionY
-                                        }
-                                        zoom={
-                                            coverImageZoom
-                                        }
-                                        offsetX={
-                                            coverImageOffsetX
-                                        }
-                                        offsetY={
-                                            coverImageOffsetY
-                                        }
-                                        onPointerDown={
-                                            handleCoverPointerDown
-                                        }
-                                        onPointerMove={
-                                            handleCoverPointerMove
-                                        }
-                                        onPointerUp={
-                                            stopCoverDragging
-                                        }
-                                        isDragging={
-                                            isDraggingCover
-                                        }
-                                        deviceGuide={
-                                            deviceGuide
-                                        }
-                                    />
-
-                                    {coverImagePreview && (
-                                        <div className="absolute right-4 top-4 flex gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={
-                                                    openCoverImagePicker
-                                                }
-                                                className="rounded-full border border-white/20 bg-black/55 px-3.5 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur-md transition hover:border-white/35 hover:bg-black/75"
-                                            >
-                                                Change
+                                                    <span className="mt-0.5 block truncate text-[8px] leading-4 text-zinc-600 transition group-hover:text-zinc-500">
+                                                        {group.description}
+                                                    </span>
+                                                </span>
                                             </button>
+                                        );
+                                    },
+                                )}
+                            </nav>
+                        </div>
 
-                                            <button
-                                                type="button"
-                                                onClick={
-                                                    handleRemoveCoverImage
-                                                }
-                                                className="rounded-full border border-red-400/20 bg-black/55 px-3.5 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-red-300 backdrop-blur-md transition hover:border-red-400/40 hover:bg-red-500/10"
-                                            >
-                                                Remove
-                                            </button>
-                                        </div>
-                                    )}
+                        {/* Mobile Navigation */}
+
+                        <div className="lg:hidden">
+                            <div className="rounded-2xl border border-white/[0.08] bg-[#0a0b0d]/95 p-3 shadow-[0_16px_40px_rgba(0,0,0,0.28)] backdrop-blur-xl sm:p-4">
+                                <div className="mb-3">
+                                    <p className="text-[8px] uppercase tracking-[0.2em] text-zinc-600">
+                                        Customize section
+                                    </p>
+
+                                    <p className="mt-1 text-xs leading-5 text-zinc-500">
+                                        Choose what you want to customize.
+                                    </p>
                                 </div>
 
-                                <input
-                                    ref={
-                                        fileInputRef
-                                    }
-                                    id="cover_image"
-                                    name="cover_image"
-                                    type="file"
-                                    accept="image/jpeg,image/png,image/gif"
-                                    onChange={
-                                        handleCoverImageChange
-                                    }
-                                    className="sr-only"
-                                />
+                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                    {settingsGroups.map(
+                                        (group, index) => {
+                                            const active =
+                                                activeSection === group.id;
 
-                                {coverImagePreview && (
-                                    <>
-                                        <div className="flex flex-col gap-3 rounded-2xl border border-white/[0.07] bg-black/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                                            <div>
-                                                <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-600">
-                                                    Device Guide
-                                                </p>
-                                                <p className="mt-1 text-xs text-zinc-500">
-                                                    Use the outline to preview how the hero may be framed across devices.
-                                                </p>
-                                            </div>
+                                            return (
+                                                <button
+                                                    key={group.id}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        selectSettingsSection(
+                                                            group.id,
+                                                        )
+                                                    }
+                                                    className={`min-w-0 rounded-xl border px-3 py-3 text-left transition ${active
+                                                        ? 'border-white/[0.14] bg-white/[0.07] text-white'
+                                                        : 'border-white/[0.06] bg-white/[0.02] text-zinc-500 hover:border-white/[0.1] hover:bg-white/[0.04] hover:text-zinc-200'
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span
+                                                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[8px] font-medium tabular-nums"
+                                                            style={{
+                                                                borderColor: active
+                                                                    ? `${SETTINGS_UI_ACCENT}45`
+                                                                    : 'rgba(255,255,255,0.08)',
+                                                                backgroundColor: active
+                                                                    ? `${SETTINGS_UI_ACCENT}10`
+                                                                    : 'rgba(255,255,255,0.02)',
+                                                                color: active
+                                                                    ? SETTINGS_UI_ACCENT
+                                                                    : 'rgba(255,255,255,0.35)',
+                                                            }}
+                                                        >
+                                                            {String(index + 1).padStart(
+                                                                2,
+                                                                '0',
+                                                            )}
+                                                        </span>
 
-                                            <div className="flex shrink-0 items-center gap-1 rounded-full border border-white/[0.07] bg-black/30 p-1">
-                                                {([
-                                                    ['desktop', 'Desktop'],
-                                                    ['tablet', 'Tablet'],
-                                                    ['mobile', 'Mobile'],
-                                                ] as const).map(([value, label]) => (
-                                                    <button
-                                                        key={value}
-                                                        type="button"
-                                                        onClick={() => setDeviceGuide(value)}
-                                                        className={`rounded-full px-3 py-1.5 text-[8px] uppercase tracking-[0.12em] transition ${deviceGuide === value
-                                                            ? 'bg-white/[0.1] text-white'
-                                                            : 'text-zinc-600 hover:text-zinc-300'
-                                                            }`}
-                                                    >
-                                                        {label}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        </div>
+                                                        <span className="min-w-0 truncate text-[10px] font-medium">
+                                                            {group.label}
+                                                        </span>
+                                                    </div>
 
-                                        <div className="flex flex-col gap-5 rounded-2xl border border-white/[0.07] bg-black/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                                            <div>
-                                                <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-600">
-                                                    Image Position
-                                                </p>
+                                                    <p className="mt-2 truncate text-[8px] leading-4 text-zinc-600">
+                                                        {group.description}
+                                                    </p>
+                                                </button>
+                                            );
+                                        },
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
 
-                                                <p className="mt-1 text-xs text-zinc-500">
-                                                    Drag the image directly to
-                                                    position it. Use the zoom control
-                                                    below to adjust the scale.
-                                                </p>
-                                            </div>
+                    {/* Settings */}
 
-                                            <div className="min-w-0 flex-1 sm:max-w-[260px]">
-                                                <div className="mb-2 flex items-center justify-between">
-                                                    <span className="text-[9px] uppercase tracking-[0.16em] text-zinc-600">
-                                                        Zoom
-                                                    </span>
+                    <div className="min-w-0 space-y-6">
+                        {/* Template */}
+                        {activeSection === 'foundation' && (
+                            <GlassSection id="templates" eyebrow="01 / TEMPLATE" title="Choose your foundation." description="Templates control the overall visual structure of your public portfolio.">
+                                <div className="grid w-full grid-cols-2 gap-3 md:grid-cols-2">
+                                    {Object.values(templates).map((portfolioTemplate) => {
+                                        const isSelected =
+                                            template === portfolioTemplate.id;
 
-                                                    <span className="text-[10px] tabular-nums text-zinc-500">
-                                                        {Math.round(coverImageZoom * 100)}%
-                                                    </span>
+                                        return (
+                                            <button
+                                                key={portfolioTemplate.id}
+                                                type="button"
+                                                onClick={() =>
+                                                    setTemplate(portfolioTemplate.id)
+                                                }
+                                                className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition ${isSelected
+                                                    ? 'border-white/[0.22] bg-white/[0.06]'
+                                                    : 'border-white/[0.07] bg-black/20 hover:border-white/[0.14] hover:bg-white/[0.025]'
+                                                    }`}
+                                            >
+                                                {/* Template Preview */}
+                                                <div className="relative aspect-[16/8] overflow-hidden rounded-xl border border-white/[0.07] bg-black">
+                                                    {portfolioTemplate.id === 'default' &&
+                                                        coverImagePreview ? (
+                                                        <img
+                                                            src={coverImagePreview}
+                                                            alt=""
+                                                            className="absolute inset-0 h-full w-full object-cover"
+                                                            style={{
+                                                                objectPosition: `${coverImagePositionX}% ${coverImagePositionY}%`,
+                                                                transform: `translate(${coverImageOffsetX}%, ${coverImageOffsetY}%) scale(${coverImageZoom})`,
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <div className="absolute inset-0 bg-[linear-gradient(135deg,#111318_0%,#08090b_45%,#15121b_100%)]" />
+                                                    )}
+
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" />
+
+                                                    {/* Template Label */}
+                                                    <div className="absolute left-3 top-3">
+                                                        <span className="rounded-full border border-white/[0.1] bg-black/50 px-2.5 py-1 text-[7px] uppercase tracking-[0.18em] text-white/60 backdrop-blur-md">
+                                                            {portfolioTemplate.type}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Selected Indicator */}
+                                                    {isSelected && (
+                                                        <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#7de7ff]/20 bg-[#7de7ff]/[0.08] backdrop-blur-md">
+                                                            <CheckIcon className="h-3.5 w-3.5 text-[#7de7ff]" />
+                                                        </div>
+                                                    )}
+
+                                                    {/* Template Preview Structure */}
+                                                    <div className="absolute bottom-3 left-3 right-3">
+                                                        <div className="h-1.5 w-14 rounded-full bg-white/80" />
+
+                                                        <div className="mt-1.5 h-1 w-8 rounded-full bg-white/40" />
+
+                                                        <div
+                                                            className="mt-3 h-1.5 w-20 rounded-full"
+                                                            style={{
+                                                                backgroundColor: `${SETTINGS_UI_ACCENT}80`,
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
 
-                                                <input
-                                                    type="range"
-                                                    min="1"
-                                                    max="2"
-                                                    step="0.05"
-                                                    value={coverImageZoom}
-                                                    onChange={(event) => {
-                                                        const nextZoom = Number(event.target.value);
+                                                {/* Template Information */}
+                                                <div className="mt-4 flex items-start justify-between gap-4">
+                                                    <div className="min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <p className="text-sm font-medium text-zinc-200">
+                                                                {portfolioTemplate.name}
+                                                            </p>
 
-                                                        setCoverImageZoom(nextZoom);
+                                                            {portfolioTemplate.type ===
+                                                                'premium' && (
+                                                                    <span className="text-[8px] uppercase tracking-[0.15em] text-[#f0a7e5]">
+                                                                        Premium
+                                                                    </span>
+                                                                )}
+                                                        </div>
 
-                                                        if (nextZoom === 1) {
-                                                            setCoverImageOffsetX(0);
-                                                            setCoverImageOffsetY(0);
-                                                        }
-                                                    }}
-                                                    className="w-full accent-white"
-                                                    aria-label="Cover image zoom"
-                                                />
-                                            </div>
-
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    setCoverImagePositionX(50);
-                                                    setCoverImagePositionY(50);
-                                                    setCoverImageZoom(1);
-                                                    setCoverImageOffsetX(0);
-                                                    setCoverImageOffsetY(0);
-                                                }}
-                                                className="shrink-0 rounded-full border border-white/[0.08] px-3 py-2 text-[9px] uppercase tracking-[0.14em] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
-                                            >
-                                                Reset
+                                                        <p className="mt-1 text-xs leading-5 text-zinc-600">
+                                                            {portfolioTemplate.description}
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </button>
-                                        </div>
-                                    </>
-                                )}
-
-                                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                    <p className="text-[11px] leading-5 text-zinc-600">
-                                        JPEG, PNG, or GIF · Minimum 2660 ×
-                                        1140 px · Maximum 5 MB.
-                                    </p>
-
-                                    {coverImage && (
-                                        <p className="shrink-0 text-[10px] uppercase tracking-[0.15em] text-[#7de7ff]/70">
-                                            Ready to upload
-                                        </p>
-                                    )}
+                                        );
+                                    })}
                                 </div>
-
-                                {coverImageError && (
-                                    <p className="text-xs leading-5 text-red-400">
-                                        {coverImageError}
-                                    </p>
-                                )}
-                            </div>
-                        </GlassSection>
+                            </GlassSection>
+                        )}
 
                         {/* Presets */}
 
-                        <GlassSection
-                            eyebrow="05 / PRESETS"
-                            title="Start from a direction."
-                            description="Choose a visual direction, then refine each color above."
-                        >
-                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                {palettes.map(
-                                    (palette) => (
-                                        <PaletteButton
-                                            key={
-                                                palette.name
-                                            }
-                                            palette={
-                                                palette
-                                            }
-                                            active={
-                                                primaryColor ===
-                                                palette.primary &&
-                                                backgroundColor ===
-                                                palette.background &&
-                                                accentColor ===
-                                                palette.accent
-                                            }
-                                            onClick={() =>
-                                                applyPalette(
-                                                    palette,
-                                                )
-                                            }
-                                        />
-                                    ),
-                                )}
-                            </div>
-                        </GlassSection>
-                    </div>
-
-                    {/* ========================================================
-                        LIVE PREVIEW
-                    ========================================================= */}
-
-                    <aside className="space-y-6">
-                        <div className="sticky top-24">
+                        {activeSection === 'theme' && (
                             <GlassSection
-                                eyebrow="LIVE / PREVIEW"
-                                title="See your space."
-                                description="This is the Default portfolio template rendered with your current settings."
+                                id="presets"
+                                eyebrow="02 / PRESETS"
+                                title="Start from a direction."
+                                description="Choose a visual direction, then refine each color above."
                             >
-                                <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-black shadow-2xl">
-                                    {template ===
-                                        'default' ? (
-                                        <DefaultPortfolioPreview
-                                            settings={
-                                                previewSettings
-                                            }
-                                        />
-                                    ) : null}
+                                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                    {palettes.map(
+                                        (palette) => (
+                                            <PaletteButton
+                                                key={
+                                                    palette.name
+                                                }
+                                                palette={
+                                                    palette
+                                                }
+                                                active={
+                                                    primaryColor ===
+                                                    palette.primary &&
+                                                    backgroundColor ===
+                                                    palette.background &&
+                                                    accentColor ===
+                                                    palette.accent
+                                                }
+                                                onClick={() =>
+                                                    applyPalette(
+                                                        palette,
+                                                    )
+                                                }
+                                            />
+                                        ),
+                                    )}
                                 </div>
+                            </GlassSection>
+                        )}
 
-                                <div className="mt-5 rounded-2xl border border-white/[0.06] bg-black/20 p-4">
-                                    <div className="flex items-start gap-3">
-                                        <div
-                                            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border"
-                                            style={{
-                                                borderColor:
-                                                    `${accentColor}25`,
-                                                backgroundColor:
-                                                    `${accentColor}0d`,
-                                                color:
-                                                    accentColor,
-                                            }}
-                                        >
-                                            <CheckIcon className="h-3.5 w-3.5" />
+                        {/* Color System */}
+
+                        {activeSection === 'theme' && (
+                            <GlassSection id="colors" eyebrow="03 / COLOR SYSTEM" title="Define your visual language." description="Set the colors that shape the actual public portfolio.">
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <ColorField
+                                        id="primary_color"
+                                        label="Primary"
+                                        description="Your main visual color."
+                                        value={primaryColor}
+                                        onChange={setPrimaryColor}
+                                    />
+
+                                    <ColorField
+                                        id="accent_color"
+                                        label="Accent"
+                                        description="Secondary color used for emphasis."
+                                        value={accentColor}
+                                        onChange={setAccentColor}
+                                    />
+
+                                    <ColorField
+                                        id="hover_color"
+                                        label="Hover"
+                                        description="Color used for interactive hover states."
+                                        value={hoverColor}
+                                        onChange={setHoverColor}
+                                    />
+
+                                    <ColorField
+                                        id="background_color"
+                                        label="Background"
+                                        description="The main background color of your portfolio."
+                                        value={backgroundColor}
+                                        onChange={setBackgroundColor}
+                                    />
+
+                                    <ColorField
+                                        id="surface_color"
+                                        label="Surface"
+                                        description="Color used for secondary surfaces and panels."
+                                        value={surfaceColor}
+                                        onChange={setSurfaceColor}
+                                    />
+
+                                    <ColorField
+                                        id="text_color"
+                                        label="Text"
+                                        description="Primary text color."
+                                        value={textColor}
+                                        onChange={setTextColor}
+                                    />
+
+                                    <ColorField
+                                        id="muted_text_color"
+                                        label="Muted Text"
+                                        description="Secondary and supporting text color."
+                                        value={mutedTextColor}
+                                        onChange={setMutedTextColor}
+                                    />
+
+                                    <ColorField
+                                        id="border_color"
+                                        label="Border"
+                                        description="Color used for borders and dividers."
+                                        value={borderColor}
+                                        onChange={setBorderColor}
+                                    />
+                                </div>
+                            </GlassSection>
+                        )}
+
+                        {/* Project Cards */}
+
+                        {activeSection === 'theme' && (
+                            <GlassSection id="project-cards" eyebrow="04 / PROJECT CARDS" title="Style your work." description="Control how your projects appear inside the Default portfolio.">
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <ColorField
+                                        id="card_background_color"
+                                        label="Card Background"
+                                        description="Background color used for project cards."
+                                        value={cardBackgroundColor}
+                                        onChange={setCardBackgroundColor}
+                                    />
+
+                                    <ColorField
+                                        id="card_text_color"
+                                        label="Card Text"
+                                        description="Text color used inside project cards."
+                                        value={cardTextColor}
+                                        onChange={setCardTextColor}
+                                    />
+
+                                    <ColorField
+                                        id="card_accent_color"
+                                        label="Card Accent"
+                                        description="Accent color used inside project cards."
+                                        value={cardAccentColor}
+                                        onChange={setCardAccentColor}
+                                    />
+
+                                    <ColorField
+                                        id="card_primary_color"
+                                        label="Card Primary"
+                                        description="Primary color used for project card emphasis."
+                                        value={cardPrimaryColor}
+                                        onChange={setCardPrimaryColor}
+                                    />
+
+                                    <ColorField
+                                        id="card_hover_color"
+                                        label="Card Hover"
+                                        description="Color used when interacting with project cards."
+                                        value={cardHoverColor}
+                                        onChange={setCardHoverColor}
+                                    />
+                                </div>
+                            </GlassSection>
+                        )}
+
+                        {/* Cover Image */}
+
+                        {activeSection === 'hero' && (
+                            <GlassSection
+                                id="cover"
+                                eyebrow="05 / COVER IMAGE"
+                                title="Set the atmosphere."
+                                description="Upload and position the image that becomes the hero background of your public portfolio."
+                            >
+                                <div className="space-y-5">
+                                    <div
+                                        ref={
+                                            coverPreviewRef
+                                        }
+                                        className="relative mx-auto w-full max-w-3xl overflow-hidden rounded-2xl border border-white/[0.08] bg-black/30"
+                                    >
+                                        <CoverImagePreview
+                                            coverImage={coverImagePreview}
+                                            positionX={coverImagePositionX}
+                                            positionY={coverImagePositionY}
+                                            zoom={coverImageZoom}
+                                            offsetX={coverImageOffsetX}
+                                            offsetY={coverImageOffsetY}
+                                            aspectRatio={viewportRatio}
+                                            onPointerDown={handleCoverPointerDown}
+                                            onPointerMove={handleCoverPointerMove}
+                                            onPointerUp={stopCoverDragging}
+                                            isDragging={isDraggingCover}
+                                        />
+
+                                        {coverImagePreview && (
+                                            <div className="absolute right-4 top-4 flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={
+                                                        openCoverImagePicker
+                                                    }
+                                                    className="rounded-full border border-white/20 bg-black/55 px-3.5 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-white backdrop-blur-md transition hover:border-white/35 hover:bg-black/75"
+                                                >
+                                                    Change
+                                                </button>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={
+                                                        handleRemoveCoverImage
+                                                    }
+                                                    className="rounded-full border border-red-400/20 bg-black/55 px-3.5 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-red-300 backdrop-blur-md transition hover:border-red-400/40 hover:bg-red-500/10"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <input
+                                        ref={
+                                            fileInputRef
+                                        }
+                                        id="cover_image"
+                                        name="cover_image"
+                                        type="file"
+                                        accept="image/jpeg,image/png,image/gif"
+                                        onChange={
+                                            handleCoverImageChange
+                                        }
+                                        className="sr-only"
+                                    />
+
+                                    {coverImagePreview && (
+                                        <>
+                                            <div className="flex flex-col gap-5 rounded-2xl border border-white/[0.07] bg-black/20 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                                                <div>
+                                                    <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-600">
+                                                        Image Position
+                                                    </p>
+
+                                                    <p className="mt-1 text-xs text-zinc-500">
+                                                        Drag the image directly to
+                                                        position it. Use the zoom control
+                                                        below to adjust the scale.
+                                                    </p>
+                                                </div>
+
+                                                <div className="min-w-0 flex-1 sm:max-w-[260px]">
+                                                    <div className="mb-2 flex items-center justify-between">
+                                                        <span className="text-[9px] uppercase tracking-[0.16em] text-zinc-600">
+                                                            Zoom
+                                                        </span>
+
+                                                        <span className="text-[10px] tabular-nums text-zinc-500">
+                                                            {Math.round(coverImageZoom * 100)}%
+                                                        </span>
+                                                    </div>
+
+                                                    <input
+                                                        type="range"
+                                                        min="1"
+                                                        max="2"
+                                                        step="0.05"
+                                                        value={coverImageZoom}
+                                                        onChange={(event) => {
+                                                            const nextZoom = Number(event.target.value);
+
+                                                            setCoverImageZoom(nextZoom);
+
+                                                            if (nextZoom === 1) {
+                                                                setCoverImageOffsetX(0);
+                                                                setCoverImageOffsetY(0);
+                                                            }
+                                                        }}
+                                                        className="w-full accent-white"
+                                                        aria-label="Cover image zoom"
+                                                    />
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setCoverImagePositionX(50);
+                                                        setCoverImagePositionY(50);
+                                                        setCoverImageZoom(1);
+                                                        setCoverImageOffsetX(0);
+                                                        setCoverImageOffsetY(0);
+                                                    }}
+                                                    className="shrink-0 rounded-full border border-white/[0.08] px-3 py-2 text-[9px] uppercase tracking-[0.14em] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
+                                                >
+                                                    Reset
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <p className="text-[11px] leading-5 text-zinc-600">
+                                            JPEG, PNG, or GIF · Minimum 2660 ×
+                                            1140 px · Maximum 5 MB.
+                                        </p>
+
+                                        {coverImage && (
+                                            <p className="shrink-0 text-[10px] uppercase tracking-[0.15em] text-[#7de7ff]/70">
+                                                Ready to upload
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {coverImageError && (
+                                        <p className="text-xs leading-5 text-red-400">
+                                            {coverImageError}
+                                        </p>
+                                    )}
+                                </div>
+                            </GlassSection>
+                        )}
+
+                        {/* Hero section */}
+
+                        {activeSection === 'hero' && (
+                            <GlassSection id="hero" title="Hero">
+                                <div className="space-y-5">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-white">
+                                                Show Hero
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-white/50">
+                                                Display the hero section on your public portfolio.
+                                            </p>
                                         </div>
 
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowHero((value) => !value)}
+                                            className={`relative h-6 w-11 rounded-full transition ${showHero
+                                                ? 'bg-white'
+                                                : 'bg-white/10'
+                                                }`}
+                                            aria-pressed={showHero}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showHero
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-white/50'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Hero Label
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value={heroLabel}
+                                            onChange={(event) =>
+                                                setHeroLabel(event.target.value)
+                                            }
+                                            placeholder="Selected work"
+                                            maxLength={100}
+                                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. Leave empty to use the template default.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Hero Statement
+                                        </label>
+
+                                        <textarea
+                                            value={heroStatement}
+                                            onChange={(event) =>
+                                                setHeroStatement(event.target.value)
+                                            }
+                                            placeholder="Create boldly. Make something that lasts."
+                                            maxLength={500}
+                                            rows={4}
+                                            className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. A short statement displayed in your hero.
+                                        </p>
+                                    </div>
+
+                                    {template === 'canvas' && (
                                         <div>
-                                            <p className="text-sm font-medium text-zinc-300">
-                                                Live template
-                                                preview
+                                            <label className="mb-2 block text-sm font-medium text-white">
+                                                Canvas Background Text
+                                            </label>
+
+                                            <textarea
+                                                value={canvasBackgroundText}
+                                                onChange={(event) =>
+                                                    setCanvasBackgroundText(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                placeholder="ART CREATES SPACE"
+                                                maxLength={500}
+                                                rows={4}
+                                                className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase tracking-[0.08em] text-white outline-none transition placeholder:text-white/20 focus:border-white/30"
+                                            />
+
+                                            <p className="mt-2 text-xs leading-5 text-white/40">
+                                                Optional. Large background typography used by the Canvas template.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </GlassSection>
+                        )}
+
+                        {/* About Section */}
+
+                        {activeSection === 'content' && (
+                            <GlassSection id="about" title="About">
+                                <div className="space-y-5">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-white">
+                                                Show About
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-white/50">
+                                                Display your artist information on your public portfolio.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowAbout((value) => !value)}
+                                            className={`relative h-6 w-11 rounded-full transition ${showAbout
+                                                ? 'bg-white'
+                                                : 'bg-white/10'
+                                                }`}
+                                            aria-pressed={showAbout}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showAbout
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-white/50'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            About Label
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value={aboutLabel}
+                                            onChange={(event) =>
+                                                setAboutLabel(event.target.value)
+                                            }
+                                            placeholder="About"
+                                            maxLength={100}
+                                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. Leave empty to use the template default.
+                                        </p>
+                                    </div>
+                                </div>
+                            </GlassSection>
+                        )}
+
+                        {/* Work section */}
+
+                        {activeSection === 'content' && (
+                            <GlassSection id="work" title="Work">
+                                <div className="space-y-5">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-white">
+                                                Show Work
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-white/50">
+                                                Display your selected projects on your public portfolio.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowWork((value) => !value)}
+                                            className={`relative h-6 w-11 rounded-full transition ${showWork
+                                                ? 'bg-white'
+                                                : 'bg-white/10'
+                                                }`}
+                                            aria-pressed={showWork}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showWork
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-white/50'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Work Label
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value={workLabel}
+                                            onChange={(event) =>
+                                                setWorkLabel(event.target.value)
+                                            }
+                                            placeholder="Work with intention."
+                                            maxLength={100}
+                                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. Leave empty to use the template default.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Work Description
+                                        </label>
+
+                                        <textarea
+                                            value={workDescription}
+                                            onChange={(event) =>
+                                                setWorkDescription(event.target.value)
+                                            }
+                                            placeholder="A selection of projects, collaborations, and creative work."
+                                            maxLength={500}
+                                            rows={4}
+                                            className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. A short introduction for your work section.
+                                        </p>
+                                    </div>
+                                </div>
+                            </GlassSection>
+                        )}
+
+                        {/* Artist Message */}
+
+                        {activeSection === 'content' && (
+                            <GlassSection id="artist-message" title="Artist Message">
+                                <div className="space-y-5">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-white">
+                                                Show Artist Message
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-white/50">
+                                                Display a personal message, motto, or creative statement.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShowArtistMessage((value) => !value)
+                                            }
+                                            className={`relative h-6 w-11 rounded-full transition ${showArtistMessage
+                                                ? 'bg-white'
+                                                : 'bg-white/10'
+                                                }`}
+                                            aria-pressed={showArtistMessage}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showArtistMessage
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-white/50'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Message Label
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value={artistMessageLabel}
+                                            onChange={(event) =>
+                                                setArtistMessageLabel(event.target.value)
+                                            }
+                                            placeholder="A little about the artist"
+                                            maxLength={100}
+                                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. Leave empty to use the template default.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Message
+                                        </label>
+
+                                        <textarea
+                                            value={artistMessage}
+                                            onChange={(event) =>
+                                                setArtistMessage(event.target.value)
+                                            }
+                                            placeholder="Create with purpose. Leave something meaningful behind."
+                                            maxLength={2000}
+                                            rows={5}
+                                            className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. Share a motto, philosophy, or personal message.
+                                        </p>
+                                    </div>
+                                </div>
+                            </GlassSection>
+                        )}
+
+                        {/* Gallery Section */}
+
+                        {activeSection === 'content' && (
+                            <GlassSection
+                                id="gallery"
+                                title="Gallery"
+                                description="Build a visual collection of your work and control how it appears on your public portfolio."
+                            >
+                                <div className="space-y-6">
+                                    {/* Gallery Visibility */}
+
+                                    <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/[0.07] bg-black/20 p-5">
+                                        <div>
+                                            <p className="text-sm font-medium text-zinc-200">
+                                                Show Gallery
                                             </p>
 
                                             <p className="mt-1 text-xs leading-5 text-zinc-600">
-                                                Your changes are
-                                                previewed here before
-                                                they are saved.
+                                                Display a visual gallery on your public portfolio.
                                             </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            role="switch"
+                                            aria-checked={showGallery}
+                                            onClick={() =>
+                                                setShowGallery((current) => !current)
+                                            }
+                                            className={`relative h-6 w-11 shrink-0 rounded-full border transition ${showGallery
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
+                                                }`}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showGallery
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-zinc-700'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    {/* Gallery Settings */}
+
+                                    <div
+                                        className={`space-y-5 transition-opacity ${showGallery
+                                            ? 'opacity-100'
+                                            : 'pointer-events-none opacity-40'
+                                            }`}
+                                    >
+                                        {/* Label */}
+
+                                        <div>
+                                            <label
+                                                htmlFor="gallery_label"
+                                                className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400"
+                                            >
+                                                Section Label
+                                            </label>
+
+                                            <input
+                                                id="gallery_label"
+                                                type="text"
+                                                value={galleryLabel}
+                                                onChange={(event) =>
+                                                    setGalleryLabel(event.target.value)
+                                                }
+                                                placeholder="Gallery"
+                                                maxLength={100}
+                                                className="h-12 w-full rounded-xl border border-white/[0.08] bg-black/30 px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20 focus:bg-white/[0.035]"
+                                            />
+
+                                            <p className="mt-2 text-xs leading-5 text-zinc-600">
+                                                Optional. Leave empty to use the template default.
+                                            </p>
+                                        </div>
+
+                                        {/* Description */}
+
+                                        <div>
+                                            <label
+                                                htmlFor="gallery_description"
+                                                className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400"
+                                            >
+                                                Section Description
+                                            </label>
+
+                                            <textarea
+                                                id="gallery_description"
+                                                value={galleryDescription}
+                                                onChange={(event) =>
+                                                    setGalleryDescription(event.target.value)
+                                                }
+                                                placeholder="A collection of selected visual work."
+                                                maxLength={500}
+                                                rows={4}
+                                                className="w-full resize-none rounded-xl border border-white/[0.08] bg-black/30 px-4 py-3 text-sm text-zinc-300 outline-none transition focus:border-white/20 focus:bg-white/[0.035]"
+                                            />
+
+                                            <p className="mt-2 text-xs leading-5 text-zinc-600">
+                                                Optional. Add a short introduction to your gallery.
+                                            </p>
+                                        </div>
+
+                                        {/* Display Settings */}
+
+                                        <div className="border-t border-white/10 pt-6">
+                                            <div className="mb-5">
+                                                <p className="text-[9px] font-medium uppercase tracking-[0.25em] text-white">
+                                                    Responsive Layout
+                                                </p>
+
+                                                <p className="mt-2 text-xs leading-5 text-white/40">
+                                                    Configure how the gallery behaves across
+                                                    different screen sizes.
+                                                </p>
+                                            </div>
+
+                                            {/* Device */}
+
+                                            <div className="grid grid-cols-3 border border-white/10">
+                                                {(
+                                                    [
+                                                        ['desktop', 'Desktop', '≥ 1024px'],
+                                                        ['tablet', 'Tablet', '768–1023px'],
+                                                        ['mobile', 'Mobile', '< 768px'],
+                                                    ] as const
+                                                ).map(([device, label, range]) => {
+                                                    const active =
+                                                        galleryDevice === device;
+
+                                                    return (
+                                                        <button
+                                                            key={device}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                setGalleryDevice(device)
+                                                            }
+                                                            className="border-r border-white/10 px-4 py-4 text-left transition-colors last:border-r-0"
+                                                            style={{
+                                                                backgroundColor: active
+                                                                    ? `${SETTINGS_UI_ACCENT}12`
+                                                                    : 'transparent',
+                                                            }}
+                                                        >
+                                                            <span
+                                                                className="block text-[9px] uppercase tracking-[0.2em]"
+                                                                style={{
+                                                                    color: active
+                                                                        ? SETTINGS_UI_ACCENT
+                                                                        : 'rgba(255,255,255,0.45)',
+                                                                }}
+                                                            >
+                                                                {label}
+                                                            </span>
+
+                                                            <span className="mt-1 block text-[8px] uppercase tracking-[0.15em] text-white/25">
+                                                                {range}
+                                                            </span>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+
+                                            {/* Display */}
+
+                                            <div className="mt-6">
+                                                <label className="text-[9px] uppercase tracking-[0.2em] text-white/45">
+                                                    Display
+                                                </label>
+
+                                                <select
+                                                    value={
+                                                        galleryResponsive[
+                                                            galleryDevice
+                                                        ].display
+                                                    }
+                                                    onChange={(event) =>
+                                                        updateGalleryResponsive({
+                                                            display: event.target.value as
+                                                                | 'grid'
+                                                                | 'masonry'
+                                                                | 'editorial'
+                                                                | 'freeform',
+                                                        })
+                                                    }
+                                                    className="mt-2 w-full border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none"
+                                                >
+                                                    <option value="grid">
+                                                        Grid
+                                                    </option>
+
+                                                    <option value="masonry">
+                                                        Masonry
+                                                    </option>
+
+                                                    <option value="editorial">
+                                                        Editorial
+                                                    </option>
+
+                                                    <option value="freeform">
+                                                        Freeform
+                                                    </option>
+                                                </select>
+                                            </div>
+
+                                            {/* Columns */}
+
+                                            <div className="mt-5">
+                                                <label className="text-[9px] uppercase tracking-[0.2em] text-white/45">
+                                                    Columns
+                                                </label>
+
+                                                <div className="mt-2 grid grid-cols-4 gap-2">
+                                                    {getGalleryColumnOptions().map(
+                                                        (columns) => {
+                                                            const active =
+                                                                Number(
+                                                                    galleryResponsive[galleryDevice].columns,
+                                                                ) === columns;
+
+                                                            return (
+                                                                <button
+                                                                    key={columns}
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        updateGalleryResponsive({
+                                                                            columns,
+                                                                        })
+                                                                    }
+                                                                    className="border px-3 py-3 text-xs transition-colors"
+                                                                    style={{
+                                                                        borderColor: active
+                                                                            ? SETTINGS_UI_ACCENT
+                                                                            : 'rgba(255,255,255,0.1)',
+
+                                                                        backgroundColor: active
+                                                                            ? `${SETTINGS_UI_ACCENT}12`
+                                                                            : 'transparent',
+
+                                                                        color: active
+                                                                            ? SETTINGS_UI_ACCENT
+                                                                            : 'rgba(255,255,255,0.5)',
+                                                                    }}
+                                                                >
+                                                                    {columns}
+                                                                </button>
+                                                            );
+                                                        },
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Image Aspect */}
+
+                                            <div className="mt-5">
+                                                <label className="text-[9px] uppercase tracking-[0.2em] text-white/45">
+                                                    Image Aspect
+                                                </label>
+
+                                                <select
+                                                    value={
+                                                        galleryResponsive[
+                                                            galleryDevice
+                                                        ].image_aspect
+                                                    }
+                                                    onChange={(event) =>
+                                                        updateGalleryResponsive({
+                                                            image_aspect:
+                                                                event.target.value as
+                                                                | 'original'
+                                                                | 'square'
+                                                                | 'portrait'
+                                                                | 'landscape',
+                                                        })
+                                                    }
+                                                    className="mt-2 w-full border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none"
+                                                >
+                                                    <option value="original">
+                                                        Original
+                                                    </option>
+
+                                                    <option value="square">
+                                                        Square
+                                                    </option>
+
+                                                    <option value="portrait">
+                                                        Portrait
+                                                    </option>
+
+                                                    <option value="landscape">
+                                                        Landscape
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {/* Display Options */}
+
+                                        <div className="grid gap-3 sm:grid-cols-3">
+                                            {/* Captions */}
+
+                                            <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.07] bg-black/20 p-4">
+                                                <div>
+                                                    <p className="text-sm text-zinc-300">
+                                                        Captions
+                                                    </p>
+
+                                                    <p className="mt-1 text-xs text-zinc-600">
+                                                        Show image captions.
+                                                    </p>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    role="switch"
+                                                    aria-checked={galleryShowCaptions}
+                                                    onClick={() =>
+                                                        setGalleryShowCaptions(
+                                                            (current) => !current,
+                                                        )
+                                                    }
+                                                    className={`relative h-6 w-11 shrink-0 rounded-full border transition ${galleryShowCaptions
+                                                        ? 'border-white/20 bg-white'
+                                                        : 'border-white/[0.08] bg-black/40'
+                                                        }`}
+                                                >
+                                                    <span
+                                                        className={`absolute top-1 h-4 w-4 rounded-full transition ${galleryShowCaptions
+                                                            ? 'left-6 bg-black'
+                                                            : 'left-1 bg-zinc-700'
+                                                            }`}
+                                                    />
+                                                </button>
+                                            </div>
+
+                                            {/* Titles */}
+
+                                            <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.07] bg-black/20 p-4">
+                                                <div>
+                                                    <p className="text-sm text-zinc-300">
+                                                        Titles
+                                                    </p>
+
+                                                    <p className="mt-1 text-xs text-zinc-600">
+                                                        Show image titles.
+                                                    </p>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    role="switch"
+                                                    aria-checked={galleryShowTitles}
+                                                    onClick={() =>
+                                                        setGalleryShowTitles(
+                                                            (current) => !current,
+                                                        )
+                                                    }
+                                                    className={`relative h-6 w-11 shrink-0 rounded-full border transition ${galleryShowTitles
+                                                        ? 'border-white/20 bg-white'
+                                                        : 'border-white/[0.08] bg-black/40'
+                                                        }`}
+                                                >
+                                                    <span
+                                                        className={`absolute top-1 h-4 w-4 rounded-full transition ${galleryShowTitles
+                                                            ? 'left-6 bg-black'
+                                                            : 'left-1 bg-zinc-700'
+                                                            }`}
+                                                    />
+                                                </button>
+                                            </div>
+
+                                            {/* Lightbox */}
+
+                                            <div className="flex items-center justify-between gap-3 rounded-2xl border border-white/[0.07] bg-black/20 p-4">
+                                                <div>
+                                                    <p className="text-sm text-zinc-300">
+                                                        Lightbox
+                                                    </p>
+
+                                                    <p className="mt-1 text-xs text-zinc-600">
+                                                        Open images in a larger view.
+                                                    </p>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    role="switch"
+                                                    aria-checked={galleryEnableLightbox}
+                                                    onClick={() =>
+                                                        setGalleryEnableLightbox(
+                                                            (current) => !current,
+                                                        )
+                                                    }
+                                                    className={`relative h-6 w-11 shrink-0 rounded-full border transition ${galleryEnableLightbox
+                                                        ? 'border-white/20 bg-white'
+                                                        : 'border-white/[0.08] bg-black/40'
+                                                        }`}
+                                                >
+                                                    <span
+                                                        className={`absolute top-1 h-4 w-4 rounded-full transition ${galleryEnableLightbox
+                                                            ? 'left-6 bg-black'
+                                                            : 'left-1 bg-zinc-700'
+                                                            }`}
+                                                    />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        {/* Gallery Images */}
+
+                                        <div className="border-t border-white/[0.06] pt-6">
+                                            <div className="sticky top-20 z-20 -mx-2 flex flex-col gap-3 rounded-2xl border border-white/[0.07] bg-[#0a0b0d]/90 p-3 shadow-[0_16px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-sm font-medium text-zinc-200">
+                                                            Gallery Images
+                                                        </p>
+
+                                                        <span className="rounded-full border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[8px] uppercase tracking-[0.14em] text-zinc-500">
+                                                            {galleryImages.length} {galleryImages.length === 1 ? 'image' : 'images'}
+                                                        </span>
+                                                    </div>
+
+                                                    <p className="mt-1 text-xs leading-5 text-zinc-600">
+                                                        Upload, edit, and arrange your gallery images without losing your place.
+                                                    </p>
+                                                </div>
+
+                                                <button
+                                                    type="button"
+                                                    onClick={addGalleryImage}
+                                                    className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-300 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+                                                >
+                                                    Add Image
+                                                </button>
+                                            </div>
+
+                                            {galleryUploadError && (
+                                                <div
+                                                    ref={galleryUploadErrorRef}
+                                                    tabIndex={-1}
+                                                    role="alert"
+                                                    aria-live="assertive"
+                                                    className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/[0.06] px-4 py-3 outline-none focus:ring-2 focus:ring-red-400/30"
+                                                >
+                                                    <p className="text-xs leading-5 text-red-200">
+                                                        {galleryUploadError}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {galleryImages.length === 0 ? (
+                                                <div className="mt-4 rounded-2xl border border-dashed border-white/[0.08] bg-black/20 px-5 py-10 text-center">
+                                                    <p className="text-sm text-zinc-400">
+                                                        No gallery images yet.
+                                                    </p>
+
+                                                    <p className="mt-1 text-xs text-zinc-600">
+                                                        Add your first image to start building your
+                                                        gallery.
+                                                    </p>
+                                                </div>
+                                            ) : (
+                                                <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                                                    {galleryImages.map((image, index) => {
+                                                        const imagePreview =
+                                                            image.preview ??
+                                                            getImageUrl(image.image);
+
+                                                        return (
+                                                            <div
+                                                                key={
+                                                                    image.id ??
+                                                                    `gallery-${index}`
+                                                                }
+                                                                className="h-full rounded-2xl border border-white/[0.07] bg-black/20 p-4"
+                                                            >
+                                                                <div className="flex flex-col gap-5">
+                                                                    {/* Header */}
+
+                                                                    <div className="flex items-start justify-between gap-4">
+                                                                        <div>
+                                                                            <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-600">
+                                                                                Image{' '}
+                                                                                {String(
+                                                                                    index + 1,
+                                                                                ).padStart(
+                                                                                    2,
+                                                                                    '0',
+                                                                                )}
+                                                                            </p>
+
+                                                                            <p className="mt-1 text-sm font-medium text-zinc-200">
+                                                                                {image.title ||
+                                                                                    'Untitled Image'}
+                                                                            </p>
+                                                                        </div>
+
+                                                                        <div className="flex items-center gap-1">
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() =>
+                                                                                    moveGalleryImage(
+                                                                                        index,
+                                                                                        'up',
+                                                                                    )
+                                                                                }
+                                                                                disabled={
+                                                                                    index ===
+                                                                                    0
+                                                                                }
+                                                                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] text-zinc-500 transition hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                                                                                aria-label="Move image up"
+                                                                            >
+                                                                                ↑
+                                                                            </button>
+
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() =>
+                                                                                    moveGalleryImage(
+                                                                                        index,
+                                                                                        'down',
+                                                                                    )
+                                                                                }
+                                                                                disabled={
+                                                                                    index ===
+                                                                                    galleryImages.length -
+                                                                                    1
+                                                                                }
+                                                                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] text-zinc-500 transition hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                                                                                aria-label="Move image down"
+                                                                            >
+                                                                                ↓
+                                                                            </button>
+
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() =>
+                                                                                    removeGalleryImage(
+                                                                                        index,
+                                                                                    )
+                                                                                }
+                                                                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-400/10 text-red-300/60 transition hover:border-red-400/25 hover:bg-red-500/5 hover:text-red-300"
+                                                                                aria-label="Remove gallery image"
+                                                                            >
+                                                                                ×
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    {/* Image */}
+
+                                                                    <div className="grid gap-5 lg:grid-cols-[220px_1fr]">
+                                                                        <div className="space-y-3">
+                                                                            <div className="relative aspect-square overflow-hidden rounded-xl border border-white/[0.08] bg-black/40">
+                                                                                {imagePreview ? (
+                                                                                    <img
+                                                                                        src={
+                                                                                            imagePreview
+                                                                                        }
+                                                                                        alt={
+                                                                                            image.alt_text ||
+                                                                                            ''
+                                                                                        }
+                                                                                        className="h-full w-full object-cover"
+                                                                                    />
+                                                                                ) : (
+                                                                                    <div className="flex h-full items-center justify-center px-5 text-center">
+                                                                                        <div>
+                                                                                            <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-600">
+                                                                                                No image
+                                                                                            </p>
+
+                                                                                            <p className="mt-2 text-xs leading-5 text-zinc-700">
+                                                                                                Choose an image
+                                                                                                below.
+                                                                                            </p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+
+                                                                            <label
+                                                                                className="flex cursor-pointer items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-400 transition hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
+                                                                            >
+                                                                                {imagePreview
+                                                                                    ? 'Change Image'
+                                                                                    : 'Choose Image'}
+
+                                                                                <input
+                                                                                    type="file"
+                                                                                    accept="image/jpeg,image/png,image/webp,image/gif"
+                                                                                    onChange={(
+                                                                                        event,
+                                                                                    ) => {
+                                                                                        handleGalleryImageChange(
+                                                                                            index,
+                                                                                            event
+                                                                                                .target
+                                                                                                .files?.[0] ??
+                                                                                            null,
+                                                                                        );
+
+                                                                                        event.target.value =
+                                                                                            '';
+                                                                                    }}
+                                                                                    className="sr-only"
+                                                                                />
+                                                                            </label>
+
+                                                                            <p className="text-center text-[10px] leading-4 text-zinc-700">
+                                                                                JPG, PNG, WEBP, or GIF ·
+                                                                                Maximum 10 MB
+                                                                            </p>
+
+                                                                            {validationErrors[
+                                                                                `gallery_images.${index}.image`
+                                                                            ] && (
+                                                                                <p className="mt-2 text-center text-xs leading-5 text-red-300">
+                                                                                    {validationErrors[
+                                                                                        `gallery_images.${index}.image`
+                                                                                    ]}
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+
+                                                                        {/* Metadata */}
+
+                                                                        <div className="space-y-4">
+                                                                            <div>
+                                                                                <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
+                                                                                    Title
+                                                                                </label>
+
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={
+                                                                                        image.title
+                                                                                    }
+                                                                                    onChange={(
+                                                                                        event,
+                                                                                    ) =>
+                                                                                        updateGalleryImage(
+                                                                                            index,
+                                                                                            {
+                                                                                                title: event
+                                                                                                    .target
+                                                                                                    .value,
+                                                                                            },
+                                                                                        )
+                                                                                    }
+                                                                                    placeholder="Untitled"
+                                                                                    maxLength={
+                                                                                        255
+                                                                                    }
+                                                                                    className="h-12 w-full rounded-xl border border-white/[0.08] bg-black/30 px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20 focus:bg-white/[0.035]"
+                                                                                />
+                                                                            </div>
+
+                                                                            <div>
+                                                                                <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
+                                                                                    Caption
+                                                                                </label>
+
+                                                                                <textarea
+                                                                                    value={
+                                                                                        image.caption
+                                                                                    }
+                                                                                    onChange={(
+                                                                                        event,
+                                                                                    ) => {
+                                                                                        updateGalleryImage(
+                                                                                            index,
+                                                                                            {
+                                                                                                caption:
+                                                                                                    event
+                                                                                                        .target
+                                                                                                        .value,
+                                                                                            },
+                                                                                        );
+
+                                                                                        setValidationErrors(
+                                                                                            (current) => {
+                                                                                                const next = {
+                                                                                                    ...current,
+                                                                                                };
+
+                                                                                                delete next[
+                                                                                                    `gallery_images.${index}.caption`
+                                                                                                ];
+
+                                                                                                return next;
+                                                                                            },
+                                                                                        );
+                                                                                    }}
+                                                                                    placeholder="A short description of this image."
+                                                                                    rows={3}
+                                                                                    className={`w-full resize-none rounded-xl border bg-black/30 px-4 py-3 text-sm text-zinc-300 outline-none transition focus:bg-white/[0.035] ${validationErrors[
+                                                                                            `gallery_images.${index}.caption`
+                                                                                        ]
+                                                                                            ? 'border-red-400/50 focus:border-red-400/70'
+                                                                                            : 'border-white/[0.08] focus:border-white/20'
+                                                                                        }`}
+                                                                                />
+
+                                                                                <div className="mt-2 flex items-start justify-between gap-3">
+                                                                                    {validationErrors[
+                                                                                        `gallery_images.${index}.caption`
+                                                                                    ] ? (
+                                                                                        <p className="text-xs leading-5 text-red-300">
+                                                                                            {
+                                                                                                validationErrors[
+                                                                                                    `gallery_images.${index}.caption`
+                                                                                                ].replace(
+                                                                                                    /^The gallery_images\.\d+\.caption field /,
+                                                                                                    'The field ',
+                                                                                                )
+                                                                                            }
+                                                                                        </p>
+                                                                                    ) : (
+                                                                                        <p className="text-[10px] leading-4 text-zinc-600">
+                                                                                            Maximum 500 characters.
+                                                                                        </p>
+                                                                                    )}
+
+                                                                                    <span
+                                                                                        className={`shrink-0 text-[10px] ${image.caption.length > 500
+                                                                                                ? 'text-red-300'
+                                                                                                : 'text-zinc-600'
+                                                                                            }`}
+                                                                                    >
+                                                                                        {image.caption.length}/500
+                                                                                    </span>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            <div>
+                                                                                <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
+                                                                                    Alt Text
+                                                                                </label>
+
+                                                                                <input
+                                                                                    type="text"
+                                                                                    value={
+                                                                                        image.alt_text
+                                                                                    }
+                                                                                    onChange={(
+                                                                                        event,
+                                                                                    ) =>
+                                                                                        updateGalleryImage(
+                                                                                            index,
+                                                                                            {
+                                                                                                alt_text:
+                                                                                                    event
+                                                                                                        .target
+                                                                                                        .value,
+                                                                                            },
+                                                                                        )
+                                                                                    }
+                                                                                    placeholder="Describe the image for accessibility"
+                                                                                    maxLength={
+                                                                                        255
+                                                                                    }
+                                                                                    className="h-12 w-full rounded-xl border border-white/[0.08] bg-black/30 px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20 focus:bg-white/[0.035]"
+                                                                                />
+
+                                                                                <p className="mt-2 text-xs leading-5 text-zinc-600">
+                                                                                    Recommended for
+                                                                                    accessibility and
+                                                                                    search engines.
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
                             </GlassSection>
+                        )}
 
+                        {/* Music */}
+
+                        {activeSection === 'media' && (
+                            <GlassSection
+                                id="music"
+                                eyebrow="06 / MUSIC"
+                                title="Shape your sound."
+                                description="Control how your releases and music links appear on your public portfolio."
+                            >
+                                <div className="space-y-6">
+                                    {/* Show Music */}
+
+                                    <div className="flex flex-col gap-4 rounded-2xl border border-white/[0.07] bg-black/20 p-5 sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="max-w-xl">
+                                            <p className="text-sm font-medium text-zinc-200">
+                                                Show Music
+                                            </p>
+
+                                            <p className="mt-1 text-xs leading-5 text-zinc-600">
+                                                Display the music section on your public portfolio.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            role="switch"
+                                            aria-checked={showMusic}
+                                            onClick={() => setShowMusic((current) => !current)}
+                                            className={`relative h-6 w-11 shrink-0 rounded-full border transition ${showMusic
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
+                                                }`}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showMusic
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-zinc-700'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    {/* Release Display */}
+
+                                    <div
+                                        className={`space-y-5 transition-opacity ${showMusic
+                                            ? 'opacity-100'
+                                            : 'pointer-events-none opacity-40'
+                                            }`}
+                                    >
+                                        <div className="grid gap-5 sm:grid-cols-2">
+                                            <div>
+                                                <label
+                                                    htmlFor="music_release_display"
+                                                    className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400"
+                                                >
+                                                    Release Display
+                                                </label>
+
+                                                <p className="mb-3 min-h-[40px] text-xs leading-5 text-zinc-600">
+                                                    Choose whether the template shows your latest releases or every visible release.
+                                                </p>
+
+                                                <select
+                                                    id="music_release_display"
+                                                    value={musicReleaseDisplay}
+                                                    onChange={(event) =>
+                                                        setMusicReleaseDisplay(
+                                                            event.target.value as
+                                                            | 'latest'
+                                                            | 'all',
+                                                        )
+                                                    }
+                                                    className="h-12 w-full rounded-xl border border-white/[0.08] bg-[#08090b] px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20"
+                                                >
+                                                    <option value="latest">
+                                                        Latest releases
+                                                    </option>
+
+                                                    <option value="all">
+                                                        All visible releases
+                                                    </option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label
+                                                    htmlFor="music_release_limit"
+                                                    className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400"
+                                                >
+                                                    Number of Releases
+                                                </label>
+
+                                                <p className="mb-3 min-h-[40px] text-xs leading-5 text-zinc-600">
+                                                    Maximum number shown when using Latest releases.
+                                                </p>
+
+                                                <input
+                                                    id="music_release_limit"
+                                                    type="number"
+                                                    min={1}
+                                                    max={24}
+                                                    value={musicReleaseLimit}
+                                                    onChange={(event) =>
+                                                        setMusicReleaseLimit(
+                                                            Math.min(
+                                                                24,
+                                                                Math.max(
+                                                                    1,
+                                                                    Number(
+                                                                        event.target.value || 1,
+                                                                    ),
+                                                                ),
+                                                            ),
+                                                        )
+                                                    }
+                                                    className="h-12 w-full rounded-xl border border-white/[0.08] bg-black/30 px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20 focus:bg-white/[0.035]"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Featured Release */}
+
+                                        <div>
+                                            <label
+                                                htmlFor="featured_release"
+                                                className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400"
+                                            >
+                                                Featured Release
+                                            </label>
+
+                                            <p className="mb-3 text-xs leading-5 text-zinc-600">
+                                                Optionally highlight one visible release in templates that support featured music.
+                                            </p>
+
+                                            <select
+                                                id="featured_release"
+                                                value={
+                                                    featuredReleaseId ??
+                                                    ''
+                                                }
+                                                onChange={(
+                                                    event,
+                                                ) => {
+                                                    const value =
+                                                        event
+                                                            .target
+                                                            .value;
+
+                                                    setFeaturedReleaseId(
+                                                        value
+                                                            ? Number(
+                                                                value,
+                                                            )
+                                                            : null,
+                                                    );
+                                                }}
+                                                className="h-12 w-full rounded-xl border border-white/[0.08] bg-[#08090b] px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20"
+                                            >
+                                                <option value="">
+                                                    No featured release
+                                                </option>
+
+                                                {releases
+                                                    .filter(
+                                                        (
+                                                            release,
+                                                        ) =>
+                                                            release.is_visible,
+                                                    )
+                                                    .map(
+                                                        (
+                                                            release,
+                                                        ) => (
+                                                            <option
+                                                                key={
+                                                                    release.id
+                                                                }
+                                                                value={
+                                                                    release.id
+                                                                }
+                                                            >
+                                                                {
+                                                                    release.title
+                                                                }
+                                                            </option>
+                                                        ),
+                                                    )}
+                                            </select>
+
+                                            {releases.filter(
+                                                (release) =>
+                                                    release.is_visible,
+                                            ).length === 0 && (
+                                                    <p className="mt-3 text-xs text-zinc-600">
+                                                        No visible releases yet. Add a release from the Music section first.
+                                                    </p>
+                                                )}
+                                        </div>
+
+                                        {/* Music Links */}
+
+                                        <div className="flex flex-col gap-4 rounded-2xl border border-white/[0.07] bg-black/20 p-5 sm:flex-row sm:items-center sm:justify-between">
+                                            <div className="max-w-xl">
+                                                <p className="text-sm font-medium text-zinc-200">
+                                                    Show Music Links
+                                                </p>
+
+                                                <p className="mt-1 text-xs leading-5 text-zinc-600">
+                                                    Display available Spotify, Apple Music, YouTube, SoundCloud, and Bandcamp links with your releases.
+                                                </p>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                role="switch"
+                                                aria-checked={showMusicLinks}
+                                                onClick={() => setShowMusicLinks((current) => !current)}
+                                                className={`relative h-6 w-11 shrink-0 rounded-full border transition ${showMusicLinks
+                                                    ? 'border-white/20 bg-white'
+                                                    : 'border-white/[0.08] bg-black/40'
+                                                    }`}
+                                            >
+                                                <span
+                                                    className={`absolute top-1 h-4 w-4 rounded-full transition ${showMusicLinks
+                                                        ? 'left-6 bg-black'
+                                                        : 'left-1 bg-zinc-700'
+                                                        }`}
+                                                />
+                                            </button>
+                                        </div>
+
+                                        {/* Release Summary */}
+
+                                        <div className="grid gap-3 sm:grid-cols-3">
+                                            <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-4">
+                                                <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-600">
+                                                    Total Releases
+                                                </p>
+
+                                                <p className="mt-2 text-xl font-light text-white">
+                                                    {releases.length}
+                                                </p>
+                                            </div>
+
+                                            <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-4">
+                                                <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-600">
+                                                    Visible
+                                                </p>
+
+                                                <p className="mt-2 text-xl font-light text-white">
+                                                    {
+                                                        releases.filter(
+                                                            (release) =>
+                                                                release.is_visible,
+                                                        ).length
+                                                    }
+                                                </p>
+                                            </div>
+
+                                            <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-4">
+                                                <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-600">
+                                                    Featured
+                                                </p>
+
+                                                <p className="mt-2 truncate text-sm font-medium text-zinc-300">
+                                                    {featuredReleaseId
+                                                        ? releases.find(
+                                                            (
+                                                                release,
+                                                            ) =>
+                                                                release.id ===
+                                                                featuredReleaseId,
+                                                        )?.title ??
+                                                        'Not found'
+                                                        : 'None'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </GlassSection>
+                        )}
+
+                        {/* Navigation Section */}
+
+                        {activeSection === 'site' && (
+                            <GlassSection id="navigation" title="Navigation">
+                                <div className="space-y-5">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-white">
+                                                Show Navigation
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-white/50">
+                                                Display the navigation menu on your public portfolio.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShowNavigation((value) => !value)
+                                            }
+                                            className={`relative h-6 w-11 rounded-full transition ${showNavigation
+                                                ? 'bg-white'
+                                                : 'bg-white/10'
+                                                }`}
+                                            aria-pressed={showNavigation}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showNavigation
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-white/50'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div>
+                                                <p className="text-sm font-medium text-white">
+                                                    Navigation Items
+                                                </p>
+
+                                                <p className="mt-1 text-xs leading-5 text-white/40">
+                                                    Add and arrange the links that appear in
+                                                    your public portfolio navigation.
+                                                </p>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                onClick={addNavigationItem}
+                                                className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-300 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+                                            >
+                                                Add Item
+                                            </button>
+                                        </div>
+
+                                        {navigationItemState.length === 0 ? (
+                                            <div className="rounded-2xl border border-dashed border-white/[0.08] bg-black/20 px-5 py-8 text-center">
+                                                <p className="text-sm text-zinc-400">
+                                                    No navigation items yet.
+                                                </p>
+
+                                                <p className="mt-1 text-xs text-zinc-600">
+                                                    Add your first navigation item above.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {navigationItemState.map(
+                                                    (item, index) => (
+                                                        <div
+                                                            key={
+                                                                item.id ??
+                                                                `navigation-${index}`
+                                                            }
+                                                            className="rounded-2xl border border-white/[0.07] bg-black/20 p-4"
+                                                        >
+                                                            <div className="flex flex-col gap-4">
+                                                                <div className="flex items-start justify-between gap-4">
+                                                                    <div>
+                                                                        <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-600">
+                                                                            Item {String(index + 1).padStart(2, '0')}
+                                                                        </p>
+
+                                                                        <p className="mt-1 text-sm font-medium text-zinc-200">
+                                                                            {item.label || 'Untitled'}
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <div className="flex items-center gap-1">
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() =>
+                                                                                moveNavigationItem(
+                                                                                    index,
+                                                                                    'up',
+                                                                                )
+                                                                            }
+                                                                            disabled={index === 0}
+                                                                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] text-zinc-500 transition hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                                                                            aria-label="Move item up"
+                                                                        >
+                                                                            ↑
+                                                                        </button>
+
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() =>
+                                                                                moveNavigationItem(
+                                                                                    index,
+                                                                                    'down',
+                                                                                )
+                                                                            }
+                                                                            disabled={
+                                                                                index ===
+                                                                                navigationItemState.length -
+                                                                                1
+                                                                            }
+                                                                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] text-zinc-500 transition hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                                                                            aria-label="Move item down"
+                                                                        >
+                                                                            ↓
+                                                                        </button>
+
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() =>
+                                                                                removeNavigationItem(
+                                                                                    index,
+                                                                                )
+                                                                            }
+                                                                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-400/10 text-red-300/60 transition hover:border-red-400/25 hover:bg-red-500/5 hover:text-red-300"
+                                                                            aria-label="Remove navigation item"
+                                                                        >
+                                                                            ×
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="grid gap-4 sm:grid-cols-2">
+                                                                    <div>
+                                                                        <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
+                                                                            Label
+                                                                        </label>
+
+                                                                        <input
+                                                                            type="text"
+                                                                            value={item.label}
+                                                                            onChange={(event) =>
+                                                                                updateNavigationItem(
+                                                                                    index,
+                                                                                    {
+                                                                                        label: event
+                                                                                            .target
+                                                                                            .value,
+                                                                                    },
+                                                                                )
+                                                                            }
+                                                                            placeholder="Work"
+                                                                            maxLength={100}
+                                                                            className="h-12 w-full rounded-xl border border-white/[0.08] bg-black/30 px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20 focus:bg-white/[0.035]"
+                                                                        />
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
+                                                                            Destination
+                                                                        </label>
+
+                                                                        <select
+                                                                            value={
+                                                                                item.destination
+                                                                            }
+                                                                            onChange={(event) => {
+                                                                                const destination =
+                                                                                    event.target
+                                                                                        .value;
+
+                                                                                updateNavigationItem(
+                                                                                    index,
+                                                                                    {
+                                                                                        destination,
+                                                                                        url:
+                                                                                            destination ===
+                                                                                                'external'
+                                                                                                ? item.url
+                                                                                                : null,
+                                                                                    },
+                                                                                );
+                                                                            }}
+                                                                            className="h-12 w-full rounded-xl border border-white/[0.08] bg-[#08090b] px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20"
+                                                                        >
+                                                                            {navigationDestinations.map((destination) => (
+                                                                                <option
+                                                                                    key={destination.value}
+                                                                                    value={destination.value}
+                                                                                    disabled={isNavigationDestinationUsed(
+                                                                                        destination.value,
+                                                                                        index,
+                                                                                    )}
+                                                                                >
+                                                                                    {destination.label}
+                                                                                    {isNavigationDestinationUsed(
+                                                                                        destination.value,
+                                                                                        index,
+                                                                                    )
+                                                                                        ? ' — Already Used'
+                                                                                        : ''}
+                                                                                </option>
+                                                                            ))}
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                {item.destination ===
+                                                                    'external' && (
+                                                                        <div>
+                                                                            <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
+                                                                                External URL
+                                                                            </label>
+
+                                                                            <input
+                                                                                type="url"
+                                                                                value={
+                                                                                    item.url ?? ''
+                                                                                }
+                                                                                onChange={(event) =>
+                                                                                    updateNavigationItem(
+                                                                                        index,
+                                                                                        {
+                                                                                            url: event
+                                                                                                .target
+                                                                                                .value,
+                                                                                        },
+                                                                                    )
+                                                                                }
+                                                                                placeholder="https://example.com"
+                                                                                className="h-12 w-full rounded-xl border border-white/[0.08] bg-black/30 px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20 focus:bg-white/[0.035]"
+                                                                            />
+                                                                        </div>
+                                                                    )}
+
+                                                                <div className="flex items-center justify-between gap-4 border-t border-white/[0.06] pt-4">
+                                                                    <div>
+                                                                        <p className="text-sm text-zinc-300">
+                                                                            Visible
+                                                                        </p>
+
+                                                                        <p className="mt-1 text-xs text-zinc-600">
+                                                                            Show this item in the
+                                                                            public navigation.
+                                                                        </p>
+                                                                    </div>
+
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            updateNavigationItem(
+                                                                                index,
+                                                                                {
+                                                                                    is_visible:
+                                                                                        !item.is_visible,
+                                                                                },
+                                                                            )
+                                                                        }
+                                                                        className={`relative h-6 w-11 shrink-0 rounded-full transition ${item.is_visible
+                                                                            ? 'bg-white'
+                                                                            : 'bg-white/10'
+                                                                            }`}
+                                                                        aria-pressed={
+                                                                            item.is_visible
+                                                                        }
+                                                                    >
+                                                                        <span
+                                                                            className={`absolute top-1 h-4 w-4 rounded-full transition ${item.is_visible
+                                                                                ? 'left-6 bg-black'
+                                                                                : 'left-1 bg-white/50'
+                                                                                }`}
+                                                                        />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ),
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </GlassSection>
+                        )}
+
+                        {/* Footer Section */}
+
+                        {activeSection === 'site' && (
+                            <GlassSection id="footer" title="Footer">
+                                <div className="space-y-5">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-white">
+                                                Show Footer
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-white/50">
+                                                Display the footer on your public portfolio.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowFooter((value) => !value)}
+                                            className={`relative h-6 w-11 rounded-full transition ${showFooter
+                                                ? 'bg-white'
+                                                : 'bg-white/10'
+                                                }`}
+                                            aria-pressed={showFooter}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showFooter
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-white/50'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Footer Label
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value={footerLabel}
+                                            onChange={(event) =>
+                                                setFooterLabel(event.target.value)
+                                            }
+                                            placeholder="Stay connected."
+                                            maxLength={100}
+                                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. Leave empty to use the template default.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Footer Message
+                                        </label>
+
+                                        <textarea
+                                            value={footerMessage}
+                                            onChange={(event) =>
+                                                setFooterMessage(event.target.value)
+                                            }
+                                            placeholder="Thanks for visiting my space."
+                                            maxLength={500}
+                                            rows={4}
+                                            className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. Add a short closing message.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-white">
+                                                Show Social Links
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-white/50">
+                                                Display your connected social links in the footer.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShowFooterSocials((value) => !value)
+                                            }
+                                            className={`relative h-6 w-11 rounded-full transition ${showFooterSocials
+                                                ? 'bg-white'
+                                                : 'bg-white/10'
+                                                }`}
+                                            aria-pressed={showFooterSocials}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showFooterSocials
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-white/50'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Footer Logo
+                                        </label>
+
+                                        <input
+                                            type="file"
+                                            accept="image/jpeg,image/png,image/webp"
+                                            onChange={(event) => {
+                                                const file = event.target.files?.[0] ?? null;
+
+                                                setFooterLogo(file);
+                                                setRemoveFooterLogo(false);
+
+                                                if (file) {
+                                                    setFooterLogoPreview(
+                                                        URL.createObjectURL(file),
+                                                    );
+                                                }
+                                            }}
+                                            className="block w-full text-sm text-white/60 file:mr-4 file:rounded-lg file:border-0 file:bg-white file:px-4 file:py-2 file:text-sm file:font-medium file:text-black"
+                                        />
+
+                                        {footerLogoPreview && (
+                                            <div className="mt-4 flex items-center gap-4">
+                                                <img
+                                                    src={footerLogoPreview}
+                                                    alt="Footer logo preview"
+                                                    className="h-16 w-auto max-w-48 object-contain"
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setFooterLogo(null);
+                                                        setFooterLogoPreview(null);
+                                                        setRemoveFooterLogo(true);
+                                                    }}
+                                                    className="text-xs text-white/50 transition hover:text-white"
+                                                >
+                                                    Remove
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. Upload a logo to display in the footer.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label className="mb-2 block text-sm font-medium text-white">
+                                            Copyright Text
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            value={copyrightText}
+                                            onChange={(event) =>
+                                                setCopyrightText(event.target.value)
+                                            }
+                                            placeholder="© 2026 Your Name"
+                                            maxLength={255}
+                                            className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-white/30"
+                                        />
+
+                                        <p className="mt-2 text-xs text-white/40">
+                                            Optional. Add your own copyright text.
+                                        </p>
+                                    </div>
+
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-sm font-medium text-white">
+                                                Powered by LIRA
+                                            </p>
+
+                                            <p className="mt-1 text-xs text-white/50">
+                                                Show the LIRA attribution in your public footer.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShowPoweredByLira((value) => !value)
+                                            }
+                                            className={`relative h-6 w-11 rounded-full transition ${showPoweredByLira
+                                                ? 'bg-white'
+                                                : 'bg-white/10'
+                                                }`}
+                                            aria-pressed={showPoweredByLira}
+                                        >
+                                            <span
+                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showPoweredByLira
+                                                    ? 'left-6 bg-black'
+                                                    : 'left-1 bg-white/50'
+                                                    }`}
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+                            </GlassSection>
+                        )}
+                    </div>
+
+                    {/* Live Preview */}
+
+                    <aside className="w-full lg:col-span-2 xl:col-span-1 xl:sticky xl:top-24 xl:self-start">
+                        <div className="mx-auto w-full max-w-[360px] space-y-5 lg:max-w-none xl:mx-0 xl:ml-auto">
                             {/* Save */}
 
-                            <div className="mt-6 rounded-[28px] border border-white/[0.07] bg-white/[0.02] p-5 backdrop-blur-xl">
+                            <div className="hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4 backdrop-blur-xl sm:rounded-[24px] sm:p-5 xl:block">
+                                <div className="mb-4">
+                                    <p className="text-[8px] uppercase tracking-[0.24em] text-zinc-600">
+                                        Portfolio Changes
+                                    </p>
+
+                                    <p className="mt-1 text-xs leading-5 text-zinc-500">
+                                        Save when you are happy with your customization.
+                                    </p>
+                                </div>
+
                                 <button
                                     type="submit"
                                     disabled={saving}
-                                    className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(90deg,#fff_0%,#c8f5ff_22%,#a393ff_50%,#f28bd7_76%,#fff_100%)] px-5 py-3.5 text-sm font-semibold text-zinc-950 shadow-[0_8px_30px_rgba(120,200,255,0.12)] transition duration-300 hover:shadow-[0_10px_40px_rgba(160,140,255,0.18)] disabled:cursor-not-allowed disabled:opacity-50"
+                                    className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-[linear-gradient(90deg,#fff_0%,#c8f5ff_22%,#a393ff_50%,#f28bd7_76%,#fff_100%)] px-5 py-3.5 text-sm font-semibold text-zinc-950 shadow-[0_8px_30px_rgba(120,200,255,0.12)] transition duration-300 hover:shadow-[0_10px_40px_rgba(160,140,255,0.18)] disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-full"
                                 >
                                     <span>
                                         {saving
@@ -1870,14 +5334,78 @@ export default function Settings({
 
                                 <Link
                                     href="/dashboard"
-                                    className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-white/[0.08] px-5 py-3.5 text-sm font-medium text-zinc-500 transition hover:border-white/[0.15] hover:text-white"
+                                    className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-white/[0.08] px-5 py-3.5 text-sm font-medium text-zinc-500 transition hover:border-white/[0.15] hover:text-white sm:rounded-full"
                                 >
                                     Cancel
                                 </Link>
                             </div>
+
+                            {/* Preview */}
+
+                            <GlassSection eyebrow="LIVE / PREVIEW" title="See your space." description={`A structural wireframe of the ${selectedTemplate.name} template.`}>
+                                <div className="mx-auto max-h-[520px] overflow-hidden rounded-2xl border border-white/[0.08] bg-black shadow-2xl">
+                                    <div className="origin-top scale-[0.82]">
+                                        <WireframePreview
+                                            template={template}
+                                            accentColor={SETTINGS_UI_ACCENT}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 rounded-2xl border border-white/[0.06] bg-black/20 p-3">
+                                    <div className="flex items-start gap-3">
+                                        <div
+                                            className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
+                                            style={{
+                                                borderColor: `${SETTINGS_UI_ACCENT}25`,
+                                                backgroundColor: `${SETTINGS_UI_ACCENT}0d`,
+                                                color: SETTINGS_UI_ACCENT,
+                                            }}
+                                        >
+                                            <CheckIcon className="h-3 w-3" />
+                                        </div>
+
+                                        <div>
+                                            <p className="text-xs font-medium text-zinc-300">
+                                                Live template preview
+                                            </p>
+
+                                            <p className="mt-1 text-[11px] leading-5 text-zinc-600">
+                                                Your changes are previewed here before they are saved.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </GlassSection>
                         </div>
                     </aside>
+
+                    {/* Mobile Save Bar */}
+
+                    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-white/[0.08] bg-[#090a0c]/95 p-3 shadow-[0_-16px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl xl:hidden">
+                        <div className="mx-auto flex w-full max-w-2xl gap-2 sm:gap-3">
+                            <Link
+                                href="/dashboard"
+                                className="inline-flex flex-1 items-center justify-center rounded-xl border border-white/[0.08] px-4 py-3 text-xs font-medium text-zinc-500 transition hover:border-white/[0.15] hover:text-white sm:text-sm"
+                            >
+                                Cancel
+                            </Link>
+
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="group relative inline-flex flex-[1.6] items-center justify-center gap-2 overflow-hidden rounded-xl bg-[linear-gradient(90deg,#fff_0%,#c8f5ff_22%,#a393ff_50%,#f28bd7_76%,#fff_100%)] px-4 py-3 text-xs font-semibold text-zinc-950 shadow-[0_8px_30px_rgba(120,200,255,0.12)] transition duration-300 hover:shadow-[0_10px_40px_rgba(160,140,255,0.18)] disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+                            >
+                                {saving ? 'Saving Changes...' : 'Save Portfolio'}
+
+                                {!saving && (
+                                    <ArrowUpRight className="h-4 w-4" />
+                                )}
+                            </button>
+                        </div>
+                    </div>
                 </form>
+
             </div>
         </DashboardLayout>
     );

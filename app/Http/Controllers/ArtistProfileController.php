@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\VerificationStatus;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -43,6 +44,30 @@ class ArtistProfileController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'avatar' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+            ],
+            'avatar_zoom' => [
+                'nullable',
+                'numeric',
+                'min:1',
+                'max:3',
+            ],
+            'avatar_position_x' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:100',
+            ],
+            'avatar_position_y' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:100',
+            ],
             'username' => [
                 'required',
                 'string',
@@ -59,6 +84,10 @@ class ArtistProfileController extends Controller
                 'nullable',
                 'string',
                 'max:5000',
+            ],
+            'about_me' => [
+                'nullable',
+                'string',
             ],
             'artist_type' => [
                 'nullable',
@@ -96,6 +125,16 @@ class ArtistProfileController extends Controller
         $socialLinks = $validated['social_links'] ?? [];
 
         unset($validated['social_links']);
+
+        if ($request->hasFile('avatar')) {
+            $validated['avatar'] = $request
+                ->file('avatar')
+                ->store('artist-avatars', 'public');
+        }
+
+        $validated['avatar_zoom'] = $validated['avatar_zoom'] ?? 1;
+        $validated['avatar_position_x'] = $validated['avatar_position_x'] ?? 50;
+        $validated['avatar_position_y'] = $validated['avatar_position_y'] ?? 50;
 
         DB::transaction(function () use ($request, $validated, $socialLinks, &$profile) {
             $profile = $request->user()->artistProfile()->create([
@@ -124,6 +163,30 @@ class ArtistProfileController extends Controller
         $profile = $request->user()->artistProfile;
 
         $validated = $request->validate([
+            'avatar' => [
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png,webp',
+                'max:5120',
+            ],
+            'avatar_zoom' => [
+                'nullable',
+                'numeric',
+                'min:1',
+                'max:3',
+            ],
+            'avatar_position_x' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:100',
+            ],
+            'avatar_position_y' => [
+                'nullable',
+                'numeric',
+                'min:0',
+                'max:100',
+            ],
             'username' => [
                 'required',
                 'string',
@@ -140,6 +203,10 @@ class ArtistProfileController extends Controller
                 'nullable',
                 'string',
                 'max:5000',
+            ],
+            'about_me' => [
+                'nullable',
+                'string',
             ],
             'artist_type' => [
                 'nullable',
@@ -177,6 +244,24 @@ class ArtistProfileController extends Controller
         $socialLinks = $validated['social_links'] ?? [];
 
         unset($validated['social_links']);
+
+        if ($request->hasFile('avatar')) {
+            $oldAvatar = $profile->avatar;
+
+            $validated['avatar'] = $request
+                ->file('avatar')
+                ->store('artist-avatars', 'public');
+
+            if ($oldAvatar) {
+                Storage::disk('public')->delete($oldAvatar);
+            }
+        } else {
+            unset($validated['avatar']);
+        }
+
+        $validated['avatar_zoom'] = $validated['avatar_zoom'] ?? $profile->avatar_zoom ?? 1;
+        $validated['avatar_position_x'] = $validated['avatar_position_x'] ?? $profile->avatar_position_x ?? 50;
+        $validated['avatar_position_y'] = $validated['avatar_position_y'] ?? $profile->avatar_position_y ?? 50;
 
         DB::transaction(function () use ($profile, $validated, $socialLinks) {
             $profile->update($validated);

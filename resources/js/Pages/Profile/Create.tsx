@@ -1,4 +1,4 @@
-import { FormEvent, ReactNode } from 'react';
+import { ChangeEvent, FormEvent, PointerEvent, ReactNode, useEffect, useRef, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
 
 import DashboardLayout from '../../Components/Dashboard/d_layout';
@@ -16,9 +16,14 @@ interface SocialLinkForm {
 }
 
 interface FormData {
+    avatar: File | null;
+    avatar_zoom: number;
+    avatar_position_x: number;
+    avatar_position_y: number;
     username: string;
     display_name: string;
     bio: string;
+    about_me: string;
     artist_type: string;
     location: string;
     website: string;
@@ -202,14 +207,302 @@ const inputClass =
 
 export default function Create() {
     const form = useForm<FormData>({
+        avatar: null,
+        avatar_zoom: 1,
+        avatar_position_x: 50,
+        avatar_position_y: 50,
         username: '',
         display_name: '',
         bio: '',
+        about_me: '',
         artist_type: '',
         location: '',
         website: '',
         social_links: [],
     });
+
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const avatarInputRef = useRef<HTMLInputElement | null>(null);
+    const avatarDragRef = useRef<{
+        startX: number;
+        startY: number;
+        startPositionX: number;
+        startPositionY: number;
+    } | null>(null);
+
+    const [isAvatarEditorOpen, setIsAvatarEditorOpen] = useState(false);
+    const [editorZoom, setEditorZoom] = useState(1);
+    const [editorPositionX, setEditorPositionX] = useState(50);
+    const [editorPositionY, setEditorPositionY] = useState(50);
+    const [avatarNaturalSize, setAvatarNaturalSize] = useState({
+        width: 1,
+        height: 1,
+    });
+
+    const avatarCropSize = 480;
+    const avatarEditorViewportRef = useRef<HTMLDivElement | null>(null);
+
+    function getAvatarBaseSize(viewportSize: number) {
+        const aspectRatio =
+            avatarNaturalSize.width / avatarNaturalSize.height;
+
+        if (!Number.isFinite(aspectRatio) || aspectRatio <= 0) {
+            return {
+                width: viewportSize,
+                height: viewportSize,
+            };
+        }
+
+        if (aspectRatio >= 1) {
+            return {
+                width: viewportSize * aspectRatio,
+                height: viewportSize,
+            };
+        }
+
+        return {
+            width: viewportSize,
+            height: viewportSize / aspectRatio,
+        };
+    }
+
+    function getAvatarTranslation(
+        zoom: number,
+        positionX: number,
+        positionY: number,
+        cropSize: number,
+    ) {
+        const baseSize = getAvatarBaseSize(cropSize);
+        const scaledWidth = baseSize.width * zoom;
+        const scaledHeight = baseSize.height * zoom;
+
+        const maxX = Math.max(0, (scaledWidth - cropSize) / 2);
+        const maxY = Math.max(0, (scaledHeight - cropSize) / 2);
+
+        return {
+            x: ((positionX - 50) / 50) * maxX,
+            y: ((positionY - 50) / 50) * maxY,
+            maxX,
+            maxY,
+            baseWidth: baseSize.width,
+            baseHeight: baseSize.height,
+        };
+    }
+
+    function getAvatarPositionFromTranslation(
+        translationX: number,
+        translationY: number,
+        zoom: number,
+        cropSize: number,
+    ) {
+        const { maxX, maxY } = getAvatarTranslation(
+            zoom,
+            50,
+            50,
+            cropSize,
+        );
+
+        return {
+            x:
+                maxX === 0
+                    ? 50
+                    : Math.max(
+                        0,
+                        Math.min(100, 50 + (translationX / maxX) * 50),
+                    ),
+            y:
+                maxY === 0
+                    ? 50
+                    : Math.max(
+                        0,
+                        Math.min(100, 50 + (translationY / maxY) * 50),
+                    ),
+        };
+    }
+
+    function getEditorCropSize() {
+        const element = avatarEditorViewportRef.current;
+
+        if (!element) {
+            return avatarCropSize;
+        }
+
+        const rect = element.getBoundingClientRect();
+
+        return Math.min(rect.width, rect.height);
+    }
+
+    function openAvatarEditor() {
+        setEditorZoom(form.data.avatar_zoom);
+        setEditorPositionX(form.data.avatar_position_x);
+        setEditorPositionY(form.data.avatar_position_y);
+        setIsAvatarEditorOpen(true);
+    }
+
+    function closeAvatarEditor() {
+        avatarDragRef.current = null;
+        setIsAvatarEditorOpen(false);
+    }
+
+    function applyAvatarEditor() {
+        form.setData((data) => ({
+            ...data,
+            avatar_zoom: editorZoom,
+            avatar_position_x: editorPositionX,
+            avatar_position_y: editorPositionY,
+        }));
+
+        closeAvatarEditor();
+    }
+
+    function resetAvatarEditor() {
+        setEditorZoom(1);
+        setEditorPositionX(50);
+        setEditorPositionY(50);
+    }
+
+    function handleAvatarEditorPointerDown(
+        event: PointerEvent<HTMLDivElement>,
+    ) {
+        if (!avatarPreview) {
+            return;
+        }
+
+        event.currentTarget.setPointerCapture(event.pointerId);
+
+        avatarDragRef.current = {
+            startX: event.clientX,
+            startY: event.clientY,
+            startPositionX: editorPositionX,
+            startPositionY: editorPositionY,
+        };
+    }
+
+    function handleAvatarEditorPointerMove(
+        event: PointerEvent<HTMLDivElement>,
+    ) {
+        if (!avatarDragRef.current) {
+            return;
+        }
+
+        const deltaX =
+            event.clientX - avatarDragRef.current.startX;
+        const deltaY =
+            event.clientY - avatarDragRef.current.startY;
+
+        const cropSize = getEditorCropSize();
+
+        const startTranslation = getAvatarTranslation(
+            editorZoom,
+            avatarDragRef.current.startPositionX,
+            avatarDragRef.current.startPositionY,
+            cropSize,
+        );
+
+        const nextPosition = getAvatarPositionFromTranslation(
+            startTranslation.x + deltaX,
+            startTranslation.y + deltaY,
+            editorZoom,
+            cropSize,
+        );
+
+        setEditorPositionX(nextPosition.x);
+        setEditorPositionY(nextPosition.y);
+    }
+
+    function handleAvatarEditorPointerUp(
+        event?: PointerEvent<HTMLDivElement>,
+    ) {
+        if (
+            event &&
+            event.currentTarget.hasPointerCapture(event.pointerId)
+        ) {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+        }
+
+        avatarDragRef.current = null;
+    }
+
+    function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
+        const file = event.target.files?.[0] ?? null;
+
+        if (!file) {
+            return;
+        }
+
+        if (avatarPreview) {
+            URL.revokeObjectURL(avatarPreview);
+        }
+
+        const previewUrl = URL.createObjectURL(file);
+
+        form.setData((data) => ({
+            ...data,
+            avatar: file,
+            avatar_zoom: 1,
+            avatar_position_x: 50,
+            avatar_position_y: 50,
+        }));
+
+        setAvatarPreview(previewUrl);
+        setAvatarNaturalSize({
+            width: 1,
+            height: 1,
+        });
+        setEditorZoom(1);
+        setEditorPositionX(50);
+        setEditorPositionY(50);
+        setIsAvatarEditorOpen(true);
+    }
+
+    function removeAvatar() {
+        if (avatarPreview) {
+            URL.revokeObjectURL(avatarPreview);
+        }
+
+        setAvatarPreview(null);
+        setAvatarNaturalSize({
+            width: 1,
+            height: 1,
+        });
+
+        form.setData((data) => ({
+            ...data,
+            avatar: null,
+            avatar_zoom: 1,
+            avatar_position_x: 50,
+            avatar_position_y: 50,
+        }));
+
+        setIsAvatarEditorOpen(false);
+
+        if (avatarInputRef.current) {
+            avatarInputRef.current.value = '';
+        }
+    }
+
+    useEffect(() => {
+        return () => {
+            if (avatarPreview) {
+                URL.revokeObjectURL(avatarPreview);
+            }
+        };
+    }, [avatarPreview]);
+
+    function getPreviewTransform() {
+        const translation = getAvatarTranslation(
+            form.data.avatar_zoom,
+            form.data.avatar_position_x,
+            form.data.avatar_position_y,
+            160,
+        );
+
+        return {
+            width: `${translation.baseWidth}px`,
+            height: `${translation.baseHeight}px`,
+            transform: `translate(-50%, -50%) translate(${translation.x}px, ${translation.y}px) scale(${form.data.avatar_zoom})`,
+        };
+    }
 
     const socialPlatforms = [
         { value: 'spotify', label: 'Spotify' },
@@ -233,7 +526,9 @@ export default function Create() {
 
         let selector = '';
 
-        if (firstError === 'display_name') {
+        if (firstError === 'avatar') {
+            selector = '#avatar';
+        } else if (firstError === 'display_name') {
             selector = '#display_name';
         } else if (firstError === 'username') {
             selector = '#username';
@@ -243,6 +538,8 @@ export default function Create() {
             selector = '#location';
         } else if (firstError === 'bio') {
             selector = '#bio';
+        } else if (firstError === 'about_me') {
+            selector = '#about_me';
         } else if (firstError === 'website') {
             selector = '#website';
         } else {
@@ -284,6 +581,7 @@ export default function Create() {
         event.preventDefault();
 
         form.post('/dashboard/profile', {
+            forceFormData: true,
             preserveScroll: (page) => {
                 const errors = page.props.errors as Record<string, string>;
 
@@ -355,7 +653,7 @@ export default function Create() {
                                 Create your
                                 <br />
 
-                                <span className="bg-[linear-gradient(100deg,#ffffff_0%,#aeb8bd_30%,#ffffff_48%,#77838a_68%,#ffffff_100%)] bg-clip-text text-transparent">
+                                <span className="bg-[linear-gradient(90deg,#fff_0%,#bdefff_24%,#9d8cff_58%,#f08bd7_82%,#fff_100%)] bg-clip-text text-transparent">
                                     artist identity.
                                 </span>
                             </h1>
@@ -389,6 +687,110 @@ export default function Create() {
                         description="Introduce yourself and define how you appear on LIRA."
                     >
                         <div className="space-y-6">
+
+                            {/* Profile Picture */}
+                            <div>
+                                <FieldLabel htmlFor="avatar">
+                                    Profile Picture
+                                </FieldLabel>
+
+                                <div className="grid gap-6 sm:grid-cols-[160px_1fr] sm:items-center">
+                                    <div
+                                        className="group relative mx-auto aspect-square w-40 shrink-0 cursor-grab touch-none overflow-hidden rounded-full border border-white/[0.10] bg-[linear-gradient(145deg,rgba(255,255,255,0.06),rgba(255,255,255,0.015))] shadow-[0_20px_60px_rgba(0,0,0,0.25),inset_0_1px_0_rgba(255,255,255,0.06)] active:cursor-grabbing sm:mx-0"
+                                        onClick={() => avatarPreview && openAvatarEditor()}
+                                    >
+                                        {avatarPreview ? (
+                                            <img
+                                                src={avatarPreview}
+                                                alt="Profile preview"
+                                                draggable={false}
+                                                onLoad={(event) =>
+                                                    setAvatarNaturalSize({
+                                                        width: event.currentTarget.naturalWidth,
+                                                        height: event.currentTarget.naturalHeight,
+                                                    })
+                                                }
+                                                className="absolute left-1/2 top-1/2 max-w-none select-none"
+                                                style={getPreviewTransform()}
+                                            />
+                                        ) : (
+                                            <div className="flex h-full w-full items-center justify-center text-zinc-700">
+                                                <UserIcon />
+                                            </div>
+                                        )}
+
+                                        <div className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-inset ring-white/[0.08]" />
+
+                                        {avatarPreview && (
+                                            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-4 pb-4 pt-10 text-center text-[9px] uppercase tracking-[0.18em] text-white/65 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                                Drag to reposition
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="min-w-0">
+                                        <p className="text-sm text-zinc-300">
+                                            Upload a profile picture
+                                        </p>
+
+                                        <p className="mt-1 max-w-md text-xs leading-5 text-zinc-600">
+                                            This image represents you across your LIRA profile.
+                                            JPG, PNG, or WebP up to 5 MB.
+                                        </p>
+
+                                        <div className="mt-4 flex flex-wrap items-center gap-3">
+                                            <input
+                                                ref={avatarInputRef}
+                                                id="avatar"
+                                                type="file"
+                                                accept="image/jpeg,image/png,image/webp"
+                                                onChange={handleAvatarChange}
+                                                className="sr-only"
+                                            />
+
+                                            <button
+                                                type="button"
+                                                onClick={() => avatarInputRef.current?.click()}
+                                                className="inline-flex h-10 items-center justify-center rounded-full border border-white/[0.10] bg-white/[0.035] px-4 text-xs font-medium text-zinc-400 transition hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
+                                            >
+                                                {avatarPreview ? 'Change Image' : 'Choose Image'}
+                                            </button>
+
+                                            {avatarPreview && (
+                                                <button
+                                                    type="button"
+                                                    onClick={openAvatarEditor}
+                                                    className="inline-flex h-10 items-center justify-center rounded-full border border-white/[0.10] bg-white/[0.035] px-4 text-xs font-medium text-zinc-400 transition hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
+                                                >
+                                                    Edit Image
+                                                </button>
+                                            )}
+
+                                            {avatarPreview && (
+                                                <button
+                                                    type="button"
+                                                    onClick={removeAvatar}
+                                                    className="inline-flex h-10 items-center justify-center rounded-full border border-white/[0.07] px-4 text-xs text-zinc-600 transition hover:border-red-400/20 hover:bg-red-400/[0.04] hover:text-red-400"
+                                                >
+                                                    Remove
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {avatarPreview && (
+                                            <p className="mt-4 text-[10px] leading-5 text-zinc-700">
+                                                Open Edit Image to zoom and position your portrait inside the crop.
+                                            </p>
+                                        )}
+
+                                        {form.errors.avatar && (
+                                            <p className="mt-2 text-xs text-red-400">
+                                                {form.errors.avatar}
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
 
                             {/* Artist Name */}
                             <div>
@@ -539,6 +941,39 @@ export default function Create() {
                                 {form.errors.bio && (
                                     <p className="mt-2 text-xs text-red-400">
                                         {form.errors.bio}
+                                    </p>
+                                )}
+                            </div>
+
+
+                            {/* About Me */}
+                            <div>
+                                <FieldLabel htmlFor="about_me">
+                                    About Me
+                                </FieldLabel>
+
+                                <textarea
+                                    id="about_me"
+                                    value={form.data.about_me}
+                                    onChange={(event) =>
+                                        form.setData(
+                                            'about_me',
+                                            event.target.value,
+                                        )
+                                    }
+                                    placeholder="Tell your story, creative journey, influences, and what you want people to know about you..."
+                                    rows={10}
+                                    className="w-full resize-y rounded-xl border border-white/[0.085] bg-[linear-gradient(145deg,rgba(255,255,255,0.035),rgba(255,255,255,0.012))] px-4 py-3 text-sm leading-7 text-white outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.025)] transition duration-300 placeholder:text-zinc-700 focus:border-white/[0.18] focus:bg-white/[0.035]"
+                                />
+
+                                <p className="mt-2 text-[11px] leading-5 text-zinc-700">
+                                    Share your story, creative journey, influences,
+                                    and the ideas behind your work.
+                                </p>
+
+                                {form.errors.about_me && (
+                                    <p className="mt-2 text-xs text-red-400">
+                                        {form.errors.about_me}
                                     </p>
                                 )}
                             </div>
@@ -805,6 +1240,215 @@ export default function Create() {
 
                 </form>
             </div>
+
+            {isAvatarEditorOpen && avatarPreview && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-md"
+                    onMouseDown={(event) => {
+                        if (event.target === event.currentTarget) {
+                            closeAvatarEditor();
+                        }
+                    }}
+                >
+                    <div className="relative flex w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-white/[0.10] bg-[#0b0d0f] shadow-[0_40px_120px_rgba(0,0,0,0.65)]">
+                        <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-7">
+                            <div>
+                                <p className="text-[9px] uppercase tracking-[0.28em] text-zinc-600">
+                                    Profile / Image
+                                </p>
+                                <h2 className="mt-1 text-sm font-medium text-white">
+                                    Edit Image
+                                </h2>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={closeAvatarEditor}
+                                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
+                                aria-label="Close image editor"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <div className="flex max-h-[70vh] justify-center overflow-auto bg-[#070809] p-5 sm:p-8">
+                            <div
+                                ref={avatarEditorViewportRef}
+                                className="relative max-w-full cursor-grab touch-none overflow-hidden bg-black active:cursor-grabbing"
+                                style={{
+                                    ...(() => {
+                                        const aspectRatio =
+                                            avatarNaturalSize.width /
+                                            avatarNaturalSize.height;
+
+                                        if (
+                                            !Number.isFinite(aspectRatio) ||
+                                            aspectRatio <= 0
+                                        ) {
+                                            return {
+                                                width: `min(82vw, ${avatarCropSize}px)`,
+                                                aspectRatio: '1 / 1',
+                                            };
+                                        }
+
+                                        return {
+                                            width: `min(82vw, ${avatarCropSize}px)`,
+                                            aspectRatio: `${avatarNaturalSize.width} / ${avatarNaturalSize.height}`,
+                                        };
+                                    })(),
+                                }}
+                                onPointerDown={handleAvatarEditorPointerDown}
+                                onPointerMove={handleAvatarEditorPointerMove}
+                                onPointerUp={handleAvatarEditorPointerUp}
+                                onPointerCancel={handleAvatarEditorPointerUp}
+                            >
+                                <img
+                                    src={avatarPreview}
+                                    alt="Profile crop preview"
+                                    draggable={false}
+                                    onLoad={(event) =>
+                                        setAvatarNaturalSize({
+                                            width: event.currentTarget.naturalWidth,
+                                            height: event.currentTarget.naturalHeight,
+                                        })
+                                    }
+                                    className="absolute left-1/2 top-1/2 max-w-none select-none"
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        transform: (() => {
+                                            const cropSize =
+                                                getEditorCropSize();
+
+                                            const translation =
+                                                getAvatarTranslation(
+                                                    editorZoom,
+                                                    editorPositionX,
+                                                    editorPositionY,
+                                                    cropSize,
+                                                );
+
+                                            return `translate(-50%, -50%) translate(${translation.x}px, ${translation.y}px) scale(${editorZoom})`;
+                                        })(),
+                                    }}
+                                />
+
+                                <div className="pointer-events-none absolute inset-0">
+                                    <div className="absolute inset-0 bg-black/35" />
+
+                                    <div
+                                        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.36)] ${avatarNaturalSize.width <
+                                                avatarNaturalSize.height
+                                                ? 'aspect-square w-full'
+                                                : 'aspect-square h-full'
+                                            }`}
+                                    />
+
+                                    <div
+                                        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ring-1 ring-white/20 ${avatarNaturalSize.width <
+                                                avatarNaturalSize.height
+                                                ? 'aspect-square w-full'
+                                                : 'aspect-square h-full'
+                                            }`}
+                                    />
+
+                                    <div className="absolute inset-x-0 bottom-5 text-center text-[9px] uppercase tracking-[0.2em] text-white/55">
+                                        Drag to reposition
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border-t border-white/[0.07] px-5 py-5 sm:px-7 sm:py-6">
+                            <div className="mx-auto max-w-xl">
+                                <div className="flex items-center gap-4">
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setEditorZoom((zoom) =>
+                                                Math.max(
+                                                    1,
+                                                    Number((zoom - 0.1).toFixed(2)),
+                                                ),
+                                            )
+                                        }
+                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
+                                        aria-label="Zoom out"
+                                    >
+                                        −
+                                    </button>
+
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="3"
+                                        step="0.01"
+                                        value={editorZoom}
+                                        onChange={(event) =>
+                                            setEditorZoom(Number(event.target.value))
+                                        }
+                                        className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-white"
+                                        aria-label="Profile picture zoom"
+                                    />
+
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setEditorZoom((zoom) =>
+                                                Math.min(
+                                                    3,
+                                                    Number((zoom + 0.1).toFixed(2)),
+                                                ),
+                                            )
+                                        }
+                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
+                                        aria-label="Zoom in"
+                                    >
+                                        +
+                                    </button>
+                                </div>
+
+                                <div className="mt-3 flex items-center justify-between text-[9px] uppercase tracking-[0.18em] text-zinc-700">
+                                    <span>100%</span>
+                                    <span className="text-zinc-500">
+                                        {Math.round(editorZoom * 100)}%
+                                    </span>
+                                    <span>300%</span>
+                                </div>
+
+                                <div className="mt-5 flex items-center justify-between">
+                                    <button
+                                        type="button"
+                                        onClick={resetAvatarEditor}
+                                        className="text-[9px] uppercase tracking-[0.2em] text-zinc-600 transition hover:text-white"
+                                    >
+                                        Reset
+                                    </button>
+
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={closeAvatarEditor}
+                                            className="h-10 rounded-full border border-white/[0.08] px-5 text-xs text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={applyAvatarEditor}
+                                            className="h-10 rounded-full border border-white/30 bg-white px-5 text-xs font-medium text-black transition hover:bg-white/90"
+                                        >
+                                            Apply
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </DashboardLayout>
     );
 }

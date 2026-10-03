@@ -1,5 +1,4 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
 
 import {
     ArrowLeft,
@@ -15,6 +14,11 @@ interface Profile {
 
 interface PageProps {
     profile: Profile | null;
+}
+
+interface SidebarProps {
+    collapsed: boolean;
+    onToggle: () => void;
 }
 
 /*
@@ -125,6 +129,44 @@ function ProjectsIcon() {
     );
 }
 
+function MusicIcon() {
+    return (
+        <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            className="h-4 w-4"
+            aria-hidden="true"
+        >
+            <path
+                d="M7 15.5C7 16.6 6.1 17.5 5 17.5C3.9 17.5 3 16.6 3 15.5C3 14.4 3.9 13.5 5 13.5C6.1 13.5 7 14.4 7 15.5Z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+            />
+
+            <path
+                d="M7 15.5V5.5L16 3.5V13.5"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+
+            <path
+                d="M16 13.5C16 14.6 15.1 15.5 14 15.5C12.9 15.5 12 14.6 12 13.5C12 12.4 12.9 11.5 14 11.5C15.1 11.5 16 12.4 16 13.5Z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+            />
+
+            <path
+                d="M7 7.5L16 5.5"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+            />
+        </svg>
+    );
+}
+
 function PortfolioIcon() {
     return (
         <svg
@@ -220,30 +262,12 @@ function CollapsedActiveIndicator() {
 |--------------------------------------------------------------------------
 */
 
-export default function Sidebar() {
+export default function Sidebar({
+    collapsed,
+    onToggle,
+}: SidebarProps) {
     const { profile } = usePage().props as unknown as PageProps;
     const { url } = usePage();
-
-    const [collapsed, setCollapsed] = useState(() => {
-        if (typeof window === 'undefined') {
-            return false;
-        }
-
-        return localStorage.getItem('lira-sidebar-collapsed') === 'true';
-    });
-
-    function toggleSidebar() {
-        setCollapsed((current) => {
-            const next = !current;
-
-            localStorage.setItem(
-                'lira-sidebar-collapsed',
-                String(next),
-            );
-
-            return next;
-        });
-    }
 
     /*
     |--------------------------------------------------------------------------
@@ -273,6 +297,10 @@ export default function Sidebar() {
         url === '/dashboard/projects' ||
         url.startsWith('/dashboard/projects/');
 
+    const isReleasesActive =
+        url === '/dashboard/releases' ||
+        url.startsWith('/dashboard/releases/');
+
     const isPortfolioActive =
         url === '/dashboard/portfolio' ||
         url.startsWith('/dashboard/portfolio/');
@@ -287,18 +315,18 @@ export default function Sidebar() {
             ============================================================= */}
 
             <div
-                className={`flex h-[76px] shrink-0 items-center border-b border-white/[0.07] transition-all duration-300 ${collapsed ? 'justify-center px-0' : 'px-8'
+                className={`flex h-[76px] shrink-0 items-center border-b border-white/[0.07] transition-all duration-300 ${collapsed
+                    ? 'justify-center px-0'
+                    : 'px-8'
                     }`}
             >
-                <Link
-                    href="/"
-                    aria-label="LIRA home"
-                    className="group"
-                >
+                <Link href="/dashboard" aria-label="LIRA home" className="group">
                     <img
                         src="/images/brand/Lira_logo.png"
                         alt="LIRA"
-                        className={`h-auto object-contain opacity-95 transition-all duration-300 group-hover:brightness-125 ${collapsed ? 'w-[38px]' : 'w-[112px]'
+                        className={`h-auto object-contain opacity-95 transition-all duration-300 group-hover:brightness-125 ${collapsed
+                            ? 'w-[38px]'
+                            : 'w-[112px]'
                             }`}
                     />
                 </Link>
@@ -309,7 +337,9 @@ export default function Sidebar() {
             ============================================================= */}
 
             <div
-                className={`flex min-h-0 flex-1 flex-col px-3 py-8 ${collapsed ? 'overflow-hidden' : 'overflow-y-auto'
+                className={`flex min-h-0 flex-1 flex-col px-3 py-8 ${collapsed
+                    ? 'overflow-hidden'
+                    : 'overflow-y-auto'
                     }`}
             >
                 {/* =========================================================
@@ -323,6 +353,7 @@ export default function Sidebar() {
                 )}
 
                 <nav className="mt-4 space-y-1">
+
                     {/* =====================================================
                         OVERVIEW
                     ====================================================== */}
@@ -341,7 +372,9 @@ export default function Sidebar() {
                         <span className="flex items-center gap-3">
                             <OverviewIcon />
 
-                            {!collapsed && <span>Overview</span>}
+                            {!collapsed && (
+                                <span>Overview</span>
+                            )}
                         </span>
 
                         {!collapsed && isOverviewActive && (
@@ -375,7 +408,9 @@ export default function Sidebar() {
                         <span className="flex items-center gap-3">
                             <ProfileIcon />
 
-                            {!collapsed && <span>Profile</span>}
+                            {!collapsed && (
+                                <span>Profile</span>
+                            )}
                         </span>
 
                         {!collapsed && isProfileActive && (
@@ -399,11 +434,17 @@ export default function Sidebar() {
 
                     {isVerified ? (
                         <>
-                            {/* Projects */}
+                            {/* =================================================
+                                PROJECTS
+                            ================================================= */}
 
                             <Link
                                 href="/dashboard/projects"
-                                title={collapsed ? 'Projects' : undefined}
+                                title={
+                                    collapsed
+                                        ? 'Projects'
+                                        : undefined
+                                }
                                 className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
                                     ? 'justify-center'
                                     : 'justify-between px-4'
@@ -415,7 +456,9 @@ export default function Sidebar() {
                                 <span className="flex items-center gap-3">
                                     <ProjectsIcon />
 
-                                    {!collapsed && <span>Projects</span>}
+                                    {!collapsed && (
+                                        <span>Projects</span>
+                                    )}
                                 </span>
 
                                 {!collapsed && isProjectsActive && (
@@ -427,11 +470,53 @@ export default function Sidebar() {
                                 )}
                             </Link>
 
-                            {/* Portfolio */}
+                            {/* =================================================
+                                MUSIC
+                            ================================================= */}
+
+                            <Link
+                                href="/dashboard/releases"
+                                title={
+                                    collapsed
+                                        ? 'Music'
+                                        : undefined
+                                }
+                                className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
+                                    ? 'justify-center'
+                                    : 'justify-between px-4'
+                                    } ${isReleasesActive
+                                        ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                        : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                    }`}
+                            >
+                                <span className="flex items-center gap-3">
+                                    <MusicIcon />
+
+                                    {!collapsed && (
+                                        <span>Music</span>
+                                    )}
+                                </span>
+
+                                {!collapsed && isReleasesActive && (
+                                    <ActiveIndicator />
+                                )}
+
+                                {collapsed && isReleasesActive && (
+                                    <CollapsedActiveIndicator />
+                                )}
+                            </Link>
+
+                            {/* =================================================
+                                PORTFOLIO
+                            ================================================= */}
 
                             <Link
                                 href="/dashboard/portfolio/settings"
-                                title={collapsed ? 'Portfolio' : undefined}
+                                title={
+                                    collapsed
+                                        ? 'Portfolio'
+                                        : undefined
+                                }
                                 className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
                                     ? 'justify-center'
                                     : 'justify-between px-4'
@@ -443,7 +528,9 @@ export default function Sidebar() {
                                 <span className="flex items-center gap-3">
                                     <PortfolioIcon />
 
-                                    {!collapsed && <span>Portfolio</span>}
+                                    {!collapsed && (
+                                        <span>Portfolio</span>
+                                    )}
                                 </span>
 
                                 {!collapsed && isPortfolioActive && (
@@ -459,10 +546,14 @@ export default function Sidebar() {
                         <>
                             {/* =================================================
                                 PROJECTS LOCKED
-                            ================================================= */}
+                            ================================================== */}
 
                             <div
-                                title={collapsed ? 'Projects — Locked' : undefined}
+                                title={
+                                    collapsed
+                                        ? 'Projects — Locked'
+                                        : undefined
+                                }
                                 className={`flex cursor-not-allowed items-center rounded-xl px-3 py-3 text-sm text-zinc-700 ${collapsed
                                     ? 'justify-center'
                                     : 'justify-between px-4'
@@ -471,7 +562,40 @@ export default function Sidebar() {
                                 <span className="flex items-center gap-3">
                                     <ProjectsIcon />
 
-                                    {!collapsed && <span>Projects</span>}
+                                    {!collapsed && (
+                                        <span>Projects</span>
+                                    )}
+                                </span>
+
+                                {!collapsed && (
+                                    <span className="flex items-center gap-1.5 text-[8px] uppercase tracking-[0.15em]">
+                                        <LockIcon />
+                                        Locked
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* =================================================
+                                MUSIC LOCKED
+                            ================================================== */}
+
+                            <div
+                                title={
+                                    collapsed
+                                        ? 'Music — Locked'
+                                        : undefined
+                                }
+                                className={`flex cursor-not-allowed items-center rounded-xl px-3 py-3 text-sm text-zinc-700 ${collapsed
+                                    ? 'justify-center'
+                                    : 'justify-between px-4'
+                                    }`}
+                            >
+                                <span className="flex items-center gap-3">
+                                    <MusicIcon />
+
+                                    {!collapsed && (
+                                        <span>Music</span>
+                                    )}
                                 </span>
 
                                 {!collapsed && (
@@ -484,10 +608,14 @@ export default function Sidebar() {
 
                             {/* =================================================
                                 PORTFOLIO LOCKED
-                            ================================================= */}
+                            ================================================== */}
 
                             <div
-                                title={collapsed ? 'Portfolio — Locked' : undefined}
+                                title={
+                                    collapsed
+                                        ? 'Portfolio — Locked'
+                                        : undefined
+                                }
                                 className={`flex cursor-not-allowed items-center rounded-xl px-3 py-3 text-sm text-zinc-700 ${collapsed
                                     ? 'justify-center'
                                     : 'justify-between px-4'
@@ -496,7 +624,9 @@ export default function Sidebar() {
                                 <span className="flex items-center gap-3">
                                     <PortfolioIcon />
 
-                                    {!collapsed && <span>Portfolio</span>}
+                                    {!collapsed && (
+                                        <span>Portfolio</span>
+                                    )}
                                 </span>
 
                                 {!collapsed && (
@@ -528,7 +658,11 @@ export default function Sidebar() {
 
                 <nav className="mt-4">
                     <div
-                        title={collapsed ? 'Settings — Soon' : undefined}
+                        title={
+                            collapsed
+                                ? 'Settings — Soon'
+                                : undefined
+                        }
                         className={`flex cursor-not-allowed items-center rounded-xl px-3 py-3 text-sm text-zinc-700 ${collapsed
                             ? 'justify-center'
                             : 'justify-between px-4'
@@ -537,7 +671,9 @@ export default function Sidebar() {
                         <span className="flex items-center gap-3">
                             <SettingsIcon />
 
-                            {!collapsed && <span>Settings</span>}
+                            {!collapsed && (
+                                <span>Settings</span>
+                            )}
                         </span>
 
                         {!collapsed && (
@@ -572,12 +708,14 @@ export default function Sidebar() {
             ============================================================= */}
 
             <div
-                className={`absolute bottom-5 ${collapsed ? 'left-1/2 -translate-x-1/2' : 'right-4'
+                className={`absolute bottom-5 ${collapsed
+                    ? 'left-1/2 -translate-x-1/2'
+                    : 'right-4'
                     }`}
             >
                 <button
                     type="button"
-                    onClick={toggleSidebar}
+                    onClick={onToggle}
                     aria-label={
                         collapsed
                             ? 'Expand sidebar'
@@ -590,7 +728,11 @@ export default function Sidebar() {
                     }
                     className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.025] text-zinc-600 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] transition duration-300 hover:border-white/[0.16] hover:bg-white/[0.05] hover:text-white"
                 >
-                    {collapsed ? <ArrowRight /> : <ArrowLeft />}
+                    {collapsed ? (
+                        <ArrowRight />
+                    ) : (
+                        <ArrowLeft />
+                    )}
                 </button>
             </div>
         </aside>

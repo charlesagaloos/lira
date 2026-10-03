@@ -10,6 +10,10 @@ interface Profile {
     username: string;
     display_name: string;
     verification_status: string;
+    avatar: string | null;
+    avatar_zoom: number;
+    avatar_position_x: number;
+    avatar_position_y: number;
 }
 
 interface PageProps {
@@ -17,6 +21,10 @@ interface PageProps {
         user: User;
     };
     profile: Profile | null;
+}
+
+interface HeaderProps {
+    sidebarCollapsed: boolean;
 }
 
 /*
@@ -175,13 +183,139 @@ function ActiveIndicator() {
     );
 }
 
+
+/*
+|--------------------------------------------------------------------------
+| Profile Avatar
+|--------------------------------------------------------------------------
+|
+| Renders the saved avatar using the same zoom/position model as the
+| profile editor and dashboard. The calculation is relative to the
+| actual avatar viewport so it remains accurate at every header size.
+|--------------------------------------------------------------------------
+*/
+
+function getImageUrl(path: string | null): string | null {
+    if (!path) {
+        return null;
+    }
+
+    if (
+        path.startsWith('http://') ||
+        path.startsWith('https://') ||
+        path.startsWith('blob:') ||
+        path.startsWith('data:')
+    ) {
+        return path;
+    }
+
+    if (path.startsWith('/storage/')) {
+        return path;
+    }
+
+    if (path.startsWith('storage/')) {
+        return `/${path}`;
+    }
+
+    if (path.startsWith('/')) {
+        return path;
+    }
+
+    return `/storage/${path}`;
+}
+
+function ProfileAvatar({
+    profile,
+    size,
+    iconSize = 'h-4 w-4',
+}: {
+    profile: Profile | null;
+    size: number;
+    iconSize?: string;
+}) {
+    const [naturalSize, setNaturalSize] = useState({
+        width: 1,
+        height: 1,
+    });
+
+    const avatarUrl = getImageUrl(profile?.avatar ?? null);
+
+    const zoom = Number(profile?.avatar_zoom ?? 1) || 1;
+    const positionX = Number(profile?.avatar_position_x ?? 50);
+    const positionY = Number(profile?.avatar_position_y ?? 50);
+
+    const aspectRatio = naturalSize.width / naturalSize.height;
+
+    let baseWidth = size;
+    let baseHeight = size;
+
+    if (Number.isFinite(aspectRatio) && aspectRatio > 0) {
+        if (aspectRatio >= 1) {
+            baseWidth = size * aspectRatio;
+        } else {
+            baseHeight = size / aspectRatio;
+        }
+    }
+
+    const scaledWidth = baseWidth * zoom;
+    const scaledHeight = baseHeight * zoom;
+
+    const maxX = Math.max(0, (scaledWidth - size) / 2);
+    const maxY = Math.max(0, (scaledHeight - size) / 2);
+
+    const translateX = ((positionX - 50) / 50) * maxX;
+    const translateY = ((positionY - 50) / 50) * maxY;
+
+    return (
+        <div
+            className="relative shrink-0 overflow-hidden rounded-full border border-white/[0.12] bg-[linear-gradient(135deg,#ffffff,#7c8990,#ffffff,#68747d)] text-[#111] shadow-[0_0_24px_rgba(255,255,255,0.08)]"
+            style={{
+                width: `${size}px`,
+                height: `${size}px`,
+            }}
+        >
+            {avatarUrl ? (
+                <img
+                    src={avatarUrl}
+                    alt={profile?.display_name ?? 'Profile'}
+                    draggable={false}
+                    onLoad={(event) => {
+                        const image = event.currentTarget;
+
+                        if (image.naturalWidth && image.naturalHeight) {
+                            setNaturalSize({
+                                width: image.naturalWidth,
+                                height: image.naturalHeight,
+                            });
+                        }
+                    }}
+                    className="absolute left-1/2 top-1/2 max-w-none select-none"
+                    style={{
+                        width: `${baseWidth}px`,
+                        height: `${baseHeight}px`,
+                        transform: `translate(-50%, -50%) translate(${translateX}px, ${translateY}px) scale(${zoom})`,
+                    }}
+                />
+            ) : (
+                <div className="flex h-full w-full items-center justify-center">
+                    <UserIcon />
+                </div>
+            )}
+
+            <div className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(120deg,transparent_20%,rgba(255,255,255,0.22)_48%,transparent_72%)] opacity-35" />
+        </div>
+    );
+}
+
 /*
 |--------------------------------------------------------------------------
 | Header
 |--------------------------------------------------------------------------
 */
 
-export default function Header() {
+export default function Header({
+    sidebarCollapsed,
+}: HeaderProps) {
     const page = usePage();
 
     const { auth, profile } =
@@ -189,7 +323,8 @@ export default function Header() {
 
     const { url } = page;
 
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] =
+        useState(false);
 
     /*
     |--------------------------------------------------------------------------
@@ -207,14 +342,18 @@ export default function Header() {
     */
 
     const getPageTitle = (): string => {
-        if (url === '/dashboard' || url === '/dashboard/') {
+        if (
+            url === '/dashboard' ||
+            url === '/dashboard/'
+        ) {
             return 'Overview';
         }
 
         if (
             url === '/dashboard/profile' ||
             url === '/dashboard/profile/' ||
-            url.startsWith('/dashboard/profile/create')
+            url.startsWith('/dashboard/profile/create') ||
+            url.startsWith('/dashboard/profile/edit')
         ) {
             return 'Profile';
         }
@@ -224,6 +363,13 @@ export default function Header() {
             url.startsWith('/dashboard/projects/')
         ) {
             return 'Projects';
+        }
+
+        if (
+            url === '/dashboard/releases' ||
+            url.startsWith('/dashboard/releases/')
+        ) {
+            return 'Music';
         }
 
         if (
@@ -258,11 +404,16 @@ export default function Header() {
     const isProfileActive =
         url === '/dashboard/profile' ||
         url === '/dashboard/profile/' ||
-        url.startsWith('/dashboard/profile/create');
+        url.startsWith('/dashboard/profile/create') ||
+        url.startsWith('/dashboard/profile/edit');
 
     const isProjectsActive =
         url === '/dashboard/projects' ||
         url.startsWith('/dashboard/projects/');
+
+    const isReleasesActive =
+        url === '/dashboard/releases' ||
+        url.startsWith('/dashboard/releases/');
 
     const isPortfolioActive =
         url === '/dashboard/portfolio' ||
@@ -279,27 +430,32 @@ export default function Header() {
     };
 
     return (
-        <header className="fixed right-0 top-0 z-40 border-b border-white/[0.07] bg-[#050607]/80 backdrop-blur-xl lg:left-[250px]">
-
+        <header
+            className={`fixed right-0 top-0 z-40 w-full border-b border-white/[0.07] bg-[#050607]/90 backdrop-blur-xl transition-[left] duration-300 lg:w-auto ${
+                sidebarCollapsed
+                    ? 'lg:left-[76px]'
+                    : 'lg:left-[250px]'
+            }`}
+        >
             {/* =============================================================
                 HEADER BAR
             ============================================================= */}
 
-            <div className="flex h-[76px] items-center justify-between px-5 sm:px-8 lg:px-12">
+            <div className="flex min-h-[64px] items-center justify-between gap-3 px-3 py-2 sm:min-h-[68px] sm:px-5 sm:py-2.5 md:px-7 lg:h-[76px] lg:min-h-0 lg:px-10 xl:px-12">
 
                 {/* =========================================================
-                    MOBILE LOGO
+                    MOBILE / TABLET LOGO
                 ========================================================== */}
 
                 <Link
-                    href="/"
+                    href="/dashboard"
                     aria-label="LIRA home"
                     className="lg:hidden"
                 >
                     <img
                         src="/images/brand/Lira_logo.png"
                         alt="LIRA"
-                        className="w-[82px] opacity-95"
+                        className="w-[68px] opacity-95 xs:w-[74px] sm:w-[82px]"
                     />
                 </Link>
 
@@ -321,11 +477,12 @@ export default function Header() {
                     DESKTOP USER
                 ========================================================== */}
 
-                <div className="ml-auto hidden items-center gap-5 sm:flex">
+                <div className="ml-auto hidden items-center gap-5 lg:flex">
 
                     <div className="text-right">
                         <p className="text-xs text-zinc-300">
-                            {profile?.display_name ?? auth.user.name}
+                            {profile?.display_name ??
+                                auth.user.name}
                         </p>
 
                         {profile ? (
@@ -339,9 +496,10 @@ export default function Header() {
                         )}
                     </div>
 
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.12] bg-[linear-gradient(135deg,#ffffff,#7c8990,#ffffff,#68747d)] text-[#111] shadow-[0_0_24px_rgba(255,255,255,0.08)]">
-                        <UserIcon />
-                    </div>
+                    <ProfileAvatar
+                        profile={profile}
+                        size={36}
+                    />
 
                     <Link
                         href="/logout"
@@ -355,32 +513,37 @@ export default function Header() {
                 </div>
 
                 {/* =========================================================
-                    MOBILE MENU BUTTON
+                    MOBILE / TABLET CONTROLS
                 ========================================================== */}
 
-                <div className="flex items-center gap-3 sm:hidden">
+                <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2.5 lg:hidden">
 
                     {/* Current tab */}
-                    <span className="max-w-[90px] truncate text-right text-[9px] uppercase tracking-[0.16em] text-zinc-500">
+
+                    <span className="min-w-0 max-w-[72px] truncate text-right text-[8px] uppercase tracking-[0.14em] text-zinc-500 xs:max-w-[96px] sm:max-w-[140px] sm:text-[9px] sm:tracking-[0.16em]">
                         {pageTitle}
                     </span>
 
                     {/* Avatar */}
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full border border-white/[0.12] bg-[linear-gradient(135deg,#ffffff,#7c8990,#ffffff,#68747d)] text-[#111] shadow-[0_0_20px_rgba(255,255,255,0.08)]">
-                        <UserIcon />
-                    </div>
+
+                    <ProfileAvatar
+                        profile={profile}
+                        size={32}
+                    />
 
                     {/* Menu */}
+
                     <button
                         type="button"
                         onClick={() =>
-                            setMobileMenuOpen((open) => !open)
+                            setMobileMenuOpen(
+                                (open) => !open,
+                            )
                         }
-                        className={`relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border transition duration-300 ${
-                            mobileMenuOpen
-                                ? 'border-white/[0.22] bg-white/[0.08] text-white'
-                                : 'border-white/[0.10] bg-white/[0.035] text-zinc-400 hover:border-white/[0.18] hover:text-white'
-                        }`}
+                        className={`relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border transition duration-300 ${mobileMenuOpen
+                            ? 'border-white/[0.22] bg-white/[0.08] text-white'
+                            : 'border-white/[0.10] bg-white/[0.035] text-zinc-400 hover:border-white/[0.18] hover:text-white'
+                            }`}
                         aria-label={
                             mobileMenuOpen
                                 ? 'Close navigation'
@@ -402,17 +565,16 @@ export default function Header() {
             </div>
 
             {/* =============================================================
-                MOBILE NAVIGATION
+                MOBILE / TABLET NAVIGATION
             ============================================================= */}
 
             <div
-                className={`overflow-hidden transition-all duration-300 ease-out lg:hidden ${
-                    mobileMenuOpen
-                        ? 'max-h-[650px] opacity-100'
-                        : 'max-h-0 opacity-0'
-                }`}
+                className={`overflow-hidden transition-all duration-300 ease-out lg:hidden ${mobileMenuOpen
+                    ? 'max-h-[750px] opacity-100'
+                    : 'max-h-0 opacity-0'
+                    }`}
             >
-                <div className="border-t border-white/[0.06] bg-[#070809]/98 px-4 pb-5 pt-4 backdrop-blur-2xl">
+                <div className="max-h-[calc(100dvh-64px)] overflow-y-auto border-t border-white/[0.06] bg-[#070809]/98 px-3 pb-5 pt-3 backdrop-blur-2xl sm:max-h-[calc(100dvh-68px)] sm:px-5 sm:pt-4">
 
                     {/* =====================================================
                         USER IDENTITY
@@ -422,7 +584,8 @@ export default function Header() {
 
                         <div className="min-w-0">
                             <p className="truncate text-xs text-zinc-200">
-                                {profile?.display_name ?? auth.user.name}
+                                {profile?.display_name ??
+                                    auth.user.name}
                             </p>
 
                             {profile ? (
@@ -461,16 +624,17 @@ export default function Header() {
 
                     <nav className="space-y-1">
 
-                        {/* Overview */}
+                        {/* =================================================
+                            OVERVIEW
+                        ================================================== */}
 
                         <Link
                             href="/dashboard"
                             onClick={closeMobileMenu}
-                            className={`flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${
-                                isOverviewActive
-                                    ? 'border-white/[0.10] bg-white/[0.055] text-white'
-                                    : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
-                            }`}
+                            className={`flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${isOverviewActive
+                                ? 'border-white/[0.10] bg-white/[0.055] text-white'
+                                : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
+                                }`}
                         >
                             <span className="text-sm">
                                 Overview
@@ -481,7 +645,9 @@ export default function Header() {
                             )}
                         </Link>
 
-                        {/* Profile */}
+                        {/* =================================================
+                            PROFILE
+                        ================================================== */}
 
                         <Link
                             href={
@@ -490,11 +656,10 @@ export default function Header() {
                                     : '/dashboard/profile/create'
                             }
                             onClick={closeMobileMenu}
-                            className={`flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${
-                                isProfileActive
-                                    ? 'border-white/[0.10] bg-white/[0.055] text-white'
-                                    : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
-                            }`}
+                            className={`flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${isProfileActive
+                                ? 'border-white/[0.10] bg-white/[0.055] text-white'
+                                : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
+                                }`}
                         >
                             <span className="text-sm">
                                 Profile
@@ -516,11 +681,10 @@ export default function Header() {
                                 <Link
                                     href="/dashboard/projects"
                                     onClick={closeMobileMenu}
-                                    className={`flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${
-                                        isProjectsActive
-                                            ? 'border-white/[0.10] bg-white/[0.055] text-white'
-                                            : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
-                                    }`}
+                                    className={`flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${isProjectsActive
+                                        ? 'border-white/[0.10] bg-white/[0.055] text-white'
+                                        : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
+                                        }`}
                                 >
                                     <span className="text-sm">
                                         Projects
@@ -533,16 +697,36 @@ export default function Header() {
                                     )}
                                 </Link>
 
+                                {/* Music */}
+
+                                <Link
+                                    href="/dashboard/releases"
+                                    onClick={closeMobileMenu}
+                                    className={`flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${isReleasesActive
+                                        ? 'border-white/[0.10] bg-white/[0.055] text-white'
+                                        : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
+                                        }`}
+                                >
+                                    <span className="text-sm">
+                                        Music
+                                    </span>
+
+                                    {isReleasesActive ? (
+                                        <ActiveIndicator />
+                                    ) : (
+                                        <ArrowIcon />
+                                    )}
+                                </Link>
+
                                 {/* Portfolio */}
 
                                 <Link
                                     href="/dashboard/portfolio/settings"
                                     onClick={closeMobileMenu}
-                                    className={`flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${
-                                        isPortfolioActive
-                                            ? 'border-white/[0.10] bg-white/[0.055] text-white'
-                                            : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
-                                    }`}
+                                    className={`flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${isPortfolioActive
+                                        ? 'border-white/[0.10] bg-white/[0.055] text-white'
+                                        : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
+                                        }`}
                                 >
                                     <span className="text-sm">
                                         Portfolio
@@ -562,6 +746,19 @@ export default function Header() {
                                 <div className="flex min-h-[48px] cursor-not-allowed items-center justify-between rounded-xl px-4 text-zinc-700">
                                     <span className="text-sm">
                                         Projects
+                                    </span>
+
+                                    <span className="flex items-center gap-1.5 text-[8px] uppercase tracking-[0.15em]">
+                                        <LockIcon />
+                                        Locked
+                                    </span>
+                                </div>
+
+                                {/* Music Locked */}
+
+                                <div className="flex min-h-[48px] cursor-not-allowed items-center justify-between rounded-xl px-4 text-zinc-700">
+                                    <span className="text-sm">
+                                        Music
                                     </span>
 
                                     <span className="flex items-center gap-1.5 text-[8px] uppercase tracking-[0.15em]">
@@ -617,7 +814,6 @@ export default function Header() {
                     ====================================================== */}
 
                     <div className="mt-2 border-t border-white/[0.06] pt-3">
-
                         <Link
                             href="/logout"
                             method="post"
@@ -631,7 +827,6 @@ export default function Header() {
 
                             <LogoutIcon />
                         </Link>
-
                     </div>
 
                     {/* =====================================================

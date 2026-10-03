@@ -14,9 +14,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'username',
     'display_name',
     'bio',
+    'about_me',
     'artist_type',
     'location',
     'avatar',
+    'avatar_zoom',
+    'avatar_position_x',
+    'avatar_position_y',
     'cover_image',
     'website',
     'is_published',
@@ -33,6 +37,9 @@ class ArtistProfile extends Model
             'is_published' => 'boolean',
             'verified_at' => 'datetime',
             'verification_status' => VerificationStatus::class,
+            'avatar_zoom' => 'float',
+            'avatar_position_x' => 'float',
+            'avatar_position_y' => 'float',
         ];
     }
 
@@ -61,5 +68,11 @@ class ArtistProfile extends Model
     public function portfolioViews(): HasMany
     {
         return $this->hasMany(PortfolioView::class);
+    }
+
+    public function releases(): HasMany
+    {
+        return $this->hasMany(Release::class)
+            ->orderBy('position');
     }
 }

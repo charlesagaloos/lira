@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import Sidebar from './Sidebar';
 import DashboardHeader from './Header';
@@ -9,9 +9,31 @@ interface DashboardLayoutProps {
     children: React.ReactNode;
 }
 
-export default function DashboardLayout({
-    children,
-}: DashboardLayoutProps) {
+const SIDEBAR_STORAGE_KEY = 'lira-sidebar-collapsed';
+
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+    useEffect(() => {
+        const savedState =
+            localStorage.getItem(SIDEBAR_STORAGE_KEY) === 'true';
+
+        setSidebarCollapsed(savedState);
+    }, []);
+
+    function toggleSidebar() {
+        setSidebarCollapsed((current) => {
+            const next = !current;
+
+            localStorage.setItem(
+                SIDEBAR_STORAGE_KEY,
+                String(next),
+            );
+
+            return next;
+        });
+    }
+
     return (
         <main className="min-h-screen bg-[#050607] text-white">
 
@@ -19,24 +41,33 @@ export default function DashboardLayout({
                 APPLICATION SHELL
             ============================================================= */}
 
-            <div className="flex min-h-screen">
+            <div className="min-h-screen">
 
                 {/* =========================================================
                     SIDEBAR
 
-                    IMPORTANT:
-                    z-40 keeps the sidebar above the fixed background.
+                    Desktop only. Mobile/tablet navigation is handled
+                    by the responsive header.
                 ========================================================== */}
 
-                <div className="relative z-40 shrink-0">
-                    <Sidebar />
-                </div>
+                <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
 
                 {/* =========================================================
                     MAIN AREA
+
+                    The left margin follows the sidebar state.
+
+                    Expanded:
+                    250px
+
+                    Collapsed:
+                    76px
+
+                    Mobile / tablet:
+                    0px
                 ========================================================== */}
 
-                <section className="relative min-w-0 flex-1">
+                <section className={`relative min-w-0 transition-[margin] duration-300 ${sidebarCollapsed ? 'lg:ml-[76px]' : 'lg:ml-[250px]'}`}>
 
                     {/* =====================================================
                         FIXED VISUAL BACKGROUND
@@ -60,14 +91,9 @@ export default function DashboardLayout({
                         <ChromeSparkles />
                     </div>
 
-                    {/* =====================================================
-                        HEADER
-
-                        Keep header above the background.
-                    ====================================================== */}
 
                     <div className="relative z-30">
-                        <DashboardHeader />
+                        <DashboardHeader sidebarCollapsed={sidebarCollapsed} />
                     </div>
 
                     {/* =====================================================
@@ -77,6 +103,10 @@ export default function DashboardLayout({
                     <div className="relative z-10 min-h-screen pt-[76px]">
                         {children}
                     </div>
+
+                    {/* =====================================================
+                        GLOBAL FLASH ALERT
+                    ====================================================== */}
 
                     <FlashAlert />
 

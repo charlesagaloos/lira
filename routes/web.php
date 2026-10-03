@@ -10,6 +10,7 @@ use App\Http\Controllers\PublicPortfolioController;
 use App\Http\Controllers\PublicProjectController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PortfolioSettingsController;
+use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -93,6 +94,34 @@ Route::delete('/dashboard/projects/{project}', [ProjectController::class, 'destr
 Route::patch('/dashboard/projects/{project}/visibility', [ProjectController::class, 'toggleVisibility'])
     ->middleware(['auth', 'verified', 'verified.artist'])
     ->name('projects.visibility');
+
+Route::get('/dashboard/releases', [ReleaseController::class, 'index'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('releases.index');
+
+Route::get('/dashboard/releases/create', [ReleaseController::class, 'create'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('releases.create');
+
+Route::post('/dashboard/releases', [ReleaseController::class, 'store'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('releases.store');
+
+Route::get('/dashboard/releases/{release}/edit', [ReleaseController::class, 'edit'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('releases.edit');
+
+Route::put('/dashboard/releases/{release}', [ReleaseController::class, 'update'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('releases.update');
+
+Route::delete('/dashboard/releases/{release}', [ReleaseController::class, 'destroy'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('releases.destroy');
+
+Route::patch('/dashboard/releases/{release}/visibility', [ReleaseController::class, 'toggleVisibility'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('releases.visibility');
 
 Route::get('/dashboard/portfolio/settings', [PortfolioSettingsController::class, 'edit'])
     ->middleware(['auth', 'verified', 'verified.artist'])

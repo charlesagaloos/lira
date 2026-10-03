@@ -21,6 +21,10 @@ class ProjectController extends Controller
             'profile' => $profile->only([
                 'id',
                 'username',
+                'avatar',
+                'avatar_zoom',
+                'avatar_position_x',
+                'avatar_position_y',
                 'display_name',
                 'verification_status',
                 'is_published',
@@ -237,7 +241,7 @@ class ProjectController extends Controller
         $project->update($validated);
 
         return redirect()
-            ->route('projects.edit', $project->id)
+            ->route('projects.index', $project->id)
             ->with('success', 'Project updated successfully.');
     }
     public function destroy(Request $request, int $project): RedirectResponse

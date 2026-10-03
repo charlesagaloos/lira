@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 
 import DashboardLayout from '../../Components/Dashboard/d_layout';
 import {
@@ -25,11 +25,96 @@ interface Profile {
     website: string | null;
     verification_status: string;
     verified_at: string | null;
+    avatar: string | null;
+    avatar_zoom: number;
+    avatar_position_x: number;
+    avatar_position_y: number;
     social_links: SocialLink[];
 }
 
 interface Props {
     profile: Profile;
+}
+
+/*
+|--------------------------------------------------------------------------
+| PROFILE AVATAR
+|--------------------------------------------------------------------------
+*/
+
+function getImageUrl(path: string | null): string | null {
+    if (!path) return null;
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:') || path.startsWith('data:')) return path;
+    if (path.startsWith('/storage/')) return path;
+    if (path.startsWith('storage/')) return `/${path}`;
+    if (path.startsWith('/')) return path;
+    return `/storage/${path}`;
+}
+
+function ProfileAvatar({ profile, size }: { profile: Profile; size: number }) {
+    const [naturalSize, setNaturalSize] = useState({ width: 1, height: 1 });
+    const avatarUrl = getImageUrl(profile.avatar);
+    const zoom = Number(profile.avatar_zoom ?? 1) || 1;
+    const positionX = Number(profile.avatar_position_x ?? 50);
+    const positionY = Number(profile.avatar_position_y ?? 50);
+    const aspectRatio = naturalSize.width / naturalSize.height;
+
+    let baseWidth = size;
+    let baseHeight = size;
+
+    if (Number.isFinite(aspectRatio) && aspectRatio > 0) {
+        if (aspectRatio >= 1) {
+            baseWidth = size * aspectRatio;
+        } else {
+            baseHeight = size / aspectRatio;
+        }
+    }
+
+    const scaledWidth = baseWidth * zoom;
+    const scaledHeight = baseHeight * zoom;
+    const maxX = Math.max(0, (scaledWidth - size) / 2);
+    const maxY = Math.max(0, (scaledHeight - size) / 2);
+    const translateX = ((positionX - 50) / 50) * maxX;
+    const translateY = ((positionY - 50) / 50) * maxY;
+
+    return (
+        <div
+            className="relative flex shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/[0.10] bg-[linear-gradient(145deg,rgba(255,255,255,0.07),rgba(255,255,255,0.015))] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+            style={{ width: `${size}px`, height: `${size}px` }}
+        >
+            {avatarUrl ? (
+                <img
+                    src={avatarUrl}
+                    alt={profile.display_name}
+                    draggable={false}
+                    onLoad={(event) => {
+                        const image = event.currentTarget;
+                        if (image.naturalWidth && image.naturalHeight) {
+                            setNaturalSize({
+                                width: image.naturalWidth,
+                                height: image.naturalHeight,
+                            });
+                        }
+                    }}
+                    className="absolute left-1/2 top-1/2 max-w-none select-none"
+                    style={{
+                        width: `${baseWidth}px`,
+                        height: `${baseHeight}px`,
+                        transform: `translate(-50%, -50%) translate(${translateX}px, ${translateY}px) scale(${zoom})`,
+                    }}
+                />
+            ) : (
+                <span className="text-2xl font-light text-zinc-500">
+                    {profile.display_name.charAt(0).toUpperCase()}
+                </span>
+            )}
+
+            <ChromeSparkle
+                size="sm"
+                className="pointer-events-none right-2 top-2 z-10 opacity-30"
+            />
+        </div>
+    );
 }
 
 /*
@@ -294,18 +379,10 @@ export default function View({ profile }: Props) {
                     >
                         <div className="space-y-8">
                             <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-                                <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-white/[0.10] bg-[linear-gradient(145deg,rgba(255,255,255,0.07),rgba(255,255,255,0.015))] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-                                    <span className="text-2xl font-light text-zinc-500">
-                                        {profile.display_name
-                                            .charAt(0)
-                                            .toUpperCase()}
-                                    </span>
-
-                                    <ChromeSparkle
-                                        size="sm"
-                                        className="right-2 top-2 opacity-30"
-                                    />
-                                </div>
+                                <ProfileAvatar
+                                    profile={profile}
+                                    size={80}
+                                />
 
                                 <div className="min-w-0">
                                     <h2 className="text-2xl font-light tracking-[-0.035em] text-white">

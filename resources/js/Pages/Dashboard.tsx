@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import DashboardLayout from '../Components/Dashboard/d_layout';
 
@@ -20,6 +21,10 @@ interface Profile {
     bio: string | null;
     artist_type: string | null;
     location: string | null;
+    avatar: string | null;
+    avatar_zoom: number;
+    avatar_position_x: number;
+    avatar_position_y: number;
     verification_status: string;
     is_published: boolean;
     portfolio_views_count: number;
@@ -83,6 +88,115 @@ function GlassPanel({
 
             <div className="relative">{children}</div>
         </div>
+    );
+}
+
+function getImageUrl(path: string | null): string | null {
+    if (!path) {
+        return null;
+    }
+
+    if (
+        path.startsWith('http://') ||
+        path.startsWith('https://') ||
+        path.startsWith('blob:') ||
+        path.startsWith('data:')
+    ) {
+        return path;
+    }
+
+    if (path.startsWith('/storage/')) {
+        return path;
+    }
+
+    if (path.startsWith('storage/')) {
+        return `/${path}`;
+    }
+
+    if (path.startsWith('/')) {
+        return path;
+    }
+
+    return `/storage/${path}`;
+}
+
+/*
+|--------------------------------------------------------------------------
+| AVATAR IMAGE
+|--------------------------------------------------------------------------
+*/
+
+function DashboardAvatar({
+    src,
+    alt,
+    zoom,
+    positionX,
+    positionY,
+    cropSize,
+}: {
+    src: string;
+    alt: string;
+    zoom: number;
+    positionX: number;
+    positionY: number;
+    cropSize: number;
+}) {
+    const [naturalSize, setNaturalSize] = useState({
+        width: 1,
+        height: 1,
+    });
+
+    // IMPORTANT: The editor calculates the image against the actual crop
+    // viewport. Dashboard must do the same. Using a larger fixed crop size
+    // here makes the image render much larger than it does in the editor.
+    const aspectRatio = naturalSize.width / naturalSize.height;
+
+    const baseWidth =
+        Number.isFinite(aspectRatio) && aspectRatio > 0
+            ? aspectRatio >= 1
+                ? cropSize * aspectRatio
+                : cropSize
+            : cropSize;
+
+    const baseHeight =
+        Number.isFinite(aspectRatio) && aspectRatio > 0
+            ? aspectRatio >= 1
+                ? cropSize
+                : cropSize / aspectRatio
+            : cropSize;
+
+    const scaledWidth = baseWidth * (zoom || 1);
+    const scaledHeight = baseHeight * (zoom || 1);
+
+    const maxX = Math.max(0, (scaledWidth - cropSize) / 2);
+    const maxY = Math.max(0, (scaledHeight - cropSize) / 2);
+
+    const translationX = ((positionX - 50) / 50) * maxX;
+    const translationY = ((positionY - 50) / 50) * maxY;
+
+    return (
+        <img
+            src={src}
+            alt={alt}
+            className="absolute left-1/2 top-1/2 max-w-none select-none"
+            draggable={false}
+            onLoad={(event) => {
+                const image = event.currentTarget;
+
+                if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+                    setNaturalSize({
+                        width: image.naturalWidth,
+                        height: image.naturalHeight,
+                    });
+                }
+            }}
+            style={{
+                width: `${baseWidth}px`,
+                height: `${baseHeight}px`,
+                transform: `translate(-50%, -50%) translate(${translationX}px, ${translationY}px) scale(${zoom || 1})`,
+                transformOrigin: 'center',
+            }}
+        />
     );
 }
 
@@ -201,6 +315,7 @@ export default function Dashboard({ profile, projects }: Props) {
 
     const isVerified = verificationStatus === 'verified';
     const isRejected = verificationStatus === 'rejected';
+    const avatarUrl = getImageUrl(profile.avatar);
 
     /*
     |--------------------------------------------------------------------------
@@ -260,11 +375,22 @@ export default function Dashboard({ profile, projects }: Props) {
                             <div className="flex items-center gap-5">
                                 {/* Artist avatar */}
                                 <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-[linear-gradient(135deg,#eef2f3_0%,#66747b_30%,#ffffff_48%,#56636a_70%,#eef2f3_100%)] shadow-[0_0_30px_rgba(255,255,255,0.08)]">
-                                    <span className="text-lg font-medium text-black/70">
-                                        {profile.display_name
-                                            .charAt(0)
-                                            .toUpperCase()}
-                                    </span>
+                                    {avatarUrl ? (
+                                        <DashboardAvatar
+                                            src={avatarUrl}
+                                            alt={profile.display_name}
+                                            zoom={profile.avatar_zoom || 1}
+                                            positionX={profile.avatar_position_x ?? 50}
+                                            positionY={profile.avatar_position_y ?? 50}
+                                            cropSize={64}
+                                        />
+                                    ) : (
+                                        <span className="text-lg font-medium text-black/70">
+                                            {profile.display_name
+                                                .charAt(0)
+                                                .toUpperCase()}
+                                        </span>
+                                    )}
 
                                     <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent_20%,rgba(255,255,255,0.6)_48%,transparent_72%)] opacity-40" />
                                 </div>
@@ -526,28 +652,34 @@ export default function Dashboard({ profile, projects }: Props) {
                                     </p>
                                 </div>
 
-                                <div className="relative mt-10">
-                                    <Link
-                                        href={`/@${profile.username}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="group inline-flex h-11 items-center gap-3 rounded-full bg-white px-6 text-xs font-medium text-[#08090b] transition duration-300 hover:bg-zinc-200 hover:shadow-[0_10px_35px_rgba(255,255,255,0.08)]"
-                                    >
-                                        <span>
-                                            View Portfolio
-                                        </span>
+                                {isVerified && profile.is_published ? (
+                                    <div className="relative mt-10">
+                                        <Link
+                                            href={`/@${profile.username}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="group inline-flex h-11 items-center gap-3 rounded-full bg-white px-6 text-xs font-medium text-[#08090b] transition duration-300 hover:bg-zinc-200 hover:shadow-[0_10px_35px_rgba(255,255,255,0.08)]"
+                                        >
+                                            <span>
+                                                View Portfolio
+                                            </span>
 
-                                        <ArrowUpRight className="transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                                    </Link>
-                                </div>
+                                            <ArrowUpRight className="transition duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                        </Link>
+                                    </div>
+                                ) : (
+                                    <div className="relative mt-10">
+                                        <p className="text-sm text-zinc-500">
+                                            Your portfolio will be visible once verified.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Live Portfolio Preview */}
+                            {/* Portfolio Preview */}
 
                             <div className="relative min-h-[280px] overflow-hidden bg-[#050607] sm:min-h-[360px] lg:min-h-[430px]">
-
                                 {/* Browser-style top edge */}
-
                                 <div className="absolute inset-x-0 top-0 z-30 flex h-8 items-center border-b border-white/[0.07] bg-[#08090a]/90 px-3 backdrop-blur-xl">
                                     <div className="flex items-center gap-1.5">
                                         <span className="h-1.5 w-1.5 rounded-full bg-white/20" />
@@ -560,27 +692,82 @@ export default function Dashboard({ profile, projects }: Props) {
                                     </div>
                                 </div>
 
-                                {/* Static preview viewport */}
-
                                 <div className="absolute inset-x-3 bottom-3 top-11 overflow-hidden rounded-lg border border-white/[0.08] bg-black shadow-[0_20px_60px_rgba(0,0,0,0.45)] sm:inset-x-5 sm:bottom-5 sm:top-12">
-                                    <div className="absolute inset-0 overflow-hidden">
+                                    {isVerified && profile.is_published ? (
+                                        <div className="absolute inset-0 overflow-hidden">
+                                            <iframe
+                                                src={`/@${profile.username}`}
+                                                title={`${profile.display_name} portfolio preview`}
+                                                scrolling="no"
+                                                className="pointer-events-none absolute left-0 top-0 h-[250%] w-[250%] origin-top-left border-0 overflow-hidden"
+                                                style={{
+                                                    transform: 'scale(0.4)',
+                                                }}
+                                            />
 
-                                        <iframe
-                                            src={`/@${profile.username}`}
-                                            title={`${profile.display_name} portfolio preview`}
-                                            scrolling="no"
-                                            className="pointer-events-none absolute left-0 top-0 h-[250%] w-[250%] origin-top-left border-0 overflow-hidden"
-                                            style={{
-                                                transform: 'scale(0.4)',
-                                            }}
-                                        />
+                                            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.025),transparent_35%,rgba(255,255,255,0.015))]" />
 
-                                        {/* Preview overlay */}
+                                            <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/[0.04]" />
+                                        </div>
+                                    ) : (
+                                        <div className="relative flex h-full items-center justify-center overflow-hidden px-6 text-center">
+                                            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_35%,rgba(53,223,255,0.06),transparent_34%),radial-gradient(circle_at_65%_70%,rgba(168,85,247,0.05),transparent_30%)]" />
 
-                                        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.025),transparent_35%,rgba(255,255,255,0.015))]" />
+                                            <div className="relative max-w-sm">
+                                                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-white/[0.09] bg-white/[0.025] text-zinc-500 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                                                    {isRejected ? (
+                                                        <span className="text-sm text-[#ff6b9d]">!</span>
+                                                    ) : isVerified ? (
+                                                        <span className="text-sm text-[#35dfff]">✦</span>
+                                                    ) : (
+                                                        <LockIcon className="h-4 w-4" />
+                                                    )}
+                                                </div>
 
-                                        <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/[0.04]" />
-                                    </div>
+                                                <p className="mt-5 text-[9px] uppercase tracking-[0.3em] text-zinc-600">
+                                                    {isRejected
+                                                        ? 'Profile Review Required'
+                                                        : isVerified
+                                                            ? 'Portfolio Not Published'
+                                                            : 'Portfolio Preparation'}
+                                                </p>
+
+                                                <h3 className="mt-3 text-lg font-light tracking-[-0.02em] text-white">
+                                                    {isRejected
+                                                        ? 'Your creative space is on hold.'
+                                                        : isVerified
+                                                            ? 'Your space is ready when you are.'
+                                                            : 'Your creative space is being prepared.'}
+                                                </h3>
+
+                                                <p className="mx-auto mt-3 max-w-xs text-[10px] leading-5 text-zinc-600">
+                                                    {isRejected
+                                                        ? 'Review your artist profile before your portfolio can become available.'
+                                                        : isVerified
+                                                            ? 'Customize your portfolio and publish it when everything is ready.'
+                                                            : 'Once your artist profile is verified, you can start building and publishing your portfolio.'}
+                                                </p>
+
+                                                {isVerified ? (
+                                                    <Link
+                                                        href="/dashboard/portfolio/settings"
+                                                        className="mt-6 inline-flex h-9 items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.035] px-4 text-[10px] font-medium text-zinc-300 transition hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
+                                                    >
+                                                        Customize Portfolio
+                                                        <ArrowRight className="h-3 w-3" />
+                                                    </Link>
+                                                ) : (
+                                                    <Link
+                                                        href="/dashboard/profile"
+                                                        className="mt-6 inline-flex h-9 items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.035] px-4 text-[10px] font-medium text-zinc-300 transition hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
+                                                    >
+                                                        {isRejected ? 'Review Profile' : 'View Profile'}
+                                                        <ArrowRight className="h-3 w-3" />
+                                                    </Link>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -894,49 +1081,6 @@ export default function Dashboard({ profile, projects }: Props) {
                                             </div>
                                         )}
 
-                                        {/* Customize Portfolio */}
-
-                                        {isVerified ? (
-                                            <Link
-                                                href="/dashboard/portfolio/settings"
-                                                className="group flex items-center gap-4 rounded-2xl p-3 transition hover:bg-white/[0.035]"
-                                            >
-                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.035] text-zinc-400 transition group-hover:border-white/[0.12] group-hover:text-white">
-                                                    <span className="text-sm">
-                                                        ✦
-                                                    </span>
-                                                </div>
-
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-medium text-white">
-                                                        Customize Portfolio
-                                                    </p>
-
-                                                    <p className="mt-0.5 text-[10px] text-zinc-600">
-                                                        Change your visual style
-                                                    </p>
-                                                </div>
-
-                                                <ArrowRight className="h-4 w-4 shrink-0 text-zinc-600 transition group-hover:translate-x-1 group-hover:text-white" />
-                                            </Link>
-                                        ) : (
-                                            <div className="flex items-center gap-4 rounded-2xl p-3 opacity-40">
-                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.025] text-zinc-600">
-                                                    <LockIcon className="h-4 w-4" />
-                                                </div>
-
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-medium text-zinc-500">
-                                                        Customize Portfolio
-                                                    </p>
-
-                                                    <p className="mt-0.5 text-[10px] text-zinc-700">
-                                                        Available after verification
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-
                                         {/* Public Portfolio */}
 
                                         {isVerified ? (
@@ -992,10 +1136,21 @@ export default function Dashboard({ profile, projects }: Props) {
                                     </h3>
 
                                     <div className="mt-5 flex items-center gap-4">
-                                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-white/[0.08] bg-[linear-gradient(135deg,#d9e0e3,#68747a,#f4f7f8)] text-sm font-medium text-[#17191b] shadow-[0_0_25px_rgba(255,255,255,0.08)]">
-                                            {profile.display_name
-                                                ?.charAt(0)
-                                                .toUpperCase()}
+                                        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/[0.08] bg-[linear-gradient(135deg,#d9e0e3,#68747a,#f4f7f8)] text-sm font-medium text-[#17191b] shadow-[0_0_25px_rgba(255,255,255,0.08)]">
+                                            {avatarUrl ? (
+                                                <DashboardAvatar
+                                                    src={avatarUrl}
+                                                    alt={profile.display_name}
+                                                    zoom={profile.avatar_zoom || 1}
+                                                    positionX={profile.avatar_position_x ?? 50}
+                                                    positionY={profile.avatar_position_y ?? 50}
+                                                    cropSize={56}
+                                                />
+                                            ) : (
+                                                profile.display_name
+                                                    ?.charAt(0)
+                                                    .toUpperCase()
+                                            )}
                                         </div>
 
                                         <div className="min-w-0">

@@ -9,27 +9,27 @@ use Inertia\Response;
 
 class PublicPortfolioController extends Controller
 {
-    public function show(Request $request, string $username): Response
-    {
+    public function show(
+        Request $request,
+        string $username,
+    ): Response {
         $profile = ArtistProfile::query()
             ->with([
-                'portfolioSettings',
-                'projects' => fn($query) => $query->where('is_visible', true),
+                'portfolioSettings.navigationItems',
+                'portfolioSettings.galleryImages',
+
+                'projects' => fn($query) => $query
+                    ->where('is_visible', true)
+                    ->orderBy('position'),
+
+                'releases' => fn($query) => $query
+                    ->where('is_visible', true)
+                    ->orderByDesc('release_date')
+                    ->orderBy('position'),
             ])
             ->where('username', $username)
             ->where('is_published', true)
             ->firstOrFail();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Record Portfolio View
-        |--------------------------------------------------------------------------
-        |
-        | Do not count the artist viewing their own portfolio.
-        | This prevents the dashboard's portfolio preview from inflating
-        | the public view count.
-        |
-        */
 
         $isOwner = $request->user()?->id === $profile->user_id;
 
@@ -43,7 +43,10 @@ class PublicPortfolioController extends Controller
                     'viewed_at' => now(),
                 ]);
 
-                $request->session()->put($viewSessionKey, true);
+                $request->session()->put(
+                    $viewSessionKey,
+                    true,
+                );
             }
         }
 
