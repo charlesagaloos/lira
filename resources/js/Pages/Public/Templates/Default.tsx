@@ -17,6 +17,8 @@ import type {
     PortfolioRelease,
 } from '../types';
 
+import AvatarImage from '../../../Components/Portfolio/AvatarImage';
+
 function getContrastColor(
     backgroundColor: string,
 ): string {
@@ -2735,15 +2737,21 @@ export default function DefaultTemplate({
 
                                     <div className="mt-7 flex items-center gap-4">
                                         {profile.avatar ? (
-                                            <img
-                                                src={
-                                                    profile.avatar
-                                                }
-                                                alt={
-                                                    profile.display_name
-                                                }
-                                                className="h-10 w-10 rounded-full border border-white/20 object-cover"
-                                            />
+                                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-white/20">
+                                                <AvatarImage
+                                                    src={profile.avatar}
+                                                    alt={profile.display_name}
+                                                    zoom={Number(
+                                                        profile.avatar_zoom ?? 1,
+                                                    )}
+                                                    positionX={Number(
+                                                        profile.avatar_position_x ?? 50,
+                                                    )}
+                                                    positionY={Number(
+                                                        profile.avatar_position_y ?? 50,
+                                                    )}
+                                                />
+                                            </div>
                                         ) : (
                                             <div
                                                 className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-[9px]"
@@ -3175,7 +3183,8 @@ export default function DefaultTemplate({
                                         settings.text_color,
                                 }}
                             >
-                                {settings.artist_message ?? ''}
+                                {settings.artist_message?.trim() ||
+                                        'Create with intention. Share your story with the world.'}
                             </p>
                         </div>
                     </div>
@@ -3258,21 +3267,18 @@ export default function DefaultTemplate({
                                         }}
                                     >
                                         {profile.avatar ? (
-                                            <img
-                                                src={
-                                                    profile.avatar
-                                                }
-                                                alt={
-                                                    profile.display_name
-                                                }
-                                                className="absolute inset-0 h-full w-full select-none object-cover transition-transform duration-[1400ms] ease-out hover:scale-[1.02]"
-                                                draggable={false}
-                                                style={{
-                                                    objectPosition: `${profile.avatar_position_x ?? 50}% ${profile.avatar_position_y ?? 50}%`,
-                                                    transform: `scale(${profile.avatar_zoom ?? 1})`,
-                                                    transformOrigin:
-                                                        'center',
-                                                }}
+                                            <AvatarImage
+                                                src={profile.avatar}
+                                                alt={profile.display_name}
+                                                zoom={Number(
+                                                    profile.avatar_zoom ?? 1,
+                                                )}
+                                                positionX={Number(
+                                                    profile.avatar_position_x ?? 50,
+                                                )}
+                                                positionY={Number(
+                                                    profile.avatar_position_y ?? 50,
+                                                )}
                                             />
                                         ) : (
                                             <div
@@ -3329,7 +3335,7 @@ export default function DefaultTemplate({
 
                             <div className="lg:pt-3">
                                 <p
-                                    className="max-w-4xl whitespace-pre-line text-2xl font-light leading-[1.45] tracking-[-0.035em] sm:text-3xl lg:text-[42px]"
+                                    className="max-w-4xl whitespace-pre-line text-2xl font-light leading-[1.45] tracking-[-0.035em] sm:text-3xl lg:text-[30]"
                                     style={{
                                         color:
                                             settings.text_color,

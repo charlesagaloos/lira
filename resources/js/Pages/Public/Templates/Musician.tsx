@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { LiquidGlassCarousel as LiquidGlassCarouselComponent } from '../../../Components/UI/liquid-glass-carousel';
+import AvatarImage from '../../../Components/Portfolio/AvatarImage';
 
 import type {
     PortfolioProject,
@@ -226,16 +227,14 @@ function MusicianReleaseCard({
 
     return (
         <article
-            className={`group ${
-                featured ? 'md:col-span-2' : ''
-            }`}
+            className={`group ${featured ? 'md:col-span-2' : ''
+                }`}
         >
             <div
-                className={`relative overflow-hidden border ${
-                    featured
+                className={`relative overflow-hidden border ${featured
                         ? 'aspect-[16/10] md:aspect-[16/9]'
                         : 'aspect-square'
-                }`}
+                    }`}
                 style={{
                     borderColor: 'var(--musician-border)',
                     backgroundColor: 'var(--musician-surface)',
@@ -720,7 +719,7 @@ function MusicPlayerWidget({
 }
 
 
-{/* Work */}
+{/* Work */ }
 function WorkWheelSection({
     profile,
     settings,
@@ -903,12 +902,12 @@ function WorkWheelSection({
             ? 170
             : projects.length > 1
                 ? Math.min(
-                      300,
-                      Math.max(
-                          190,
-                          270 - projects.length * 7,
-                      ),
-                  )
+                    300,
+                    Math.max(
+                        190,
+                        270 - projects.length * 7,
+                    ),
+                )
                 : 240;
 
     const drumStep = isMobile
@@ -971,11 +970,10 @@ function WorkWheelSection({
                 </div>
 
                 <div
-                    className={`relative overflow-hidden border-2 ${
-                        wheelActive
+                    className={`relative overflow-hidden border-2 ${wheelActive
                             ? 'cursor-grab active:cursor-grabbing'
                             : ''
-                    }`}
+                        }`}
                     style={{
                         borderColor: settings.text_color,
                         backgroundColor: settings.background_color,
@@ -1094,11 +1092,11 @@ function WorkWheelSection({
                                         distance > 3
                                             ? 0
                                             : Math.max(
-                                                  0.18,
-                                                  1 -
-                                                      distance *
-                                                          0.22,
-                                              );
+                                                0.18,
+                                                1 -
+                                                distance *
+                                                0.22,
+                                            );
 
                                     zIndex =
                                         30 - distance;
@@ -1121,7 +1119,7 @@ function WorkWheelSection({
                                                 'transform 900ms cubic-bezier(.16,1,.3,1), opacity 650ms ease, filter 650ms ease',
                                             filter:
                                                 wheelActive &&
-                                                index !==
+                                                    index !==
                                                     activeIndex
                                                     ? 'brightness(.58)'
                                                     : 'brightness(1)',
@@ -1133,13 +1131,12 @@ function WorkWheelSection({
                                         aria-label={`View ${project.title}`}
                                     >
                                         <div
-                                            className={`relative overflow-hidden border-2 ${
-                                                wheelActive &&
-                                                index ===
+                                            className={`relative overflow-hidden border-2 ${wheelActive &&
+                                                    index ===
                                                     activeIndex
                                                     ? 'shadow-[18px_18px_0_rgba(255,255,255,.08)]'
                                                     : ''
-                                            }`}
+                                                }`}
                                             style={{
                                                 borderColor:
                                                     settings.text_color,
@@ -1205,7 +1202,7 @@ function WorkWheelSection({
 
                                                 {wheelActive &&
                                                     index ===
-                                                        activeIndex && (
+                                                    activeIndex && (
                                                         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
                                                             <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-white sm:text-[10px]">
                                                                 View Project
@@ -1366,9 +1363,8 @@ function GalleryCard({
 
                     {showCaption && image.caption && (
                         <p
-                            className={`text-[9px] leading-4 ${
-                                image.title ? 'mt-1' : ''
-                            }`}
+                            className={`text-[9px] leading-4 ${image.title ? 'mt-1' : ''
+                                }`}
                             style={{
                                 color: 'var(--musician-muted)',
                             }}
@@ -1526,11 +1522,10 @@ function MusicianFreeformGallery({
     return (
         <div
             ref={formationRef}
-            className={`musician-formation ${
-                isDragging
+            className={`musician-formation ${isDragging
                     ? 'is-dragging'
                     : ''
-            }`}
+                }`}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
@@ -1603,7 +1598,7 @@ function MusicianFreeformGallery({
                                 <GalleryCard
                                     image={image}
                                     index={index}
-                                    onOpen={() => {}}
+                                    onOpen={() => { }}
                                     // Freeform shows image-only cards.
                                     // Title and caption are shown in the lightbox.
                                     showTitle={false}
@@ -1652,61 +1647,61 @@ export default function MusicianTemplate({
         savedNavigationItems.length > 0
             ? savedNavigationItems
             : [
-                  {
-                      id: -1,
-                      label: 'Music',
-                      destination: 'music',
-                      url: null,
-                      sort_order: 0,
-                      is_visible: true,
-                  },
-                  ...(settings.show_work &&
-                  profile.projects.length > 0
-                      ? [
-                            {
-                                id: -2,
-                                label: 'Work',
-                                destination: 'work',
-                                url: null,
-                                sort_order: 1,
-                                is_visible: true,
-                            },
-                        ]
-                      : []),
-                  ...(settings.show_about
-                      ? [
-                            {
-                                id: -3,
-                                label: 'About',
-                                destination: 'about',
-                                url: null,
-                                sort_order: 2,
-                                is_visible: true,
-                            },
-                        ]
-                      : []),
-                  ...(settings.show_gallery &&
-                  galleryImages.length > 0
-                      ? [
-                            {
-                                id: -4,
-                                label: 'Gallery',
-                                destination: 'gallery',
-                                url: null,
-                                sort_order: 3,
-                                is_visible: true,
-                            },
-                        ]
-                      : []),
-              ];
+                {
+                    id: -1,
+                    label: 'Music',
+                    destination: 'music',
+                    url: null,
+                    sort_order: 0,
+                    is_visible: true,
+                },
+                ...(settings.show_work &&
+                    profile.projects.length > 0
+                    ? [
+                        {
+                            id: -2,
+                            label: 'Work',
+                            destination: 'work',
+                            url: null,
+                            sort_order: 1,
+                            is_visible: true,
+                        },
+                    ]
+                    : []),
+                ...(settings.show_about
+                    ? [
+                        {
+                            id: -3,
+                            label: 'About',
+                            destination: 'about',
+                            url: null,
+                            sort_order: 2,
+                            is_visible: true,
+                        },
+                    ]
+                    : []),
+                ...(settings.show_gallery &&
+                    galleryImages.length > 0
+                    ? [
+                        {
+                            id: -4,
+                            label: 'Gallery',
+                            destination: 'gallery',
+                            url: null,
+                            sort_order: 3,
+                            is_visible: true,
+                        },
+                    ]
+                    : []),
+            ];
 
     const releases =
         settings.music_release_display === 'all'
             ? profile.releases
             : profile.releases.slice(
-                  0,
-                  Math.max(1, settings.music_release_limit ?? 6),
-              );
+                0,
+                Math.max(1, settings.music_release_limit ?? 6),
+            );
 
     const featuredRelease =
         releases.find(
@@ -1716,9 +1711,9 @@ export default function MusicianTemplate({
 
     const secondaryReleases = featuredRelease
         ? releases.filter(
-              (release) =>
-                  release.id !== featuredRelease.id,
-          )
+            (release) =>
+                release.id !== featuredRelease.id,
+        )
         : [];
 
     const heroRelease =
@@ -1739,8 +1734,8 @@ export default function MusicianTemplate({
     const [activeReleaseId, setActiveReleaseId] =
         useState<number | null>(
             featuredRelease?.id ??
-                releases[0]?.id ??
-                null,
+            releases[0]?.id ??
+            null,
         );
 
     useEffect(() => {
@@ -1758,8 +1753,8 @@ export default function MusicianTemplate({
         ) {
             setActiveReleaseId(
                 featuredRelease?.id ??
-                    releases[0]?.id ??
-                    null,
+                releases[0]?.id ??
+                null,
             );
         }
     }, [
@@ -1784,8 +1779,8 @@ export default function MusicianTemplate({
             Math.max(
                 Number(
                     galleryResponsive?.desktop?.columns ??
-                        settings.gallery_columns ??
-                        3,
+                    settings.gallery_columns ??
+                    3,
                 ),
                 2,
             ),
@@ -1804,7 +1799,7 @@ export default function MusicianTemplate({
             Math.max(
                 Number(
                     galleryResponsive?.tablet?.columns ??
-                        desktopGallery.columns,
+                    desktopGallery.columns,
                 ),
                 2,
             ),
@@ -1823,7 +1818,7 @@ export default function MusicianTemplate({
             Math.max(
                 Number(
                     galleryResponsive?.mobile?.columns ??
-                        Math.min(tabletGallery.columns, 2),
+                    Math.min(tabletGallery.columns, 2),
                 ),
                 1,
             ),
@@ -2099,19 +2094,40 @@ export default function MusicianTemplate({
                 .musician-poster-hero::after {
                     content: '';
                     position: absolute;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    height: 24%;
+                    inset: 0;
+                    z-index: -1;
                     background:
                         linear-gradient(
-                            180deg,
-                            transparent,
+                            90deg,
                             color-mix(
                                 in srgb,
-                                var(--musician-bg) 32%,
+                                var(--musician-bg) 24%,
                                 transparent
-                            )
+                            ) 0%,
+                            transparent 42%,
+                            color-mix(
+                                in srgb,
+                                var(--musician-bg) 10%,
+                                transparent
+                            ) 100%
+                        ),
+                        linear-gradient(
+                            180deg,
+                            transparent 54%,
+                            color-mix(
+                                in srgb,
+                                var(--musician-bg) 42%,
+                                transparent
+                            ) 100%
+                        ),
+                        radial-gradient(
+                            ellipse at center,
+                            transparent 48%,
+                            color-mix(
+                                in srgb,
+                                var(--musician-bg) 22%,
+                                transparent
+                            ) 100%
                         );
                     pointer-events: none;
                 }
@@ -3480,7 +3496,7 @@ export default function MusicianTemplate({
                 .musician-gallery-image {
                     display: block;
                     width: 100%;
-                    height: auto;
+                    // height: auto;
                     min-height: 0;
                     object-fit: cover;
                     transition:
@@ -3881,10 +3897,10 @@ export default function MusicianTemplate({
                                     </div>
 
                                     <div
-                                        className="absolute inset-0"
+                                        className="absolute inset-0 pointer-events-none"
                                         style={{
                                             background:
-                                                'linear-gradient(90deg, rgba(0,0,0,.62), transparent 62%), linear-gradient(0deg, rgba(0,0,0,.72), transparent 58%)',
+                                                'linear-gradient(90deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.56) 24%, rgba(0,0,0,.16) 54%, transparent 78%), linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.30) 30%, transparent 68%), radial-gradient(circle at 48% 50%, transparent 32%, rgba(0,0,0,.28) 100%)',
                                         }}
                                     />
 
@@ -4076,14 +4092,14 @@ export default function MusicianTemplate({
                                                     style={{
                                                         borderColor:
                                                             release.id ===
-                                                            activeReleaseId
+                                                                activeReleaseId
                                                                 ? settings.text_color
                                                                 : settings.border_color,
                                                         backgroundColor:
                                                             settings.surface_color,
                                                         boxShadow:
                                                             release.id ===
-                                                            activeReleaseId
+                                                                activeReleaseId
                                                                 ? `6px 6px 0 ${settings.primary_color}`
                                                                 : undefined,
                                                     }}
@@ -4122,7 +4138,7 @@ export default function MusicianTemplate({
                                                         >
                                                             {String(
                                                                 index +
-                                                                    1,
+                                                                1,
                                                             ).padStart(
                                                                 2,
                                                                 '0',
@@ -4143,9 +4159,8 @@ export default function MusicianTemplate({
                 )}
 
             {/* Artist Message */}
-            {settings.show_artist_message &&
-                settings.artist_message?.trim() && (
-                    <section
+            {settings.show_artist_message && (
+                <section
                         id="artist-message"
                         className="border-b px-4 py-14 sm:px-7 sm:py-20 lg:px-10"
                         style={{
@@ -4178,7 +4193,7 @@ export default function MusicianTemplate({
                                         settings.text_color,
                                 }}
                             >
-                                {settings.artist_message}
+                                {settings.artist_message || 'Create with intention. Share your story with the world.'}
                             </p>
                         </div>
                     </section>
@@ -4368,17 +4383,13 @@ export default function MusicianTemplate({
                             >
                                 {profileImage ? (
                                     <div className="musician-about-image relative h-full min-h-[400px] overflow-hidden">
-                                        <img
+                                        <AvatarImage
                                             src={profileImage}
-                                            alt={
-                                                profile.display_name
-                                            }
-                                            className="h-full w-full object-cover"
-                                            style={{
-                                                objectPosition: `${profile.avatar_position_x ?? 50}% ${profile.avatar_position_y ?? 50}%`,
-                                                transform: `scale(${profile.avatar_zoom ?? 1})`,
-                                            }}
-                                            draggable={false}
+                                            alt={profile.display_name}
+                                            className="select-none object-cover"
+                                            zoom={Number(profile.avatar_zoom ?? 1)}
+                                            positionX={Number(profile.avatar_position_x ?? 50)}
+                                            positionY={Number(profile.avatar_position_y ?? 50)}
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                                         <span className="absolute bottom-5 left-5 border px-3 py-2 text-[7px] font-bold uppercase tracking-[0.25em] text-white">
@@ -4535,7 +4546,7 @@ export default function MusicianTemplate({
                                                             settings.text_color,
                                                     }}
                                                 >
-                                                    Open Practice
+                                                    —
                                                 </span>
                                             )}
                                         </div>
@@ -4620,24 +4631,6 @@ export default function MusicianTemplate({
                                 </div>
 
                                 <div className="flex flex-col justify-between p-6 sm:p-9 lg:p-12">
-                                    <div>
-                                        <div className="mb-7 flex items-center gap-3">
-                                            <img
-                                                src="/images/brand/Lira_logo.png"
-                                                alt="LIRA"
-                                                className="h-4 w-auto object-contain"
-                                            />
-                                            <span
-                                                className="text-[7px] font-bold uppercase tracking-[0.25em]"
-                                                style={{
-                                                    color:
-                                                        settings.text_color,
-                                                }}
-                                            >
-                                                Artist Platform
-                                            </span>
-                                        </div>
-                                    </div>
 
                                     <div className="mt-10">
                                         <p
@@ -4800,36 +4793,36 @@ export default function MusicianTemplate({
 
                             {(currentLightboxImage.title ||
                                 currentLightboxImage.caption) && (
-                                <div className="mt-4">
-                                    {currentLightboxImage.title && (
-                                        <p
-                                            className="text-sm"
-                                            style={{
-                                                color:
-                                                    settings.text_color,
-                                            }}
-                                        >
-                                            {
-                                                currentLightboxImage.title
-                                            }
-                                        </p>
-                                    )}
+                                    <div className="mt-4">
+                                        {currentLightboxImage.title && (
+                                            <p
+                                                className="text-sm"
+                                                style={{
+                                                    color:
+                                                        settings.text_color,
+                                                }}
+                                            >
+                                                {
+                                                    currentLightboxImage.title
+                                                }
+                                            </p>
+                                        )}
 
-                                    {currentLightboxImage.caption && (
-                                        <p
-                                            className="mt-1 max-w-2xl text-xs leading-5"
-                                            style={{
-                                                color:
-                                                    settings.muted_text_color,
-                                            }}
-                                        >
-                                            {
-                                                currentLightboxImage.caption
-                                            }
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                                        {currentLightboxImage.caption && (
+                                            <p
+                                                className="mt-1 max-w-2xl text-xs leading-5"
+                                                style={{
+                                                    color:
+                                                        settings.muted_text_color,
+                                                }}
+                                            >
+                                                {
+                                                    currentLightboxImage.caption
+                                                }
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
 
                             <span
                                 className="absolute right-0 top-full mt-3 text-[7px] uppercase tracking-[0.25em]"

@@ -9,6 +9,8 @@ import type {
     CSSProperties,
 } from 'react';
 
+import AvatarImage from '../../../Components/Portfolio/AvatarImage';
+
 import type {
     PortfolioGalleryImage,
     PortfolioProject,
@@ -1669,10 +1671,7 @@ function ArtistMessageSection({
 }: PortfolioProps) {
     const settings = profile.portfolio_settings;
 
-    if (
-        !settings.show_artist_message ||
-        !settings.artist_message?.trim()
-    ) {
+    if (!settings.show_artist_message) {
         return null;
     }
 
@@ -1719,7 +1718,8 @@ function ArtistMessageSection({
                                 'var(--editorial-text)',
                         }}
                     >
-                        {settings.artist_message}
+                        {settings.artist_message?.trim() ||
+                            'Create with intention. Share your story with the world.'}
                     </p>
                 </div>
             </div>
@@ -1775,16 +1775,13 @@ function AboutSection({
                     <div>
                         <div className="relative mx-auto aspect-[4/5] w-full max-w-[420px] overflow-hidden border lg:mx-0">
                             {avatar ? (
-                                <img
+                                <AvatarImage
                                     src={avatar}
                                     alt={profile.display_name}
-                                    className="absolute inset-0 h-full w-full select-none object-cover"
-                                    draggable={false}
-                                    style={{
-                                        objectPosition: `${profile.avatar_position_x ?? 50}% ${profile.avatar_position_y ?? 50}%`,
-                                        transform: `scale(${profile.avatar_zoom ?? 1})`,
-                                        transformOrigin: 'center',
-                                    }}
+                                    className="select-none object-cover"
+                                    zoom={Number(profile.avatar_zoom ?? 1)}
+                                    positionX={Number(profile.avatar_position_x ?? 50)}
+                                    positionY={Number(profile.avatar_position_y ?? 50)}
                                 />
                             ) : (
                                 <div
@@ -2386,23 +2383,17 @@ export default function EditorialTemplate({
                                     />
                                 </div>
                             ) : profile.avatar ? (
-                                <img
+                                <AvatarImage
                                     src={
                                         getAssetUrl(
                                             profile.avatar,
                                         ) ?? ''
                                     }
-                                    alt={
-                                        profile.display_name
-                                    }
-                                    className="absolute inset-0 h-full w-full select-none object-cover grayscale"
-                                    draggable={false}
-                                    style={{
-                                        objectPosition: `${profile.avatar_position_x ?? 50}% ${profile.avatar_position_y ?? 50}%`,
-                                        transform: `scale(${profile.avatar_zoom ?? 1})`,
-                                        transformOrigin:
-                                            'center',
-                                    }}
+                                    alt={profile.display_name}
+                                    className="select-none object-cover grayscale"
+                                    zoom={Number(profile.avatar_zoom ?? 1)}
+                                    positionX={Number(profile.avatar_position_x ?? 50)}
+                                    positionY={Number(profile.avatar_position_y ?? 50)}
                                 />
                             ) : (
                                 <div
@@ -2737,7 +2728,7 @@ export default function EditorialTemplate({
                             </div>
 
                             <div className="flex flex-wrap gap-x-6 gap-y-3 lg:justify-center">
-                                {settings.show_footer_socials && profile.website && (
+                                {settings.show_footer_socials !== false && profile.website && (
                                     <a
                                         href={profile.website}
                                         target="_blank"
@@ -2758,18 +2749,18 @@ export default function EditorialTemplate({
                             </div>
 
                             <div className="flex items-center gap-3 sm:justify-end">
-                                <span
-                                    className="text-[8px] uppercase tracking-[0.2em]"
-                                    style={{ color: 'var(--editorial-muted)' }}
-                                >
-                                    Independent artist / LIRA
-                                </span>
-                                {settings.show_powered_by_lira && (
+                                {settings.show_powered_by_lira !== false && (
                                     <a
                                         href="/"
                                         aria-label="Powered by LIRA"
                                         className="transition-opacity hover:opacity-60"
                                     >
+                                        <span
+                                            className="text-[8px] uppercase tracking-[0.2em]"
+                                            style={{ color: 'var(--editorial-muted)' }}
+                                        >
+                                            Powered by
+                                        </span>
                                         <img
                                             src="/images/brand/Lira_logo.png"
                                             alt="LIRA"

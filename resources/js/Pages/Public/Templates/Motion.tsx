@@ -1,5 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 
+import AvatarImage from '../../../Components/Portfolio/AvatarImage';
+
 import type {
     PortfolioProject,
     PortfolioProps,
@@ -2029,37 +2031,37 @@ export default function MotionTemplate({
             )}
 
             {/* Artist Message */}
-            {settings.show_artist_message &&
-                settings.artist_message?.trim() && (
-                    <section
-                        id="artist-message"
-                        className="border-y px-5 py-20 sm:px-8 sm:py-28"
-                        style={{
-                            borderColor: settings.border_color,
-                        }}
-                    >
-                        <div className="mx-auto max-w-[1320px]">
-                            <p
-                                className="text-[7px] uppercase tracking-[0.3em]"
-                                style={{
-                                    color: settings.accent_color,
-                                }}
-                            >
-                                {settings.artist_message_label ||
-                                    'A note from the artist'}
-                            </p>
+            {settings.show_artist_message && (
+                <section
+                    id="artist-message"
+                    className="border-y px-5 py-20 sm:px-8 sm:py-28"
+                    style={{
+                        borderColor: settings.border_color,
+                    }}
+                >
+                    <div className="mx-auto max-w-[1320px]">
+                        <p
+                            className="text-[7px] uppercase tracking-[0.3em]"
+                            style={{
+                                color: settings.accent_color,
+                            }}
+                        >
+                            {settings.artist_message_label ||
+                                'A note from the artist'}
+                        </p>
 
-                            <p
-                                className="mt-8 max-w-6xl text-[clamp(2.1rem,5vw,5.8rem)] font-light leading-[0.92] tracking-[-0.06em]"
-                                style={{
-                                    color: settings.text_color,
-                                }}
-                            >
-                                {settings.artist_message}
-                            </p>
-                        </div>
-                    </section>
-                )}
+                        <p
+                            className="mt-8 max-w-6xl text-[clamp(2.1rem,5vw,5.8rem)] font-light leading-[0.92] tracking-[-0.06em]"
+                            style={{
+                                color: settings.text_color,
+                            }}
+                        >
+                            {settings.artist_message?.trim() ||
+                                'Create with intention. Share your story with the world.'}
+                        </p>
+                    </div>
+                </section>
+            )}
 
             {/* Gallery */}
             {settings.show_gallery &&
@@ -2349,14 +2351,16 @@ export default function MotionTemplate({
                                                     settings.border_color,
                                             }}
                                         >
-                                            <img
+                                            <AvatarImage
                                                 src={profileImage}
                                                 alt={profile.display_name}
-                                                className="h-full w-full object-cover"
-                                                style={{
-                                                    objectPosition: `${profile.avatar_position_x ?? 50}% ${profile.avatar_position_y ?? 50}%`,
-                                                    transform: `scale(${profile.avatar_zoom ?? 1})`,
-                                                }}
+                                                zoom={Number(profile.avatar_zoom ?? 1)}
+                                                positionX={Number(
+                                                    profile.avatar_position_x ?? 50,
+                                                )}
+                                                positionY={Number(
+                                                    profile.avatar_position_y ?? 50,
+                                                )}
                                             />
 
                                             <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/45 px-4 py-3 backdrop-blur-sm">
@@ -2511,7 +2515,7 @@ export default function MotionTemplate({
                                                         settings.text_color,
                                                 }}
                                             >
-                                                Open Practice
+                                                —
                                             </span>
                                         )}
                                     </div>

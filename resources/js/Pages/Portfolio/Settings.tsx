@@ -707,108 +707,59 @@ function WireDot({
 
 function DefaultWireframe({ accentColor }: { accentColor: string }) {
     return (
-        <div className="overflow-hidden bg-[#090a0b] text-white">
-            <WireNav />
+        <div className="relative min-h-[620px] overflow-hidden bg-[#090a0b] text-white">
+            <div className="absolute inset-2 border border-white/[0.12]" />
 
-            <div className="relative px-3 pb-3 pt-3">
-                <WireImage
-                    className="aspect-[1.45/1] w-full"
-                    label="HERO IMAGE"
-                    accentColor={accentColor}
-                />
-
-                <div className="absolute bottom-6 left-5 right-5">
-                    <div className="max-w-[72%] space-y-1.5">
-                        <WireText width="w-full" strong />
-                        <WireText width="w-3/4" strong />
-                        <WireText width="w-1/2" />
-                    </div>
+            <div className="relative z-10 flex items-center justify-between px-4 py-4">
+                <div className="flex items-center gap-2">
+                    <span className="h-6 w-6 rounded-full border border-white/50" />
+                    <span className="text-[8px] uppercase tracking-[0.28em] text-white/80">ARTIST NAME</span>
                 </div>
 
-                <div className="absolute right-5 top-5 flex items-center gap-1">
-                    <WireDot accentColor={accentColor} />
-                    <span className="text-[5px] uppercase tracking-[0.16em] text-white/35">
-                        Artist
-                    </span>
+                <div className="flex items-center gap-5 text-[6px] uppercase tracking-[0.22em] text-white/55">
+                    <span>About</span>
+                    <span>Projects</span>
+                    <span>Galleries</span>
                 </div>
+
+                <span className="text-[6px] uppercase tracking-[0.2em] text-white/55">Explore ↗</span>
             </div>
 
-            <div className="px-3 pb-4">
-                <div className="mb-2 flex items-end justify-between">
-                    <WireLabel>Selected Work</WireLabel>
-                    <span className="text-[5px] text-white/25">01 / 06</span>
+            <div className="absolute inset-x-2 top-14 bottom-2 overflow-hidden border-t border-white/[0.06]">
+                <div className="absolute inset-0 opacity-60">
+                    <div className="absolute left-1/2 top-1/2 h-px w-[150%] -translate-x-1/2 -rotate-[25deg] bg-white/[0.12]" />
+                    <div className="absolute left-1/2 top-1/2 h-px w-[150%] -translate-x-1/2 rotate-[25deg] bg-white/[0.12]" />
                 </div>
 
                 <WireImage
-                    className="aspect-[1.55/1] w-full"
-                    label="FEATURED PROJECT"
+                    className="absolute left-1/2 top-[40%] h-20 w-24 -translate-x-1/2 -translate-y-1/2"
+                    label=""
                     accentColor={accentColor}
                 />
 
-                <div className="mt-2 flex items-end justify-between">
-                    <div className="space-y-1.5">
-                        <WireText width="w-24" strong />
-                        <WireText width="w-16" />
+                <div className="absolute bottom-10 left-8 w-[48%]">
+                    <div className="mb-2 flex items-center gap-2">
+                        <span className="h-px w-8 bg-white/70" />
+                        <span className="text-[6px] uppercase tracking-[0.2em] text-white/55">Musician • Manila, PH</span>
                     </div>
-                    <span className="text-[5px] text-white/25">VIEW</span>
+                    <div className="text-[42px] font-light uppercase leading-[0.82] tracking-[-0.06em] text-white/90">
+                        ARTIST<br />NAME
+                    </div>
+                    <div className="mt-3 text-[6px] uppercase tracking-[0.2em] text-white/55">Explore <span className="ml-2 inline-block w-8 border-t border-white/50 align-middle" /></div>
                 </div>
 
-                <div className="mt-3 grid grid-cols-3 gap-1.5">
-                    <WireImage
-                        className="aspect-square"
-                        label="01"
-                        accentColor={accentColor}
-                    />
-                    <WireImage
-                        className="aspect-square"
-                        label="02"
-                        accentColor={accentColor}
-                    />
-                    <WireImage
-                        className="aspect-square"
-                        label="03"
-                        accentColor={accentColor}
-                    />
-                </div>
-            </div>
-
-            <div className="border-y border-white/[0.08] px-3 py-4">
-                <div className="mb-2 flex items-center justify-between">
-                    <WireLabel>Music</WireLabel>
-                    <span className="text-[5px] text-white/25">LATEST RELEASES</span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                    {[0, 1].map((item) => (
-                        <div key={item}>
-                            <WireImage
-                                className="aspect-square"
-                                label={`RELEASE 0${item + 1}`}
-                                accentColor={accentColor}
-                            />
-                            <div className="mt-1.5 space-y-1">
-                                <WireText width="w-3/4" strong />
-                                <WireText width="w-1/2" />
-                            </div>
+                <div className="absolute bottom-10 right-8 w-[29%] border-l border-white/35 pl-5">
+                    <WireLabel>Artist Statement</WireLabel>
+                    <WireText width="w-full" strong />
+                    <WireText width="w-3/4" strong />
+                    <div className="mt-4 flex items-center gap-3">
+                        <span className="h-8 w-8 rounded-full border border-white/25" />
+                        <div className="flex-1 space-y-1.5">
+                            <WireText width="w-3/4" />
+                            <WireText width="w-1/2" />
                         </div>
-                    ))}
+                    </div>
                 </div>
-            </div>
-
-            <div className="grid grid-cols-[1.15fr_0.85fr] gap-3 px-3 py-4">
-                <div className="space-y-2">
-                    <WireLabel>About</WireLabel>
-                    <WireText width="w-full" />
-                    <WireText width="w-full" />
-                    <WireText width="w-5/6" />
-                    <WireText width="w-2/3" />
-                </div>
-
-                <WireImage
-                    className="aspect-square"
-                    label="PORTRAIT"
-                    accentColor={accentColor}
-                />
             </div>
         </div>
     );
@@ -819,96 +770,40 @@ function DefaultWireframe({ accentColor }: { accentColor: string }) {
 function EditorialWireframe({ accentColor }: { accentColor: string }) {
     return (
         <div className="overflow-hidden bg-[#f0eee8] text-[#171717]">
-            <WireNav light />
+            <div className="flex items-center justify-between border-b border-black/10 px-4 py-3">
+                <span className="text-[8px] uppercase tracking-[0.35em]">ARTIST NAME</span>
+                <div className="flex gap-5 text-[6px] uppercase tracking-[0.18em] text-black/60"><span>About</span><span>Projects</span><span>Galleries</span></div>
+                <span className="text-[6px] uppercase tracking-[0.18em] text-black/50">Explore ↗</span>
+            </div>
 
-            <div className="grid grid-cols-[1.02fr_0.98fr] gap-3 px-3 py-4">
-                <div className="flex flex-col justify-between py-2">
+            <div className="grid grid-cols-[0.9fr_1.1fr] gap-5 px-5 py-6">
+                <div className="flex flex-col justify-center">
+                    <WireLabel light>Musician • Manila, PH</WireLabel>
+                    <div className="mt-4 text-[42px] font-light uppercase leading-[0.82] tracking-[-0.06em]">ARTIST<br />NAME</div>
+                    <p className="mt-5 max-w-[85%] text-[7px] leading-4 text-black/55">R&B Artist based in the Philippines. Creating music, visuals, and stories that connect.</p>
+                    <div className="mt-5 flex gap-5 text-[5px] uppercase tracking-[0.18em] text-black/60"><span>Spotify</span><span>YouTube</span><span>Instagram</span></div>
+                </div>
+
+                <WireImage className="aspect-[1.38/1]" label="" accentColor={accentColor} light />
+            </div>
+
+            <div className="border-t border-black/10 px-5 py-5">
+                <div className="flex items-end justify-between">
                     <div>
-                        <p className="text-[5px] uppercase tracking-[0.2em] text-black/35">
-                            Visual Artist / Photographer
-                        </p>
-
-                        <div className="mt-5 space-y-2">
-                            <div className="h-3 w-full bg-black/65" />
-                            <div className="h-3 w-4/5 bg-black/65" />
-                            <div className="h-3 w-3/5 bg-black/65" />
-                        </div>
+                        <WireLabel light>Featured</WireLabel>
+                        <div className="mt-2 text-[31px] font-light uppercase leading-none tracking-[-0.05em]">SELECTED WORK</div>
                     </div>
+                    <span className="text-[5px] uppercase tracking-[0.18em] text-black/50">View all ↗</span>
+                </div>
 
-                    <div className="mt-8 space-y-1.5">
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                    <WireImage className="col-span-2 aspect-[1.7/1]" label="FEATURED" accentColor={accentColor} light />
+                    <div className="flex flex-col justify-end border-l border-black/10 pl-3">
                         <WireText width="w-full" strong />
-                        <WireText width="w-5/6" />
+                        <WireText width="w-4/5" strong />
                         <WireText width="w-2/3" />
                     </div>
                 </div>
-
-                <WireImage
-                    className="aspect-[0.78/1]"
-                    label="PORTRAIT"
-                    accentColor={accentColor}
-                    light
-                />
-            </div>
-
-            <div className="border-y border-black/10 px-3 py-4">
-                <div className="mb-3 flex items-center justify-between">
-                    <WireLabel light>Selected Work</WireLabel>
-                    <span className="text-[5px] text-black/30">WORK / 2026</span>
-                </div>
-
-                <div className="space-y-3">
-                    {[
-                        ['01', 'FRAGMENTS OF HOME'],
-                        ['02', 'BETWEEN SPACES'],
-                        ['03', 'SILENT MOTION'],
-                    ].map(([number, title]) => (
-                        <div
-                            key={number}
-                            className="grid grid-cols-[18px_1fr] gap-2"
-                        >
-                            <span className="pt-1 text-[8px] font-light text-black/65">
-                                {number}
-                            </span>
-
-                            <div>
-                                <WireImage
-                                    className="aspect-[2.2/1]"
-                                    label={title}
-                                    accentColor={accentColor}
-                                    light
-                                />
-                                <div className="mt-1 flex items-center justify-between">
-                                    <span className="text-[5px] uppercase tracking-[0.14em] text-black/55">
-                                        {title}
-                                    </span>
-                                    <span className="text-[5px] text-black/30">
-                                        2026
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-[0.9fr_1.1fr] gap-3 px-3 py-4">
-                <div className="flex flex-col justify-between">
-                    <p className="text-[7px] leading-4 text-black/60">
-                        A short statement about the artist, process, and visual
-                        language.
-                    </p>
-                    <div className="mt-5 space-y-1.5">
-                        <WireText width="w-full" />
-                        <WireText width="w-4/5" />
-                    </div>
-                </div>
-
-                <WireImage
-                    className="aspect-[1.35/1]"
-                    label="EDITORIAL IMAGE"
-                    accentColor={accentColor}
-                    light
-                />
             </div>
         </div>
     );
@@ -918,110 +813,35 @@ function EditorialWireframe({ accentColor }: { accentColor: string }) {
 
 function CanvasWireframe({ accentColor }: { accentColor: string }) {
     return (
-        <div className="relative overflow-hidden bg-[#08090a] text-white">
-            <div className="absolute inset-2 border border-dashed border-white/[0.08]" />
+        <div className="relative min-h-[620px] overflow-hidden bg-[#08090a] text-white">
+            <div className="absolute inset-0 opacity-45 [background-image:radial-gradient(circle,rgba(255,255,255,0.16)_0.7px,transparent_0.8px)] [background-size:10px_10px]" />
+            <div className="absolute inset-3 border border-white/[0.1]" />
 
-            <div className="relative min-h-[620px] p-3">
-                <div className="flex items-start justify-between">
-                    <div>
-                        <WireText width="w-10" strong />
-                        <p className="mt-1 text-[5px] uppercase tracking-[0.22em] text-white/30">
-                            Artist / Creative
-                        </p>
-                    </div>
+            <div className="relative z-10 flex items-center justify-between px-5 py-4">
+                <span className="text-[8px] uppercase tracking-[0.35em]">ARTIST NAME</span>
+                <div className="flex gap-5 text-[6px] uppercase tracking-[0.2em] text-white/55"><span>About</span><span>Projects</span><span>Galleries</span></div>
+            </div>
 
-                    <div className="text-right">
-                        <p className="text-[5px] uppercase tracking-[0.18em] text-white/25">
-                            ARTBOARD
-                        </p>
-                        <p className="mt-1 text-[5px] text-white/20">01 — 05</p>
-                    </div>
+            <div className="relative z-10 mx-auto mt-4 h-[500px] w-[72%]">
+                <div className="absolute left-[6%] top-[2%] text-[38px] font-light uppercase leading-[0.82] tracking-[-0.07em] text-white/90" style={{ fontFamily: 'cursive' }}>
+                    + ART<br />CREATES<br />SPACE
+                </div>
+                <div className="absolute left-[8%] top-[45%] h-12 w-20 rounded-full border border-white/35" />
+
+                <div className="absolute left-[37%] top-[17%] w-[34%] rotate-[-3deg]">
+                    <WireImage className="aspect-[0.75/1]" label="" accentColor={accentColor} />
+                    <span className="absolute -top-2 left-1/2 h-4 w-12 -translate-x-1/2 rotate-2 bg-white/15" />
+                    <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-white px-3 py-1 text-[5px] uppercase tracking-[0.16em] text-black">Music • Visuals • Ideas</span>
                 </div>
 
-                <WireImage
-                    className="absolute left-[9%] top-[12%] h-[150px] w-[43%] rotate-[-4deg]"
-                    label="HERO"
-                    accentColor={accentColor}
-                />
-
-                <div className="absolute right-[8%] top-[18%] w-[36%] rotate-[5deg]">
-                    <p className="font-mono text-[10px] uppercase leading-3 text-white/55">
-                        ART
-                        <br />
-                        CREATES
-                        <br />
-                        SPACE
-                    </p>
-                    <div className="mt-3 space-y-1.5">
-                        <WireText width="w-full" />
-                        <WireText width="w-4/5" />
-                        <WireText width="w-2/3" />
-                    </div>
+                <div className="absolute right-[5%] top-[8%] w-[19%] rotate-[6deg]">
+                    <WireImage className="aspect-square" label="" accentColor={accentColor} />
+                </div>
+                <div className="absolute right-[2%] top-[43%] w-[24%] rotate-[3deg] bg-[#e8e5dd] p-3 text-[6px] uppercase leading-3 tracking-[0.1em] text-black">
+                    MUSIC<br />VISUALS<br />STORIES<br />PEOPLE<br />PLACES
                 </div>
 
-                <div
-                    className="absolute right-[13%] top-[35%] h-8 w-8 rounded-full border"
-                    style={{ borderColor: `${accentColor}77` }}
-                />
-
-                <div className="absolute left-[11%] top-[42%] w-[48%] rotate-[-2deg]">
-                    <WireLabel>Selected Work</WireLabel>
-                    <div className="mt-2 space-y-2">
-                        <WireImage
-                            className="aspect-[1.25/1]"
-                            label="01"
-                            accentColor={accentColor}
-                        />
-                        <div className="grid grid-cols-2 gap-2">
-                            <WireImage
-                                className="aspect-square"
-                                label="02"
-                                accentColor={accentColor}
-                            />
-                            <WireImage
-                                className="aspect-square"
-                                label="03"
-                                accentColor={accentColor}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="absolute right-[7%] top-[52%] w-[31%] rotate-[7deg]">
-                    <WireImage
-                        className="aspect-square"
-                        label="04"
-                        accentColor={accentColor}
-                    />
-                    <div className="mt-2 space-y-1.5">
-                        <WireText width="w-full" />
-                        <WireText width="w-4/5" />
-                    </div>
-                </div>
-
-                <div className="absolute bottom-[7%] left-[9%] right-[9%]">
-                    <div className="mb-2 flex items-center justify-between">
-                        <WireLabel>Music</WireLabel>
-                        <span className="text-[5px] uppercase tracking-[0.18em] text-white/25">
-                            Releases
-                        </span>
-                    </div>
-
-                    <div className="grid grid-cols-4 gap-2">
-                        {[1, 2, 3, 4].map((item) => (
-                            <WireImage
-                                key={item}
-                                className="aspect-square"
-                                label={`0${item}`}
-                                accentColor={accentColor}
-                            />
-                        ))}
-                    </div>
-                </div>
-
-                <div className="absolute bottom-[2.5%] right-[8%] text-[5px] uppercase tracking-[0.2em] text-white/25">
-                    SCROLL / EXPLORE
-                </div>
+                <div className="absolute left-[8%] bottom-[6%] text-[6px] uppercase tracking-[0.2em] text-white/50">R&B Artist<br />Manila, PH</div>
             </div>
         </div>
     );
@@ -1030,110 +850,39 @@ function CanvasWireframe({ accentColor }: { accentColor: string }) {
 // Motion wireframe
 
 function MotionWireframe({ accentColor }: { accentColor: string }) {
-    const projects = [
-        ['01', 'URBAN RHYTHMS'],
-        ['02', 'PARALLEL LIVES'],
-        ['03', 'AFTERGLOW'],
-    ];
-
     return (
-        <div className="overflow-hidden bg-[#07090d] text-white">
-            <WireNav />
+        <div className="relative min-h-[620px] overflow-hidden bg-[#090a0b] text-white">
+            <div className="absolute inset-2 border border-white/[0.12]" />
+            <div className="absolute inset-4 opacity-30 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:52px_52px]" />
 
-            <div className="relative overflow-hidden px-3 pb-5 pt-7">
-                <div className="relative z-10">
-                    <p className="text-[5px] uppercase tracking-[0.22em] text-white/30">
-                        Visual Artist / Filmmaker
-                    </p>
-
-                    <div className="mt-4 space-y-1">
-                        <div className="text-[24px] font-light uppercase leading-[0.78] tracking-[-0.06em] text-white/80">
-                            MOVE
-                        </div>
-                        <div className="text-[24px] font-light uppercase leading-[0.78] tracking-[-0.06em] text-white/80">
-                            CREATE
-                        </div>
-                        <div
-                            className="text-[24px] font-light uppercase leading-[0.78] tracking-[-0.06em]"
-                            style={{ color: `${accentColor}bb` }}
-                        >
-                            REPEAT
-                        </div>
-                    </div>
-                </div>
-
-                <div className="absolute -right-10 top-12 h-28 w-[75%] rotate-[-9deg] border-y border-white/[0.08] bg-white/[0.02]" />
-
-                <div className="relative z-10 mt-7 ml-[16%] w-[76%]">
-                    <WireImage
-                        className="aspect-[1.5/1]"
-                        label="HERO MOTION"
-                        accentColor={accentColor}
-                    />
-                </div>
-
-                <div className="mt-2 flex items-center justify-between pl-[16%]">
-                    <WireText width="w-24" strong />
-                    <WireDot accentColor={accentColor} />
-                </div>
+            <div className="relative z-10 flex items-center justify-between px-5 py-4">
+                <span className="text-[8px] uppercase tracking-[0.35em]">ARTIST NAME</span>
+                <div className="flex gap-5 text-[6px] uppercase tracking-[0.2em] text-white/55"><span>About</span><span>Projects</span><span>Galleries</span></div>
+                <span className="text-[6px] uppercase tracking-[0.2em] text-white/55">Explore ↗</span>
             </div>
 
-            <div className="border-y border-white/[0.08] px-3 py-4">
-                <div className="mb-3 flex items-center justify-between">
-                    <WireLabel>Selected Work</WireLabel>
-                    <span className="text-[5px] text-white/25">01 — 03</span>
-                </div>
+            <div className="absolute inset-4 top-14">
+                <div className="absolute left-1/2 top-1/2 h-px w-[150%] -translate-x-1/2 -rotate-[27deg] bg-white/[0.14]" />
+                <div className="absolute left-1/2 top-1/2 h-px w-[150%] -translate-x-1/2 rotate-[27deg] bg-white/[0.14]" />
 
-                <div className="space-y-4">
-                    {projects.map(([number, title], index) => (
-                        <div
-                            key={number}
-                            className={`grid grid-cols-[22px_1fr] gap-2 ${index === 1 ? 'ml-[10%]' : ''
-                                }`}
-                        >
-                            <span className="pt-1 text-[10px] font-light text-white/45">
-                                {number}
-                            </span>
-
-                            <div>
-                                <WireImage
-                                    className={`aspect-[1.7/1] ${index === 1 ? 'rotate-[1deg]' : ''
-                                        }`}
-                                    label={title}
-                                    accentColor={accentColor}
-                                />
-
-                                <div className="mt-1.5 flex items-center justify-between">
-                                    <span className="text-[6px] uppercase tracking-[0.12em] text-white/55">
-                                        {title}
-                                    </span>
-                                    <span className="text-[5px] text-white/25">
-                                        VIEW
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="px-3 py-4">
-                <div className="flex items-center justify-between">
-                    <WireLabel>About</WireLabel>
-                    <WireText width="w-16" />
-                </div>
-                <div className="mt-2 grid grid-cols-[1fr_0.75fr] gap-3">
-                    <div className="space-y-1.5">
-                        <WireText width="w-full" />
-                        <WireText width="w-full" />
-                        <WireText width="w-4/5" />
+                <div className="absolute left-[24%] top-[22%] w-[43%]">
+                    <WireLabel>Musician</WireLabel>
+                    <div className="mt-4 text-[46px] font-bold uppercase leading-[0.82] tracking-[-0.07em]">
+                        MAKE<br />SOMETHING<br />THAT<br />LASTS.
                     </div>
-                    <WireImage
-                        className="aspect-square"
-                        label="DETAIL"
-                        accentColor={accentColor}
-                    />
+                    <div className="mt-4 flex items-center gap-2 text-[5px] uppercase tracking-[0.2em] text-white/55">
+                        ARTIST NAME <span className="h-px w-7 bg-white/40" /> MANILA, PH
+                    </div>
+                    <span className="mt-5 inline-flex border border-white/55 px-4 py-2 text-[5px] uppercase tracking-[0.2em]">Selected Work —</span>
                 </div>
+
+                <WireImage
+                    className="absolute right-[14%] top-[30%] h-28 w-[34%]"
+                    label=""
+                    accentColor={accentColor}
+                />
+
+                <div className="absolute bottom-8 right-[18%] text-[5px] uppercase tracking-[0.22em] text-white/45">Scroll to explore</div>
             </div>
         </div>
     );
@@ -1146,127 +895,65 @@ function MusicianWireframe({ accentColor }: { accentColor: string }) {
         <div className="overflow-hidden bg-[#08090b] text-white">
             <WireNav />
 
-            <div className="grid grid-cols-[1.02fr_0.98fr] gap-3 px-3 py-4">
-                <div className="flex flex-col justify-end pb-2">
-                    <p className="text-[5px] uppercase tracking-[0.22em] text-white/30">
-                        Singer / Songwriter
-                    </p>
-
-                    <div className="mt-4 space-y-1.5">
-                        <WireText width="w-full" strong />
-                        <WireText width="w-4/5" strong />
-                    </div>
-
-                    <div className="mt-4 flex gap-1.5">
-                        <span
-                            className="rounded-full border px-2 py-1 text-[5px] uppercase tracking-[0.12em]"
-                            style={{
-                                borderColor: `${accentColor}55`,
-                                color: `${accentColor}aa`,
-                            }}
-                        >
-                            Listen
-                        </span>
-                        <span className="rounded-full border border-white/10 px-2 py-1 text-[5px] uppercase tracking-[0.12em] text-white/35">
-                            Watch
-                        </span>
-                    </div>
+            <div className="relative border-b border-white/[0.08] px-4 py-5">
+                <div className="absolute left-5 top-5 grid grid-cols-4 gap-1 opacity-50">
+                    {Array.from({ length: 16 }).map((_, i) => <span key={i} className="h-1 w-1 rounded-full bg-white/40" />)}
                 </div>
+                <div className="absolute right-5 top-6 h-7 w-7 rotate-45 border border-white/35" />
 
-                <WireImage
-                    className="aspect-[0.82/1]"
-                    label="ARTIST"
-                    accentColor={accentColor}
-                />
-            </div>
-
-            <div className="border-y border-white/[0.08] px-3 py-4">
-                <div className="mb-2 flex items-center justify-between">
-                    <WireLabel>New Release</WireLabel>
-                    <WireDot accentColor={accentColor} />
-                </div>
-
-                <div className="grid grid-cols-[0.42fr_1fr] gap-3">
-                    <WireImage
-                        className="aspect-square"
-                        label="SINGLE"
-                        accentColor={accentColor}
-                    />
-
-                    <div className="flex flex-col justify-center space-y-2">
-                        <WireText width="w-full" strong />
-                        <WireText width="w-2/3" />
-
-                        <div className="mt-2 flex items-center gap-1.5">
-                            <WireDot accentColor={accentColor} />
-                            <WireDot accentColor={accentColor} />
-                            <WireDot accentColor={accentColor} />
-                            <span className="ml-1 text-[5px] text-white/25">
-                                STREAMING
-                            </span>
+                <div className="grid grid-cols-[0.82fr_1.18fr] items-center gap-4 pt-5">
+                    <div>
+                        <WireLabel>Musician</WireLabel>
+                        <div className="mt-4 text-[40px] font-bold uppercase leading-[0.82] tracking-[-0.07em] text-white/90">ARTIST NAME</div>
+                        <p className="mt-3 text-[7px] tracking-[0.08em] text-white/55">Make something that lasts.</p>
+                        <div className="mt-4 flex gap-2">
+                            <span className="border border-white/50 px-3 py-1.5 text-[5px] uppercase tracking-[0.16em]">Listen ↗</span>
+                            <span className="border-b border-white/40 px-2 py-1.5 text-[5px] uppercase tracking-[0.16em]">Explore</span>
+                        </div>
+                        <div className="mt-4 flex gap-3 text-[5px] text-white/45">
+                            <span>●</span><span>▶</span><span>◎</span><span>☁</span>
                         </div>
                     </div>
+
+                    <div className="relative aspect-[1.65/1] overflow-hidden border border-white/35">
+                        <WireImage className="absolute inset-0 h-full w-full border-0" label="" accentColor={accentColor} />
+                        <div className="absolute inset-x-0 bottom-0 h-7 border-t border-white/20 bg-black/35" />
+                        <div className="absolute bottom-3 left-4 right-4 h-px bg-white/25" />
+                        <div className="absolute bottom-3 left-10 h-1 w-1 rounded-full bg-white" />
+                    </div>
                 </div>
             </div>
 
-            <div className="px-3 py-4">
-                <div className="mb-2 flex items-center justify-between">
-                    <WireLabel>All Releases</WireLabel>
-                    <span className="text-[5px] text-white/25">VIEW ALL</span>
+            <div className="border-b border-white/[0.08] px-4 py-5">
+                <div className="mb-3 flex items-end justify-between">
+                    <div>
+                        <WireLabel>Latest Releases</WireLabel>
+                        <div className="mt-2 text-[30px] font-bold uppercase leading-none tracking-[-0.06em]">MUSIC</div>
+                    </div>
+                    <span className="text-[5px] uppercase tracking-[0.16em] text-white/50">View all ↗</span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
-                    {['01', '02', '03'].map((item) => (
-                        <div key={item}>
-                            <WireImage
-                                className="aspect-square"
-                                label={`RELEASE ${item}`}
-                                accentColor={accentColor}
-                            />
-                            <div className="mt-1.5 space-y-1">
-                                <WireText width="w-4/5" strong />
-                                <WireText width="w-1/2" />
+                <div className="grid grid-cols-[1.05fr_0.95fr] gap-4">
+                    <div className="grid grid-cols-[1fr_0.9fr] gap-3">
+                        <WireImage className="aspect-square" label="ALBUM" accentColor={accentColor} />
+                        <div className="flex flex-col justify-center">
+                            <WireLabel>Latest Release</WireLabel>
+                            <div className="mt-2 text-[18px] font-bold uppercase leading-[0.85]">MUSIC TITLE</div>
+                            <span className="mt-2 text-[5px] uppercase tracking-[0.16em] text-white/45">Single • 2024</span>
+                            <div className="mt-4 h-px bg-white/20" />
+                            <div className="mt-2 text-[5px] text-white/40">0:00 / 3:24</div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                        {['HORIZON', 'BETTER DAYS'].map((title) => (
+                            <div key={title}>
+                                <WireImage className="aspect-square" label="" accentColor={accentColor} />
+                                <p className="mt-1.5 text-[5px] font-medium uppercase tracking-[0.12em]">{title}</p>
+                                <p className="mt-1 text-[4px] uppercase tracking-[0.12em] text-white/35">2023 ↗</p>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-[1fr_0.9fr] gap-3 border-t border-white/[0.08] px-3 py-4">
-                <div className="space-y-2">
-                    <WireLabel>About</WireLabel>
-                    <WireText width="w-full" />
-                    <WireText width="w-full" />
-                    <WireText width="w-5/6" />
-                    <WireText width="w-2/3" />
-                </div>
-
-                <WireImage
-                    className="aspect-square"
-                    label="PORTRAIT"
-                    accentColor={accentColor}
-                />
-            </div>
-
-            <div className="border-t border-white/[0.08] px-3 py-4">
-                <div className="mb-2 flex items-center justify-between">
-                    <WireLabel>Live / Tour</WireLabel>
-                    <span className="text-[5px] text-white/25">2026</span>
-                </div>
-
-                <div className="space-y-2">
-                    {['APR 12', 'MAY 17', 'JUN 08'].map((date, index) => (
-                        <div
-                            key={date}
-                            className="grid grid-cols-[42px_1fr_0.8fr] items-center gap-2 border-b border-white/[0.06] pb-1.5"
-                        >
-                            <span className="text-[5px] text-white/40">
-                                {date}
-                            </span>
-                            <span className="h-[2px] rounded-full bg-white/15" />
-                            <span className="h-[2px] w-3/4 rounded-full bg-white/10" />
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
@@ -2996,63 +2683,54 @@ export default function Settings({
                                             template === portfolioTemplate.id;
 
                                         return (
-                                            <button
+                                            <div
                                                 key={portfolioTemplate.id}
-                                                type="button"
+                                                role="button"
+                                                tabIndex={0}
                                                 onClick={() =>
                                                     setTemplate(portfolioTemplate.id)
                                                 }
-                                                className={`group relative overflow-hidden rounded-2xl border p-4 text-left transition ${isSelected
+                                                onKeyDown={(event) => {
+                                                    if (
+                                                        event.key === 'Enter' ||
+                                                        event.key === ' '
+                                                    ) {
+                                                        event.preventDefault();
+                                                        setTemplate(portfolioTemplate.id);
+                                                    }
+                                                }}
+                                                className={`group relative cursor-pointer overflow-hidden rounded-2xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-[#7de7ff]/30 ${isSelected
                                                     ? 'border-white/[0.22] bg-white/[0.06]'
                                                     : 'border-white/[0.07] bg-black/20 hover:border-white/[0.14] hover:bg-white/[0.025]'
                                                     }`}
                                             >
-                                                {/* Template Preview */}
-                                                <div className="relative aspect-[16/8] overflow-hidden rounded-xl border border-white/[0.07] bg-black">
-                                                    {portfolioTemplate.id === 'default' &&
-                                                        coverImagePreview ? (
-                                                        <img
-                                                            src={coverImagePreview}
-                                                            alt=""
-                                                            className="absolute inset-0 h-full w-full object-cover"
-                                                            style={{
-                                                                objectPosition: `${coverImagePositionX}% ${coverImagePositionY}%`,
-                                                                transform: `translate(${coverImageOffsetX}%, ${coverImageOffsetY}%) scale(${coverImageZoom})`,
-                                                            }}
-                                                        />
-                                                    ) : (
-                                                        <div className="absolute inset-0 bg-[linear-gradient(135deg,#111318_0%,#08090b_45%,#15121b_100%)]" />
-                                                    )}
+                                                {/* Template wireframe preview.
+                                                    This is a structural representation of the actual template layout —
+                                                    no real portfolio images are rendered here. */}
+                                                <div className="relative h-[180px] overflow-hidden rounded-xl border border-white/[0.07] bg-black">
+                                                    <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
+                                                        <div className="w-full origin-top-left">
+                                                            <WireframePreview
+                                                                template={portfolioTemplate.id}
+                                                                accentColor={SETTINGS_UI_ACCENT}
+                                                            />
+                                                        </div>
+                                                    </div>
 
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/45 to-transparent" />
+                                                    {/* Keep the preview purely visual and focus the card on the upper layout. */}
+                                                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
 
-                                                    {/* Template Label */}
-                                                    <div className="absolute left-3 top-3">
-                                                        <span className="rounded-full border border-white/[0.1] bg-black/50 px-2.5 py-1 text-[7px] uppercase tracking-[0.18em] text-white/60 backdrop-blur-md">
+                                                    <div className="pointer-events-none absolute left-3 top-3 z-10">
+                                                        <span className="rounded-full border border-white/[0.1] bg-black/65 px-2.5 py-1 text-[7px] uppercase tracking-[0.18em] text-white/60 backdrop-blur-md">
                                                             {portfolioTemplate.type}
                                                         </span>
                                                     </div>
 
-                                                    {/* Selected Indicator */}
                                                     {isSelected && (
-                                                        <div className="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#7de7ff]/20 bg-[#7de7ff]/[0.08] backdrop-blur-md">
+                                                        <div className="pointer-events-none absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#7de7ff]/20 bg-[#7de7ff]/[0.08] backdrop-blur-md">
                                                             <CheckIcon className="h-3.5 w-3.5 text-[#7de7ff]" />
                                                         </div>
                                                     )}
-
-                                                    {/* Template Preview Structure */}
-                                                    <div className="absolute bottom-3 left-3 right-3">
-                                                        <div className="h-1.5 w-14 rounded-full bg-white/80" />
-
-                                                        <div className="mt-1.5 h-1 w-8 rounded-full bg-white/40" />
-
-                                                        <div
-                                                            className="mt-3 h-1.5 w-20 rounded-full"
-                                                            style={{
-                                                                backgroundColor: `${SETTINGS_UI_ACCENT}80`,
-                                                            }}
-                                                        />
-                                                    </div>
                                                 </div>
 
                                                 {/* Template Information */}
@@ -3065,10 +2743,10 @@ export default function Settings({
 
                                                             {portfolioTemplate.type ===
                                                                 'premium' && (
-                                                                    <span className="text-[8px] uppercase tracking-[0.15em] text-[#f0a7e5]">
-                                                                        Premium
-                                                                    </span>
-                                                                )}
+                                                                <span className="text-[8px] uppercase tracking-[0.15em] text-[#f0a7e5]">
+                                                                    Premium
+                                                                </span>
+                                                            )}
                                                         </div>
 
                                                         <p className="mt-1 text-xs leading-5 text-zinc-600">
@@ -3076,7 +2754,7 @@ export default function Settings({
                                                         </p>
                                                     </div>
                                                 </div>
-                                            </button>
+                                            </div>
                                         );
                                     })}
                                 </div>

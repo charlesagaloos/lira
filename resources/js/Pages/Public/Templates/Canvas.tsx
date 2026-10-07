@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
 
+import AvatarImage from '../../../Components/Portfolio/AvatarImage';
+
 import type {
     PortfolioProject,
     PortfolioProps,
@@ -874,9 +876,9 @@ export default function CanvasTemplate({
                                 <Tape className="-top-2 left-1/2 -translate-x-1/2 rotate-1" />
                                 <div className="relative border border-white/20 bg-[#d9d3c5] p-2 shadow-[10px_13px_0_rgba(0,0,0,0.25)] sm:p-3">
                                     <div className="relative aspect-[4/5] overflow-hidden bg-black">
-                                        {getAssetUrl(profile.cover_image ?? profile.avatar) ? (
+                                        {profile.cover_image ? (
                                             <img
-                                                src={getAssetUrl(profile.cover_image ?? profile.avatar) ?? undefined}
+                                                src={getAssetUrl(profile.cover_image) ?? undefined}
                                                 alt={profile.display_name}
                                                 className="absolute inset-0 h-full w-full object-cover"
                                                 style={{
@@ -884,6 +886,15 @@ export default function CanvasTemplate({
                                                     transform: `translate(${settings.cover_image_offset_x}%, ${settings.cover_image_offset_y}%) scale(${settings.cover_image_zoom})`,
                                                     transformOrigin: 'center',
                                                 }}
+                                            />
+                                        ) : profile.avatar ? (
+                                            <AvatarImage
+                                                src={getAssetUrl(profile.avatar) ?? ''}
+                                                alt={profile.display_name}
+                                                className="select-none object-cover"
+                                                zoom={Number(profile.avatar_zoom ?? 1)}
+                                                positionX={Number(profile.avatar_position_x ?? 50)}
+                                                positionY={Number(profile.avatar_position_y ?? 50)}
                                             />
                                         ) : (
                                             <div className="flex h-full items-end p-5 text-white/60">
@@ -1482,7 +1493,7 @@ export default function CanvasTemplate({
                     className="relative border-t px-5 py-20 sm:px-8 sm:py-28"
                     style={{ borderColor: settings.border_color }}
                 >
-                    <div className="mx-auto grid max-w-[1100px] gap-10 sm:grid-cols-[0.35fr_0.65fr] sm:gap-16 lg:grid-cols-[0.3fr_0.7fr]">
+                    <div className="mx-auto grid max-w-[1100px] gap-10 sm:grid-cols-[0.4fr_0.6fr] sm:gap-16 lg:grid-cols-[0.35fr_0.65fr]">
                         <div>
                             <p
                                 className="text-[7px] uppercase tracking-[0.3em]"
@@ -1492,15 +1503,18 @@ export default function CanvasTemplate({
                             </p>
 
                             {profileImage ? (
-                                <div className="relative mt-8 w-full max-w-[190px] rotate-[-3deg] sm:mt-12">
+                                <div className="relative mt-8 w-full max-w-[280px] rotate-[-3deg] sm:mt-12 sm:max-w-[320px]">
                                     <Tape className="-top-2 left-1/2 -translate-x-1/2 rotate-2" />
 
                                     <div className="bg-[#d9d3c5] p-2 shadow-[7px_9px_0_rgba(0,0,0,0.18)]">
-                                        <div className="aspect-square overflow-hidden border border-black/15 bg-black/10">
-                                            <img
+                                        <div className="relative aspect-square overflow-hidden border border-black/15 bg-black/10">
+                                            <AvatarImage
                                                 src={profileImage}
                                                 alt={profile.display_name}
-                                                className="h-full w-full object-cover"
+                                                className="select-none object-cover"
+                                                zoom={Number(profile.avatar_zoom ?? 1)}
+                                                positionX={Number(profile.avatar_position_x ?? 50)}
+                                                positionY={Number(profile.avatar_position_y ?? 50)}
                                             />
                                         </div>
 
@@ -1511,7 +1525,7 @@ export default function CanvasTemplate({
                                 </div>
                             ) : (
                                 <div
-                                    className="mt-8 flex aspect-square w-full max-w-[190px] items-center justify-center border border-white/15 bg-white/5 text-center text-[8px] uppercase tracking-[0.2em] sm:mt-12"
+                                    className="mt-8 flex aspect-square w-full max-w-[280px] items-center justify-center border border-white/15 bg-white/5 text-center text-[8px] uppercase tracking-[0.2em] sm:mt-12"
                                     style={{ color: settings.muted_text_color }}
                                 >
                                     No profile image
@@ -1547,6 +1561,38 @@ export default function CanvasTemplate({
                                         : ''}
                                 </p>
                             )}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* Artist Message */}
+            {settings.show_artist_message && (
+                <section
+                    id="artist-message"
+                    className="relative border-t px-5 py-20 sm:px-8 sm:py-28"
+                    style={{ borderColor: settings.border_color }}
+                >
+                    <div className="mx-auto max-w-[1100px]">
+                        <div className="relative mx-auto max-w-3xl rotate-[-1deg]">
+                            <Tape className="-top-3 left-1/2 -translate-x-1/2 rotate-2" />
+
+                            <div className="canvas-torn bg-[#e2dccd] px-6 py-8 text-black shadow-[7px_9px_0_rgba(0,0,0,0.18)] sm:px-10 sm:py-10">
+                                <p className="text-[7px] uppercase tracking-[0.3em] text-black/50">
+                                    05 / Artist Message
+                                </p>
+
+                                <h2 className="canvas-hand mt-4 text-[clamp(2.5rem,7vw,5rem)] font-normal uppercase leading-[0.82] tracking-[-0.06em]">
+                                    {settings.artist_message_label || 'A note from the artist.'}
+                                </h2>
+
+                                <div className="mt-7 max-w-2xl whitespace-pre-line text-sm leading-7 text-black/70 sm:text-base sm:leading-8">
+                                    {settings.artist_message?.trim() ||
+                                        'Create with intention. Share your story with the world.'}
+                                </div>
+
+                                <Scribble className="-bottom-7 right-4 text-black/50" />
+                            </div>
                         </div>
                     </div>
                 </section>
