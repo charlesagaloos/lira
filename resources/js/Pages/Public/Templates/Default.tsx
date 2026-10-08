@@ -5,6 +5,8 @@ import {
     useState,
 } from 'react';
 
+import { Head } from '@inertiajs/react';
+
 import type {
     CSSProperties,
     PointerEvent,
@@ -1054,38 +1056,37 @@ function GallerySection({
 
                 {(settings.gallery_show_titles ||
                     settings.gallery_show_captions) && (
-                    <div className="lira-gallery-card-meta border-t px-4 py-4 sm:px-5">
-                        {settings.gallery_show_titles &&
-                            image.title && (
-                                <h3
-                                    className="text-sm font-medium tracking-tight"
-                                    style={{
-                                        color:
-                                            settings.card_primary_color,
-                                    }}
-                                >
-                                    {image.title}
-                                </h3>
-                            )}
+                        <div className="lira-gallery-card-meta border-t px-4 py-4 sm:px-5">
+                            {settings.gallery_show_titles &&
+                                image.title && (
+                                    <h3
+                                        className="text-sm font-medium tracking-tight"
+                                        style={{
+                                            color:
+                                                settings.card_primary_color,
+                                        }}
+                                    >
+                                        {image.title}
+                                    </h3>
+                                )}
 
-                        {settings.gallery_show_captions &&
-                            image.caption && (
-                                <p
-                                    className={`text-xs leading-6 ${
-                                        image.title
+                            {settings.gallery_show_captions &&
+                                image.caption && (
+                                    <p
+                                        className={`text-xs leading-6 ${image.title
                                             ? 'mt-2'
                                             : ''
-                                    }`}
-                                    style={{
-                                        color:
-                                            settings.card_text_color,
-                                    }}
-                                >
-                                    {image.caption}
-                                </p>
-                            )}
-                    </div>
-                )}
+                                            }`}
+                                        style={{
+                                            color:
+                                                settings.card_text_color,
+                                        }}
+                                    >
+                                        {image.caption}
+                                    </p>
+                                )}
+                        </div>
+                    )}
             </div>
         );
 
@@ -1098,9 +1099,8 @@ function GallerySection({
                 type="button"
                 onClick={() => openLightbox(index)}
                 className="block w-full text-left"
-                aria-label={`Open ${
-                    image.title || 'gallery image'
-                }`}
+                aria-label={`Open ${image.title || 'gallery image'
+                    }`}
             >
                 {content}
             </button>
@@ -2052,22 +2052,22 @@ function GallerySection({
 
                         {(activeImage.title ||
                             activeImage.caption) && (
-                            <div className="mt-4 border-t border-white/10 pt-4">
-                                {activeImage.title && (
-                                    <h3 className="text-sm font-medium text-white">
-                                        {activeImage.title}
-                                    </h3>
-                                )}
+                                <div className="mt-4 border-t border-white/10 pt-4">
+                                    {activeImage.title && (
+                                        <h3 className="text-sm font-medium text-white">
+                                            {activeImage.title}
+                                        </h3>
+                                    )}
 
-                                {activeImage.caption && (
-                                    <p className="mt-1 max-w-2xl text-xs leading-6 text-white/55">
-                                        {
-                                            activeImage.caption
-                                        }
-                                    </p>
-                                )}
-                            </div>
-                        )}
+                                    {activeImage.caption && (
+                                        <p className="mt-1 max-w-2xl text-xs leading-6 text-white/55">
+                                            {
+                                                activeImage.caption
+                                            }
+                                        </p>
+                                    )}
+                                </div>
+                            )}
 
                         <span className="absolute bottom-0 right-0 translate-y-7 text-[8px] uppercase tracking-[0.25em] text-white/35">
                             {(lightboxIndex ?? 0) + 1}{' '}
@@ -2339,663 +2339,557 @@ export default function DefaultTemplate({
                 ? 'rgba(12, 12, 12, 0.78)'
                 : settings.background_color;
 
+    const faviconUrl = settings.footer_logo ? `/storage/${settings.footer_logo}` : '/images/brand/Lira_logo.png';
+
+    const socialLinks = (profile.social_links ?? []).filter(
+        (link) => link.is_visible && link.url,
+    );
     return (
-        <main
-            id="top"
-            className="min-h-screen overflow-x-hidden"
-            style={pageStyle}
-        >
-            {settings.show_navigation && (
-                <nav
-                    className={`fixed left-0 top-0 z-50 w-full border-b transition-all duration-500 ${navigationScrolled
-                        ? 'border-b'
-                        : 'border-transparent'
-                        }`}
-                    style={{
-                        backgroundColor: navigationScrolled
-                            ? 'rgba(12, 12, 12, 0.82)'
-                            : 'transparent',
-                        borderColor: navigationScrolled
-                            ? `${settings.accent_color}35`
-                            : 'transparent',
-                        backdropFilter: navigationScrolled
-                            ? 'blur(18px) saturate(120%)'
-                            : 'none',
-                        WebkitBackdropFilter: navigationScrolled
-                            ? 'blur(18px) saturate(120%)'
-                            : 'none',
-                        boxShadow: navigationScrolled
-                            ? `0 10px 30px rgba(0,0,0,0.16), 0 1px 0 ${settings.accent_color}10`
-                            : 'none',
-                    }}
-                >
-                    <div className="relative mx-auto flex h-12 max-w-6xl items-center justify-between px-4 sm:h-14 sm:px-2">
-                        <a
-                            href="#top"
-                            className="group flex min-w-0 items-center gap-2.5 sm:gap-3"
-                            onClick={() => setMobileMenuOpen(false)}
-                        >
-                            <span className="relative flex h-7 w-7 shrink-0 items-center justify-center">
-                                <span
-                                    className="h-1.5 w-1.5 rounded-full transition-all duration-500 group-hover:scale-125"
-                                    style={{
-                                        backgroundColor:
-                                            navTextColor,
-                                        boxShadow: `0 0 14px ${settings.primary_color}`,
-                                    }}
-                                />
-                            </span>
+        <>
+            <Head>
+                <link rel="icon" type="image/png" href={faviconUrl} />
+            </Head>
 
-                            <span
-                                className="max-w-[120px] truncate text-[8px] font-semibold uppercase tracking-[0.28em] transition-opacity duration-300 group-hover:opacity-70 sm:max-w-none sm:text-[9px] sm:tracking-[0.34em]"
-                                style={{
-                                    color: navTextColor,
-                                }}
-                            >
-                                {profile.display_name}
-                            </span>
-                        </a>
-
-                        <div className="absolute left-1/2 hidden -translate-x-1/2 items-center md:flex">
-                            <div className="flex items-center">
-                                {navigationItems.map((item) => {
-                                    const href =
-                                        getNavigationHref(
-                                            item.destination,
-                                        );
-
-                                    const isExternal =
-                                        item.destination ===
-                                        'external';
-
-                                    if (
-                                        !href &&
-                                        !isExternal
-                                    ) {
-                                        return null;
-                                    }
-
-                                    return (
-                                        <a
-                                            key={
-                                                item.id ??
-                                                `${item.destination}-${item.sort_order}`
-                                            }
-                                            href={
-                                                isExternal
-                                                    ? item.url ??
-                                                    '#'
-                                                    : href ??
-                                                    '#'
-                                            }
-                                            target={
-                                                isExternal
-                                                    ? '_blank'
-                                                    : undefined
-                                            }
-                                            rel={
-                                                isExternal
-                                                    ? 'noreferrer'
-                                                    : undefined
-                                            }
-                                            className="group relative px-4 py-2 text-[8px] uppercase tracking-[0.28em]"
-                                            style={{ color: navTextColor }}
-                                        >
-                                            <span className="transition-colors duration-300 group-hover:opacity-60">
-                                                {item.label}
-                                            </span>
-
-                                            <span
-                                                className="absolute inset-x-4 bottom-0 h-px origin-center scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
-                                                style={{
-                                                    backgroundColor:
-                                                        settings.accent_color,
-                                                }}
-                                            />
-                                        </a>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {settings.show_work && (
-
-
-                            <a
-                                href="#work"
-                                className="group hidden items-center gap-3 md:flex"
-                            >
-                                <span
-                                    className="text-[8px] uppercase tracking-[0.28em] transition-colors duration-300 group-hover:opacity-60"
-                                    style={{
-                                        color: navTextColor,
-                                    }}
-                                >
-                                    Explore
-                                </span>
-
-                                <span className="flex h-7 w-7 items-center justify-center transition-transform duration-500 group-hover:translate-y-0.5">
-                                    <span
-                                        className="text-[11px]"
-                                        style={{
-                                            color:
-                                                settings.accent_color,
-                                        }}
-                                    >
-                                        ↓
-                                    </span>
-                                </span>
-                            </a>
-
-
-                        )}
-
-                        <button
-                            type="button"
-                            className="group flex h-9 w-9 items-center justify-center border transition-colors duration-300 md:hidden"
-                            style={{
-                                borderColor: navigationScrolled
-                                    ? `${settings.accent_color}66`
-                                    : `${navTextColor}30`,
-                                backgroundColor: navigationScrolled
-                                    ? `${settings.accent_color}0d`
-                                    : 'transparent',
-                            }}
-                            aria-label={
-                                mobileMenuOpen
-                                    ? 'Close navigation menu'
-                                    : 'Open navigation menu'
-                            }
-                            aria-expanded={mobileMenuOpen}
-                            onClick={() =>
-                                setMobileMenuOpen((open) => !open)
-                            }
-                        >
-                            <span className="relative flex h-3.5 w-4 items-center justify-center">
-                                <span
-                                    className={`absolute h-px w-4 transition-transform duration-300 ${mobileMenuOpen
-                                        ? 'rotate-45'
-                                        : '-translate-y-1.5'
-                                        }`}
-                                    style={{
-                                        backgroundColor:
-                                            navTextColor,
-                                    }}
-                                />
-                                <span
-                                    className={`absolute h-px w-4 transition-transform duration-300 ${mobileMenuOpen
-                                        ? '-rotate-45'
-                                        : 'translate-y-1.5'
-                                        }`}
-                                    style={{
-                                        backgroundColor:
-                                            navTextColor,
-                                    }}
-                                />
-                            </span>
-                        </button>
-                    </div>
-
-                    <div
-                        className={`overflow-hidden transition-all duration-500 md:hidden ${mobileMenuOpen
-                            ? 'max-h-[80vh] opacity-100'
-                            : 'max-h-0 opacity-0'
+            <main
+                id="top"
+                className="min-h-screen overflow-x-hidden"
+                style={pageStyle}
+            >
+                {settings.show_navigation && (
+                    <nav
+                        className={`fixed left-0 top-0 z-50 w-full border-b transition-all duration-500 ${navigationScrolled
+                            ? 'border-b'
+                            : 'border-transparent'
                             }`}
+                        style={{
+                            backgroundColor: navigationScrolled
+                                ? 'rgba(12, 12, 12, 0.82)'
+                                : 'transparent',
+                            borderColor: navigationScrolled
+                                ? `${settings.accent_color}35`
+                                : 'transparent',
+                            backdropFilter: navigationScrolled
+                                ? 'blur(18px) saturate(120%)'
+                                : 'none',
+                            WebkitBackdropFilter: navigationScrolled
+                                ? 'blur(18px) saturate(120%)'
+                                : 'none',
+                            boxShadow: navigationScrolled
+                                ? `0 10px 30px rgba(0,0,0,0.16), 0 1px 0 ${settings.accent_color}10`
+                                : 'none',
+                        }}
                     >
-                        <div
-                            className="border-t px-4 pb-4 pt-2"
-                            style={{
-                                borderColor: `${settings.accent_color}28`,
-                                backgroundColor:
-                                    mobileNavigationBackground,
-                            }}
-                        >
-                            <div className="grid gap-1">
-                                {navigationItems.map((item) => {
-                                    const href =
-                                        getNavigationHref(
-                                            item.destination,
-                                        );
-
-                                    const isExternal =
-                                        item.destination ===
-                                        'external';
-
-                                    if (
-                                        !href &&
-                                        !isExternal
-                                    ) {
-                                        return null;
-                                    }
-
-                                    return (
-                                        <a
-                                            key={
-                                                item.id ??
-                                                `${item.destination}-${item.sort_order}`
-                                            }
-                                            href={
-                                                isExternal
-                                                    ? item.url ??
-                                                    '#'
-                                                    : href ??
-                                                    '#'
-                                            }
-                                            target={
-                                                isExternal
-                                                    ? '_blank'
-                                                    : undefined
-                                            }
-                                            rel={
-                                                isExternal
-                                                    ? 'noreferrer'
-                                                    : undefined
-                                            }
-                                            className="group flex items-center justify-between border-b border-white/[0.06] px-2 py-4 text-[9px] uppercase tracking-[0.28em] transition-colors hover:opacity-60 last:border-b-0"
-                                            style={{ color: navTextColor }}
-                                            onClick={() =>
-                                                setMobileMenuOpen(
-                                                    false,
-                                                )
-                                            }
-                                        >
-                                            <span>
-                                                {item.label}
-                                            </span>
-
-                                            <span
-                                                className="text-[12px] opacity-60 transition-transform duration-300 group-hover:translate-x-1"
-                                                style={{
-                                                    color:
-                                                        settings.accent_color,
-                                                }}
-                                            >
-                                                →
-                                            </span>
-                                        </a>
-                                    );
-                                })}
-                            </div>
-
-                            <div
-                                className="mt-2 flex items-center justify-between border-t px-2 pt-3"
-                                style={{
-                                    borderColor: `${settings.accent_color}20`,
-                                }}
+                        <div className="relative mx-auto flex h-12 max-w-6xl items-center justify-between px-4 sm:h-14 sm:px-2">
+                            <a
+                                href="#top"
+                                className="group flex min-w-0 items-center gap-2.5 sm:gap-3"
+                                onClick={() => setMobileMenuOpen(false)}
                             >
+                                <span className="relative flex h-7 w-7 shrink-0 items-center justify-center">
+                                    <span
+                                        className="h-1.5 w-1.5 rounded-full transition-all duration-500 group-hover:scale-125"
+                                        style={{
+                                            backgroundColor:
+                                                navTextColor,
+                                            boxShadow: `0 0 14px ${settings.primary_color}`,
+                                        }}
+                                    />
+                                </span>
+
                                 <span
-                                    className="text-[7px] uppercase tracking-[0.28em]"
+                                    className="max-w-[120px] truncate text-[8px] font-semibold uppercase tracking-[0.28em] transition-opacity duration-300 group-hover:opacity-70 sm:max-w-none sm:text-[9px] sm:tracking-[0.34em]"
                                     style={{
                                         color: navTextColor,
                                     }}
                                 >
                                     {profile.display_name}
                                 </span>
+                            </a>
 
+                            <div className="absolute left-1/2 hidden -translate-x-1/2 items-center md:flex">
+                                <div className="flex items-center">
+                                    {navigationItems.map((item) => {
+                                        const href =
+                                            getNavigationHref(
+                                                item.destination,
+                                            );
+
+                                        const isExternal =
+                                            item.destination ===
+                                            'external';
+
+                                        if (
+                                            !href &&
+                                            !isExternal
+                                        ) {
+                                            return null;
+                                        }
+
+                                        return (
+                                            <a
+                                                key={
+                                                    item.id ??
+                                                    `${item.destination}-${item.sort_order}`
+                                                }
+                                                href={
+                                                    isExternal
+                                                        ? item.url ??
+                                                        '#'
+                                                        : href ??
+                                                        '#'
+                                                }
+                                                target={
+                                                    isExternal
+                                                        ? '_blank'
+                                                        : undefined
+                                                }
+                                                rel={
+                                                    isExternal
+                                                        ? 'noreferrer'
+                                                        : undefined
+                                                }
+                                                className="group relative px-4 py-2 text-[8px] uppercase tracking-[0.28em]"
+                                                style={{ color: navTextColor }}
+                                            >
+                                                <span className="transition-colors duration-300 group-hover:opacity-60">
+                                                    {item.label}
+                                                </span>
+
+                                                <span
+                                                    className="absolute inset-x-4 bottom-0 h-px origin-center scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
+                                                    style={{
+                                                        backgroundColor:
+                                                            settings.accent_color,
+                                                    }}
+                                                />
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {settings.show_work && (
+
+
+                                <a
+                                    href="#work"
+                                    className="group hidden items-center gap-3 md:flex"
+                                >
+                                    <span
+                                        className="text-[8px] uppercase tracking-[0.28em] transition-colors duration-300 group-hover:opacity-60"
+                                        style={{
+                                            color: navTextColor,
+                                        }}
+                                    >
+                                        Explore
+                                    </span>
+
+                                    <span className="flex h-7 w-7 items-center justify-center transition-transform duration-500 group-hover:translate-y-0.5">
+                                        <span
+                                            className="text-[11px]"
+                                            style={{
+                                                color:
+                                                    settings.accent_color,
+                                            }}
+                                        >
+                                            ↓
+                                        </span>
+                                    </span>
+                                </a>
+
+
+                            )}
+
+                            <button
+                                type="button"
+                                className="group flex h-9 w-9 items-center justify-center border transition-colors duration-300 md:hidden"
+                                style={{
+                                    borderColor: navigationScrolled
+                                        ? `${settings.accent_color}66`
+                                        : `${navTextColor}30`,
+                                    backgroundColor: navigationScrolled
+                                        ? `${settings.accent_color}0d`
+                                        : 'transparent',
+                                }}
+                                aria-label={
+                                    mobileMenuOpen
+                                        ? 'Close navigation menu'
+                                        : 'Open navigation menu'
+                                }
+                                aria-expanded={mobileMenuOpen}
+                                onClick={() =>
+                                    setMobileMenuOpen((open) => !open)
+                                }
+                            >
+                                <span className="relative flex h-3.5 w-4 items-center justify-center">
+                                    <span
+                                        className={`absolute h-px w-4 transition-transform duration-300 ${mobileMenuOpen
+                                            ? 'rotate-45'
+                                            : '-translate-y-1.5'
+                                            }`}
+                                        style={{
+                                            backgroundColor:
+                                                navTextColor,
+                                        }}
+                                    />
+                                    <span
+                                        className={`absolute h-px w-4 transition-transform duration-300 ${mobileMenuOpen
+                                            ? '-rotate-45'
+                                            : 'translate-y-1.5'
+                                            }`}
+                                        style={{
+                                            backgroundColor:
+                                                navTextColor,
+                                        }}
+                                    />
+                                </span>
+                            </button>
+                        </div>
+
+                        <div
+                            className={`overflow-hidden transition-all duration-500 md:hidden ${mobileMenuOpen
+                                ? 'max-h-[80vh] opacity-100'
+                                : 'max-h-0 opacity-0'
+                                }`}
+                        >
+                            <div
+                                className="border-t px-4 pb-4 pt-2"
+                                style={{
+                                    borderColor: `${settings.accent_color}28`,
+                                    backgroundColor:
+                                        mobileNavigationBackground,
+                                }}
+                            >
+                                <div className="grid gap-1">
+                                    {navigationItems.map((item) => {
+                                        const href =
+                                            getNavigationHref(
+                                                item.destination,
+                                            );
+
+                                        const isExternal =
+                                            item.destination ===
+                                            'external';
+
+                                        if (
+                                            !href &&
+                                            !isExternal
+                                        ) {
+                                            return null;
+                                        }
+
+                                        return (
+                                            <a
+                                                key={
+                                                    item.id ??
+                                                    `${item.destination}-${item.sort_order}`
+                                                }
+                                                href={
+                                                    isExternal
+                                                        ? item.url ??
+                                                        '#'
+                                                        : href ??
+                                                        '#'
+                                                }
+                                                target={
+                                                    isExternal
+                                                        ? '_blank'
+                                                        : undefined
+                                                }
+                                                rel={
+                                                    isExternal
+                                                        ? 'noreferrer'
+                                                        : undefined
+                                                }
+                                                className="group flex items-center justify-between border-b border-white/[0.06] px-2 py-4 text-[9px] uppercase tracking-[0.28em] transition-colors hover:opacity-60 last:border-b-0"
+                                                style={{ color: navTextColor }}
+                                                onClick={() =>
+                                                    setMobileMenuOpen(
+                                                        false,
+                                                    )
+                                                }
+                                            >
+                                                <span>
+                                                    {item.label}
+                                                </span>
+
+                                                <span
+                                                    className="text-[12px] opacity-60 transition-transform duration-300 group-hover:translate-x-1"
+                                                    style={{
+                                                        color:
+                                                            settings.accent_color,
+                                                    }}
+                                                >
+                                                    →
+                                                </span>
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+
+                                <div
+                                    className="mt-2 flex items-center justify-between border-t px-2 pt-3"
+                                    style={{
+                                        borderColor: `${settings.accent_color}20`,
+                                    }}
+                                >
+                                    <span
+                                        className="text-[7px] uppercase tracking-[0.28em]"
+                                        style={{
+                                            color: navTextColor,
+                                        }}
+                                    >
+                                        {profile.display_name}
+                                    </span>
+
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </nav>
-            )}
+                    </nav>
+                )}
 
-            {settings.show_hero && (
-                <section className="relative min-h-screen overflow-hidden">
-                    {profile.cover_image ? (
-                        <div
-                            className="absolute inset-0"
-                            style={{
-                                transform: `
+                {settings.show_hero && (
+                    <section className="relative min-h-screen overflow-hidden">
+                        {profile.cover_image ? (
+                            <div
+                                className="absolute inset-0"
+                                style={{
+                                    transform: `
                 translate(
                     ${settings.cover_image_offset_x}%,
                     ${settings.cover_image_offset_y}%
                 )
             `,
-                            }}
-                        >
-                            <img
-                                src={profile.cover_image}
-                                alt=""
-                                className="absolute inset-0 h-full w-full select-none object-cover"
-                                draggable={false}
+                                }}
+                            >
+                                <img
+                                    src={profile.cover_image}
+                                    alt=""
+                                    className="absolute inset-0 h-full w-full select-none object-cover"
+                                    draggable={false}
+                                    style={{
+                                        objectPosition: `${settings.cover_image_position_x}% ${settings.cover_image_position_y}%`,
+                                        transform: `scale(${settings.cover_image_zoom})`,
+                                        transformOrigin: 'center',
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div
+                                className="absolute inset-0"
                                 style={{
-                                    objectPosition: `${settings.cover_image_position_x}% ${settings.cover_image_position_y}%`,
-                                    transform: `scale(${settings.cover_image_zoom})`,
-                                    transformOrigin: 'center',
+                                    backgroundColor:
+                                        settings.background_color,
                                 }}
                             />
-                        </div>
-                    ) : (
+                        )}
+
+                        <div className="absolute inset-0 bg-black/10" />
+                        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.28)_0%,rgba(0,0,0,0.12)_28%,rgba(0,0,0,0.42)_55%,rgba(0,0,0,0.97)_100%)]" />
+
                         <div
-                            className="absolute inset-0"
+                            className="absolute inset-0 opacity-20"
                             style={{
-                                backgroundColor:
-                                    settings.background_color,
+                                backgroundImage:
+                                    'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.3) 0, transparent 1px), radial-gradient(circle at 70% 35%, rgba(255,255,255,0.2) 0, transparent 1px)',
+                                backgroundSize:
+                                    '140px 140px, 190px 190px',
                             }}
                         />
-                    )}
 
-                    <div className="absolute inset-0 bg-black/10" />
-                    <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.28)_0%,rgba(0,0,0,0.12)_28%,rgba(0,0,0,0.42)_55%,rgba(0,0,0,0.97)_100%)]" />
-
-                    <div
-                        className="absolute inset-0 opacity-20"
-                        style={{
-                            backgroundImage:
-                                'radial-gradient(circle at 20% 20%, rgba(255,255,255,0.3) 0, transparent 1px), radial-gradient(circle at 70% 35%, rgba(255,255,255,0.2) 0, transparent 1px)',
-                            backgroundSize:
-                                '140px 140px, 190px 190px',
-                        }}
-                    />
-
-                    <div className="relative z-10 flex min-h-screen flex-col justify-end px-6 pb-8 pt-32 sm:px-8 sm:pb-10 lg:px-12 lg:pb-12">
-                        <div className="mx-auto w-full max-w-[1600px]">
-                            <div className="mb-10 flex items-center justify-between border-b border-white/15 pb-5">
-                                <div className="flex items-center gap-4">
-                                    <span
-                                        className="h-px w-12"
-                                        style={{
-                                            backgroundColor:
-                                                settings.accent_color,
-                                        }}
-                                    />
-
-                                    <p className="text-[8px] uppercase tracking-[0.38em] text-white/60">
-                                        {settings.hero_label ||
-                                            profile.artist_type ||
-                                            'Independent Artist'}
-                                        {profile.location
-                                            ? ` · ${profile.location}`
-                                            : ''}
-                                    </p>
-                                </div>
-
-                            </div>
-
-                            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
-                                <div>
-                                    <h1
-                                        className="max-w-[1200px] text-[18vw] font-light leading-[0.72] tracking-[-0.085em] sm:text-[14vw] lg:text-[11vw]"
-                                        style={{
-                                            color:
-                                                settings.primary_color,
-                                        }}
-                                    >
-                                        {profile.display_name}
-                                    </h1>
-                                </div>
-
-                                <div className="border-l border-white/15 pl-6 lg:mb-2">
-                                    <p className="text-[8px] uppercase tracking-[0.25em] text-white/45">
-                                        Artist statement
-                                    </p>
-
-                                    <p className="mt-4 text-sm leading-6 text-white/75">
-                                        {settings.hero_statement ||
-                                            profile.bio ||
-                                            'Independent creative work, visual experiments, and selected projects.'}
-                                    </p>
-
-                                    <div className="mt-7 flex items-center gap-4">
-                                        {profile.avatar ? (
-                                            <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-white/20">
-                                                <AvatarImage
-                                                    src={profile.avatar}
-                                                    alt={profile.display_name}
-                                                    zoom={Number(
-                                                        profile.avatar_zoom ?? 1,
-                                                    )}
-                                                    positionX={Number(
-                                                        profile.avatar_position_x ?? 50,
-                                                    )}
-                                                    positionY={Number(
-                                                        profile.avatar_position_y ?? 50,
-                                                    )}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <div
-                                                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-[9px]"
-                                                style={{
-                                                    color:
-                                                        settings.primary_color,
-                                                }}
-                                            >
-                                                {initials}
-                                            </div>
-                                        )}
-
-                                        <div>
-                                            <p className="text-[8px] uppercase tracking-[0.18em] text-white/80">
-                                                @
-                                                {
-                                                    profile.username
-                                                }
-                                            </p>
-
-                                            {profile.website && (
-                                                <a
-                                                    href={
-                                                        profile.website
-                                                    }
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="mt-1 inline-block text-[8px] uppercase tracking-[0.18em] text-white/45 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
-                                                >
-                                                    Website ↗
-                                                </a>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-12 flex items-center justify-between">
-
-                                {settings.show_work && (
-
-
-                                    <a
-                                        href="#work"
-                                        className="group flex items-center gap-3 text-[8px] uppercase tracking-[0.25em] text-white/55 transition-colors hover:text-white"
-                                    >
-                                        Explore
+                        <div className="relative z-10 flex min-h-screen flex-col justify-end px-6 pb-8 pt-32 sm:px-8 sm:pb-10 lg:px-12 lg:pb-12">
+                            <div className="mx-auto w-full max-w-[1600px]">
+                                <div className="mb-10 flex items-center justify-between border-b border-white/15 pb-5">
+                                    <div className="flex items-center gap-4">
                                         <span
-                                            className="h-px w-12 transition-all duration-500 group-hover:w-20"
+                                            className="h-px w-12"
                                             style={{
                                                 backgroundColor:
                                                     settings.accent_color,
                                             }}
                                         />
-                                    </a>
+
+                                        <p className="text-[8px] uppercase tracking-[0.38em] text-white/60">
+                                            {settings.hero_label ||
+                                                profile.artist_type ||
+                                                'Independent Artist'}
+                                            {profile.location
+                                                ? ` · ${profile.location}`
+                                                : ''}
+                                        </p>
+                                    </div>
+
+                                </div>
+
+                                <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-end">
+                                    <div>
+                                        <h1
+                                            className="max-w-[1200px] text-[18vw] font-light leading-[0.72] tracking-[-0.085em] sm:text-[14vw] lg:text-[11vw]"
+                                            style={{
+                                                color:
+                                                    settings.primary_color,
+                                            }}
+                                        >
+                                            {profile.display_name}
+                                        </h1>
+                                    </div>
+
+                                    <div className="border-l border-white/15 pl-6 lg:mb-2">
+                                        <p className="text-[8px] uppercase tracking-[0.25em] text-white/45">
+                                            Artist statement
+                                        </p>
+
+                                        <p className="mt-4 text-sm leading-6 text-white/75">
+                                            {settings.hero_statement ||
+                                                profile.bio ||
+                                                'Independent creative work, visual experiments, and selected projects.'}
+                                        </p>
+
+                                        <div className="mt-7 flex items-center gap-4">
+                                            {profile.avatar ? (
+                                                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full border border-white/20">
+                                                    <AvatarImage
+                                                        src={profile.avatar}
+                                                        alt={profile.display_name}
+                                                        zoom={Number(
+                                                            profile.avatar_zoom ?? 1,
+                                                        )}
+                                                        positionX={Number(
+                                                            profile.avatar_position_x ?? 50,
+                                                        )}
+                                                        positionY={Number(
+                                                            profile.avatar_position_y ?? 50,
+                                                        )}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-[9px]"
+                                                    style={{
+                                                        color:
+                                                            settings.primary_color,
+                                                    }}
+                                                >
+                                                    {initials}
+                                                </div>
+                                            )}
+
+                                            <div>
+                                                <p className="text-[8px] uppercase tracking-[0.18em] text-white/80">
+                                                    @
+                                                    {
+                                                        profile.username
+                                                    }
+                                                </p>
+
+                                                {profile.website && (
+                                                    <a
+                                                        href={
+                                                            profile.website
+                                                        }
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="mt-1 inline-block text-[8px] uppercase tracking-[0.18em] text-white/45 underline decoration-white/20 underline-offset-4 transition-colors hover:text-white"
+                                                    >
+                                                        Website ↗
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-12 flex items-center justify-between">
+
+                                    {settings.show_work && (
 
 
-                                )}
+                                        <a
+                                            href="#work"
+                                            className="group flex items-center gap-3 text-[8px] uppercase tracking-[0.25em] text-white/55 transition-colors hover:text-white"
+                                        >
+                                            Explore
+                                            <span
+                                                className="h-px w-12 transition-all duration-500 group-hover:w-20"
+                                                style={{
+                                                    backgroundColor:
+                                                        settings.accent_color,
+                                                }}
+                                            />
+                                        </a>
+
+
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
-            )}
+                    </section>
+                )}
 
-            {settings.show_work && (
-                <section
-                    id="work"
-                    className="px-6 py-28 sm:px-8 lg:px-12 lg:py-40"
-                    style={{
-                        backgroundColor:
-                            settings.background_color,
-                    }}
-                >
-                    <div className="mx-auto max-w-[1600px]">
-                        <div className="grid gap-8 border-b border-white/10 pb-12 lg:grid-cols-[1fr_0.8fr] lg:items-end">
-                            <div>
+                {settings.show_work && (
+                    <section
+                        id="work"
+                        className="px-6 py-28 sm:px-8 lg:px-12 lg:py-40"
+                        style={{
+                            backgroundColor:
+                                settings.background_color,
+                        }}
+                    >
+                        <div className="mx-auto max-w-[1600px]">
+                            <div className="grid gap-8 border-b border-white/10 pb-12 lg:grid-cols-[1fr_0.8fr] lg:items-end">
+                                <div>
+                                    <p
+                                        className="text-[8px] uppercase tracking-[0.38em]"
+                                        style={{
+                                            color:
+                                                settings.card_text_color,
+                                        }}
+                                    >
+                                        02 / {settings.work_label || 'Selected Work'}
+                                    </p>
+
+                                    <h2
+                                        className="mt-5 max-w-3xl text-6xl font-light leading-[0.9] tracking-[-0.065em] sm:text-7xl lg:text-8xl"
+                                        style={{
+                                            color:
+                                                settings.primary_color,
+                                        }}
+                                    >
+                                        {settings.work_label ||
+                                            'Work with intention.'}
+                                    </h2>
+                                </div>
+
                                 <p
-                                    className="text-[8px] uppercase tracking-[0.38em]"
+                                    className="max-w-sm justify-self-start text-sm leading-7 lg:justify-self-end"
                                     style={{
                                         color:
                                             settings.card_text_color,
                                     }}
                                 >
-                                    02 / {settings.work_label || 'Selected Work'}
+                                    {settings.work_description ||
+                                        'A considered selection of projects, collaborations, and creative work.'}
                                 </p>
-
-                                <h2
-                                    className="mt-5 max-w-3xl text-6xl font-light leading-[0.9] tracking-[-0.065em] sm:text-7xl lg:text-8xl"
-                                    style={{
-                                        color:
-                                            settings.primary_color,
-                                    }}
-                                >
-                                    {settings.work_label ||
-                                        'Work with intention.'}
-                                </h2>
                             </div>
 
-                            <p
-                                className="max-w-sm justify-self-start text-sm leading-7 lg:justify-self-end"
-                                style={{
-                                    color:
-                                        settings.card_text_color,
-                                }}
-                            >
-                                {settings.work_description ||
-                                    'A considered selection of projects, collaborations, and creative work.'}
-                            </p>
-                        </div>
-
-                        {profile.projects.length > 0 ? (
-                            <div className="mt-14">
-                                {featuredProject && (
-                                    <a
-                                        href={`/@${profile.username}/project/${featuredProject.slug}`}
-                                        className="group block"
-                                    >
-                                        <div className="grid border border-white/10 bg-black/10 lg:grid-cols-[minmax(0,1fr)_300px]">
-                                            <ProjectImage
-                                                project={
-                                                    featuredProject
-                                                }
-                                                className="aspect-[16/10] lg:aspect-auto lg:min-h-[620px]"
-                                            />
-
-                                            <div className="flex flex-col justify-between border-t border-white/10 p-6 sm:p-8 lg:border-l lg:border-t-0 lg:p-10">
-                                                <div>
-                                                    <div className="flex items-center justify-between">
-                                                        <span
-                                                            className="text-[8px] uppercase tracking-[0.25em]"
-                                                            style={{
-                                                                color:
-                                                                    settings.card_text_color,
-                                                            }}
-                                                        >
-                                                            01
-                                                        </span>
-
-                                                        <span
-                                                            className="text-[8px] uppercase tracking-[0.2em]"
-                                                            style={{
-                                                                color:
-                                                                    settings.card_text_color,
-                                                            }}
-                                                        >
-                                                            Featured
-                                                        </span>
-                                                    </div>
-
-                                                    <div className="mt-20">
-                                                        {featuredProject.project_type && (
-                                                            <p
-                                                                className="text-[8px] uppercase tracking-[0.25em]"
-                                                                style={{
-                                                                    color:
-                                                                        settings.card_text_color,
-                                                                }}
-                                                            >
-                                                                {
-                                                                    featuredProject.project_type
-                                                                }
-                                                            </p>
-                                                        )}
-
-                                                        <h3
-                                                            className="mt-3 text-4xl font-medium leading-[0.95] tracking-[-0.04em] sm:text-5xl"
-                                                            style={{
-                                                                color:
-                                                                    settings.card_accent_color,
-                                                            }}
-                                                        >
-                                                            {
-                                                                featuredProject.title
-                                                            }
-                                                        </h3>
-
-                                                        {featuredProject.description && (
-                                                            <p
-                                                                className="mt-6 text-sm leading-7"
-                                                                style={{
-                                                                    color:
-                                                                        settings.card_text_color,
-                                                                }}
-                                                            >
-                                                                {
-                                                                    featuredProject.description
-                                                                }
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                <div className="mt-16 flex items-center justify-between border-t border-white/10 pt-5">
-                                                    <span
-                                                        className="text-[8px] uppercase tracking-[0.2em]"
-                                                        style={{
-                                                            color:
-                                                                settings.card_text_color,
-                                                        }}
-                                                    >
-                                                        View Project
-                                                    </span>
-
-                                                    <span
-                                                        className="text-lg transition-transform duration-500 group-hover:translate-x-2"
-                                                        style={{
-                                                            color:
-                                                                settings.card_primary_color,
-                                                        }}
-                                                    >
-                                                        →
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                )}
-
-                                {secondaryProjects.length > 0 && (
-                                    <div className="mt-20 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
-                                        {secondaryProjects.map(
-                                            (
-                                                project,
-                                                index,
-                                            ) => (
-                                                <a
-                                                    key={
-                                                        project.id
+                            {profile.projects.length > 0 ? (
+                                <div className="mt-14">
+                                    {featuredProject && (
+                                        <a
+                                            href={`/@${profile.username}/project/${featuredProject.slug}`}
+                                            className="group block"
+                                        >
+                                            <div className="grid border border-white/10 bg-black/10 lg:grid-cols-[minmax(0,1fr)_300px]">
+                                                <ProjectImage
+                                                    project={
+                                                        featuredProject
                                                     }
-                                                    href={`/@${profile.username}/project/${project.slug}`}
-                                                    className={`group block ${index === 1
-                                                        ? 'lg:mt-28'
-                                                        : ''
-                                                        }`}
-                                                >
-                                                    <ProjectImage
-                                                        project={
-                                                            project
-                                                        }
-                                                        className="aspect-[4/3] border border-white/10"
-                                                    />
+                                                    className="aspect-[16/10] lg:aspect-auto lg:min-h-[620px]"
+                                                />
 
-                                                    <div className="mt-5 flex items-start justify-between gap-6 border-t border-white/10 pt-4">
-                                                        <div>
+                                                <div className="flex flex-col justify-between border-t border-white/10 p-6 sm:p-8 lg:border-l lg:border-t-0 lg:p-10">
+                                                    <div>
+                                                        <div className="flex items-center justify-between">
                                                             <span
                                                                 className="text-[8px] uppercase tracking-[0.25em]"
                                                                 style={{
@@ -3003,14 +2897,203 @@ export default function DefaultTemplate({
                                                                         settings.card_text_color,
                                                                 }}
                                                             >
-                                                                {String(
-                                                                    index +
-                                                                    2,
-                                                                ).padStart(
-                                                                    2,
-                                                                    '0',
-                                                                )}{' '}
-                                                                /{' '}
+                                                                01
+                                                            </span>
+
+                                                            <span
+                                                                className="text-[8px] uppercase tracking-[0.2em]"
+                                                                style={{
+                                                                    color:
+                                                                        settings.card_text_color,
+                                                                }}
+                                                            >
+                                                                Featured
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="mt-20">
+                                                            {featuredProject.project_type && (
+                                                                <p
+                                                                    className="text-[8px] uppercase tracking-[0.25em]"
+                                                                    style={{
+                                                                        color:
+                                                                            settings.card_text_color,
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        featuredProject.project_type
+                                                                    }
+                                                                </p>
+                                                            )}
+
+                                                            <h3
+                                                                className="mt-3 text-4xl font-medium leading-[0.95] tracking-[-0.04em] sm:text-5xl"
+                                                                style={{
+                                                                    color:
+                                                                        settings.card_accent_color,
+                                                                }}
+                                                            >
+                                                                {
+                                                                    featuredProject.title
+                                                                }
+                                                            </h3>
+
+                                                            {featuredProject.description && (
+                                                                <p
+                                                                    className="mt-6 text-sm leading-7"
+                                                                    style={{
+                                                                        color:
+                                                                            settings.card_text_color,
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        featuredProject.description
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-16 flex items-center justify-between border-t border-white/10 pt-5">
+                                                        <span
+                                                            className="text-[8px] uppercase tracking-[0.2em]"
+                                                            style={{
+                                                                color:
+                                                                    settings.card_text_color,
+                                                            }}
+                                                        >
+                                                            View Project
+                                                        </span>
+
+                                                        <span
+                                                            className="text-lg transition-transform duration-500 group-hover:translate-x-2"
+                                                            style={{
+                                                                color:
+                                                                    settings.card_primary_color,
+                                                            }}
+                                                        >
+                                                            →
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    )}
+
+                                    {secondaryProjects.length > 0 && (
+                                        <div className="mt-20 grid gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+                                            {secondaryProjects.map(
+                                                (
+                                                    project,
+                                                    index,
+                                                ) => (
+                                                    <a
+                                                        key={
+                                                            project.id
+                                                        }
+                                                        href={`/@${profile.username}/project/${project.slug}`}
+                                                        className={`group block ${index === 1
+                                                            ? 'lg:mt-28'
+                                                            : ''
+                                                            }`}
+                                                    >
+                                                        <ProjectImage
+                                                            project={
+                                                                project
+                                                            }
+                                                            className="aspect-[4/3] border border-white/10"
+                                                        />
+
+                                                        <div className="mt-5 flex items-start justify-between gap-6 border-t border-white/10 pt-4">
+                                                            <div>
+                                                                <span
+                                                                    className="text-[8px] uppercase tracking-[0.25em]"
+                                                                    style={{
+                                                                        color:
+                                                                            settings.card_text_color,
+                                                                    }}
+                                                                >
+                                                                    {String(
+                                                                        index +
+                                                                        2,
+                                                                    ).padStart(
+                                                                        2,
+                                                                        '0',
+                                                                    )}{' '}
+                                                                    /{' '}
+                                                                    {
+                                                                        project.project_type ??
+                                                                        'Project'
+                                                                    }
+                                                                </span>
+
+                                                                <h3
+                                                                    className="mt-2 text-2xl font-medium tracking-tight"
+                                                                    style={{
+                                                                        color:
+                                                                            settings.card_accent_color,
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        project.title
+                                                                    }
+                                                                </h3>
+                                                            </div>
+
+                                                            <span
+                                                                className="mt-1 text-lg transition-transform duration-500 group-hover:translate-x-2"
+                                                                style={{
+                                                                    color:
+                                                                        settings.card_primary_color,
+                                                                }}
+                                                            >
+                                                                ↗
+                                                            </span>
+                                                        </div>
+                                                    </a>
+                                                ),
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {remainingProjects.length > 0 && (
+                                        <div className="mt-24 border-t border-white/10">
+                                            {remainingProjects.map(
+                                                (
+                                                    project,
+                                                    index,
+                                                ) => (
+                                                    <a
+                                                        key={
+                                                            project.id
+                                                        }
+                                                        href={`/@${profile.username}/project/${project.slug}`}
+                                                        className="group grid gap-5 border-b border-white/10 py-7 transition-colors hover:bg-white/[0.025] sm:grid-cols-[72px_1fr_auto] sm:items-center"
+                                                    >
+                                                        <span
+                                                            className="text-[8px] uppercase tracking-[0.2em]"
+                                                            style={{
+                                                                color:
+                                                                    settings.card_text_color,
+                                                            }}
+                                                        >
+                                                            {String(
+                                                                index +
+                                                                4,
+                                                            ).padStart(
+                                                                2,
+                                                                '0',
+                                                            )}
+                                                        </span>
+
+                                                        <div>
+                                                            <span
+                                                                className="text-[8px] uppercase tracking-[0.22em]"
+                                                                style={{
+                                                                    color:
+                                                                        settings.card_text_color,
+                                                                }}
+                                                            >
                                                                 {
                                                                     project.project_type ??
                                                                     'Project'
@@ -3031,35 +3114,252 @@ export default function DefaultTemplate({
                                                         </div>
 
                                                         <span
-                                                            className="mt-1 text-lg transition-transform duration-500 group-hover:translate-x-2"
+                                                            className="text-lg transition-transform duration-500 group-hover:translate-x-2"
                                                             style={{
                                                                 color:
                                                                     settings.card_primary_color,
                                                             }}
                                                         >
-                                                            ↗
+                                                            →
                                                         </span>
-                                                    </div>
-                                                </a>
-                                            ),
-                                        )}
-                                    </div>
-                                )}
+                                                    </a>
+                                                ),
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="mt-14 border-y border-white/10 py-20">
+                                    <p
+                                        className="text-sm"
+                                        style={{
+                                            color:
+                                                settings.card_text_color,
+                                        }}
+                                    >
+                                        No projects have been
+                                        published yet.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </section>
+                )}
 
-                                {remainingProjects.length > 0 && (
-                                    <div className="mt-24 border-t border-white/10">
-                                        {remainingProjects.map(
-                                            (
-                                                project,
-                                                index,
-                                            ) => (
-                                                <a
-                                                    key={
-                                                        project.id
-                                                    }
-                                                    href={`/@${profile.username}/project/${project.slug}`}
-                                                    className="group grid gap-5 border-b border-white/10 py-7 transition-colors hover:bg-white/[0.025] sm:grid-cols-[72px_1fr_auto] sm:items-center"
+                <MusicSection profile={profile} />
+
+                <GallerySection profile={profile} />
+
+                {settings.show_artist_message && (
+                    <section
+                        id="artist-message"
+                        className="border-t px-6 py-24 sm:px-8 lg:px-12 lg:py-32"
+                        style={{
+                            backgroundColor:
+                                settings.surface_color,
+                            borderColor:
+                                `${settings.border_color}66`,
+                        }}
+                    >
+                        <div className="mx-auto max-w-[1600px]">
+                            <div className="grid gap-10 lg:grid-cols-[0.55fr_1.45fr] lg:items-start">
+                                <div>
+                                    <p
+                                        className="text-[8px] uppercase tracking-[0.38em]"
+                                        style={{
+                                            color:
+                                                settings.muted_text_color,
+                                        }}
+                                    >
+                                        Artist Message
+                                    </p>
+
+                                    <h2
+                                        className="mt-5 max-w-sm text-4xl font-light leading-[0.95] tracking-[-0.05em] sm:text-5xl lg:text-6xl"
+                                        style={{
+                                            color:
+                                                settings.primary_color,
+                                        }}
+                                    >
+                                        {settings.artist_message_label ??
+                                            'A note from the artist.'}
+                                    </h2>
+                                </div>
+
+                                <p
+                                    className="max-w-4xl whitespace-pre-line text-xl font-light leading-[1.65] tracking-[-0.02em] sm:text-2xl lg:text-[32px]"
+                                    style={{
+                                        color:
+                                            settings.text_color,
+                                    }}
+                                >
+                                    {settings.artist_message?.trim() ||
+                                        'Create with intention. Share your story with the world.'}
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {settings.show_about && (
+                    <section
+                        id="about"
+                        className="border-t border-white/10 px-6 py-28 sm:px-8 lg:px-12 lg:py-40"
+                        style={{
+                            backgroundColor:
+                                settings.background_color,
+                        }}
+                    >
+                        <div className="mx-auto max-w-[1600px]">
+                            <div className="mb-14 flex items-end justify-between border-b border-white/10 pb-8">
+                                <div>
+                                    <p
+                                        className="text-[8px] uppercase tracking-[0.38em]"
+                                        style={{
+                                            color:
+                                                settings.card_text_color,
+                                        }}
+                                    >
+                                        06 /{' '}
+                                        {settings.about_label ||
+                                            'About'}
+                                    </p>
+
+                                    <h2
+                                        className="mt-5 text-6xl font-light leading-[0.88] tracking-[-0.07em] sm:text-7xl lg:text-8xl"
+                                        style={{
+                                            color:
+                                                settings.primary_color,
+                                        }}
+                                    >
+                                        {settings.about_label ||
+                                            'About'}
+                                    </h2>
+                                </div>
+
+                                <span
+                                    className="hidden text-[8px] uppercase tracking-[0.25em] sm:block"
+                                    style={{
+                                        color:
+                                            settings.muted_text_color,
+                                    }}
+                                >
+                                    The person behind the work
+                                </span>
+                            </div>
+
+                            <div className="grid gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-20">
+                                <div className="relative">
+                                    <div className="relative mx-auto aspect-square w-full max-w-[680px] lg:mx-0">
+                                        <div
+                                            className="absolute inset-0 translate-x-3 translate-y-3 border"
+                                            style={{
+                                                borderColor:
+                                                    `${settings.accent_color}66`,
+                                            }}
+                                        />
+
+                                        <div
+                                            className="absolute -inset-2 border"
+                                            style={{
+                                                borderColor:
+                                                    `${settings.border_color}55`,
+                                            }}
+                                        />
+
+                                        <div
+                                            className="relative h-full w-full overflow-hidden border"
+                                            style={{
+                                                borderColor:
+                                                    `${settings.border_color}aa`,
+                                                backgroundColor:
+                                                    settings.card_background_color,
+                                            }}
+                                        >
+                                            {profile.avatar ? (
+                                                <AvatarImage
+                                                    src={profile.avatar}
+                                                    alt={profile.display_name}
+                                                    zoom={Number(
+                                                        profile.avatar_zoom ?? 1,
+                                                    )}
+                                                    positionX={Number(
+                                                        profile.avatar_position_x ?? 50,
+                                                    )}
+                                                    positionY={Number(
+                                                        profile.avatar_position_y ?? 50,
+                                                    )}
+                                                />
+                                            ) : (
+                                                <div
+                                                    className="flex h-full w-full items-center justify-center"
+                                                    style={{
+                                                        backgroundColor:
+                                                            settings.card_background_color,
+                                                    }}
                                                 >
+                                                    <span
+                                                        className="text-[clamp(4rem,10vw,9rem)] font-light tracking-[-0.08em]"
+                                                        style={{
+                                                            color:
+                                                                settings.primary_color,
+                                                        }}
+                                                    >
+                                                        {initials}
+                                                    </span>
+                                                </div>
+                                            )}
+
+                                            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,transparent_35%,rgba(0,0,0,0.35)_100%)]" />
+
+                                            <div className="absolute left-5 top-5 flex items-center gap-3 sm:left-7 sm:top-7">
+                                                <span
+                                                    className="h-px w-8"
+                                                    style={{
+                                                        backgroundColor:
+                                                            settings.accent_color,
+                                                    }}
+                                                />
+
+                                                <span className="text-[8px] uppercase tracking-[0.28em] text-white/70">
+                                                    {profile.display_name}
+                                                </span>
+                                            </div>
+
+                                            <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between sm:bottom-7 sm:left-7 sm:right-7">
+                                                <span className="text-[8px] uppercase tracking-[0.25em] text-white/55">
+                                                    @{profile.username}
+                                                </span>
+
+                                                {profile.location && (
+                                                    <span className="text-right text-[8px] uppercase tracking-[0.2em] text-white/55">
+                                                        {
+                                                            profile.location
+                                                        }
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="lg:pt-3">
+                                    <p
+                                        className="max-w-4xl whitespace-pre-line text-2xl font-light leading-[1.45] tracking-[-0.035em] sm:text-3xl lg:text-[30]"
+                                        style={{
+                                            color:
+                                                settings.text_color,
+                                        }}
+                                    >
+                                        {profile.about_me ??
+                                            profile.bio ??
+                                            'An independent artist building work with intention, identity, and a distinct point of view.'}
+                                    </p>
+
+                                    <div className="mt-12 border-t border-white/10 pt-6">
+                                        <div className="flex flex-wrap items-center justify-between gap-5">
+                                            <div className="flex flex-wrap gap-x-7 gap-y-3">
+                                                {profile.location && (
                                                     <span
                                                         className="text-[8px] uppercase tracking-[0.2em]"
                                                         style={{
@@ -3067,484 +3367,224 @@ export default function DefaultTemplate({
                                                                 settings.card_text_color,
                                                         }}
                                                     >
-                                                        {String(
-                                                            index +
-                                                            4,
-                                                        ).padStart(
-                                                            2,
-                                                            '0',
-                                                        )}
+                                                        Based in{' '}
+                                                        {
+                                                            profile.location
+                                                        }
                                                     </span>
+                                                )}
 
-                                                    <div>
-                                                        <span
-                                                            className="text-[8px] uppercase tracking-[0.22em]"
-                                                            style={{
-                                                                color:
-                                                                    settings.card_text_color,
-                                                            }}
-                                                        >
-                                                            {
-                                                                project.project_type ??
-                                                                'Project'
-                                                            }
-                                                        </span>
-
-                                                        <h3
-                                                            className="mt-2 text-2xl font-medium tracking-tight"
-                                                            style={{
-                                                                color:
-                                                                    settings.card_accent_color,
-                                                            }}
-                                                        >
-                                                            {
-                                                                project.title
-                                                            }
-                                                        </h3>
-                                                    </div>
-
-                                                    <span
-                                                        className="text-lg transition-transform duration-500 group-hover:translate-x-2"
+                                                {profile.website && (
+                                                    <a
+                                                        href={
+                                                            profile.website
+                                                        }
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-[8px] uppercase tracking-[0.2em] underline decoration-white/20 underline-offset-4 transition-colors hover:decoration-white"
                                                         style={{
                                                             color:
-                                                                settings.card_primary_color,
+                                                                settings.primary_color,
                                                         }}
                                                     >
-                                                        →
-                                                    </span>
-                                                </a>
-                                            ),
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="mt-14 border-y border-white/10 py-20">
-                                <p
-                                    className="text-sm"
-                                    style={{
-                                        color:
-                                            settings.card_text_color,
-                                    }}
-                                >
-                                    No projects have been
-                                    published yet.
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                </section>
-            )}
-
-            <MusicSection profile={profile} />
-
-            <GallerySection profile={profile} />
-
-            {settings.show_artist_message && (
-                <section
-                    id="artist-message"
-                    className="border-t px-6 py-24 sm:px-8 lg:px-12 lg:py-32"
-                    style={{
-                        backgroundColor:
-                            settings.surface_color,
-                        borderColor:
-                            `${settings.border_color}66`,
-                    }}
-                >
-                    <div className="mx-auto max-w-[1600px]">
-                        <div className="grid gap-10 lg:grid-cols-[0.55fr_1.45fr] lg:items-start">
-                            <div>
-                                <p
-                                    className="text-[8px] uppercase tracking-[0.38em]"
-                                    style={{
-                                        color:
-                                            settings.muted_text_color,
-                                    }}
-                                >
-                                    Artist Message
-                                </p>
-
-                                <h2
-                                    className="mt-5 max-w-sm text-4xl font-light leading-[0.95] tracking-[-0.05em] sm:text-5xl lg:text-6xl"
-                                    style={{
-                                        color:
-                                            settings.primary_color,
-                                    }}
-                                >
-                                    {settings.artist_message_label ??
-                                        'A note from the artist.'}
-                                </h2>
-                            </div>
-
-                            <p
-                                className="max-w-4xl whitespace-pre-line text-xl font-light leading-[1.65] tracking-[-0.02em] sm:text-2xl lg:text-[32px]"
-                                style={{
-                                    color:
-                                        settings.text_color,
-                                }}
-                            >
-                                {settings.artist_message?.trim() ||
-                                        'Create with intention. Share your story with the world.'}
-                            </p>
-                        </div>
-                    </div>
-                </section>
-            )}
-
-            {settings.show_about && (
-                <section
-                    id="about"
-                    className="border-t border-white/10 px-6 py-28 sm:px-8 lg:px-12 lg:py-40"
-                    style={{
-                        backgroundColor:
-                            settings.background_color,
-                    }}
-                >
-                    <div className="mx-auto max-w-[1600px]">
-                        <div className="mb-14 flex items-end justify-between border-b border-white/10 pb-8">
-                            <div>
-                                <p
-                                    className="text-[8px] uppercase tracking-[0.38em]"
-                                    style={{
-                                        color:
-                                            settings.card_text_color,
-                                    }}
-                                >
-                                    06 /{' '}
-                                    {settings.about_label ||
-                                        'About'}
-                                </p>
-
-                                <h2
-                                    className="mt-5 text-6xl font-light leading-[0.88] tracking-[-0.07em] sm:text-7xl lg:text-8xl"
-                                    style={{
-                                        color:
-                                            settings.primary_color,
-                                    }}
-                                >
-                                    {settings.about_label ||
-                                        'About'}
-                                </h2>
-                            </div>
-
-                            <span
-                                className="hidden text-[8px] uppercase tracking-[0.25em] sm:block"
-                                style={{
-                                    color:
-                                        settings.muted_text_color,
-                                }}
-                            >
-                                The person behind the work
-                            </span>
-                        </div>
-
-                        <div className="grid gap-12 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start lg:gap-20">
-                            <div className="relative">
-                                <div className="relative mx-auto aspect-square w-full max-w-[680px] lg:mx-0">
-                                    <div
-                                        className="absolute inset-0 translate-x-3 translate-y-3 border"
-                                        style={{
-                                            borderColor:
-                                                `${settings.accent_color}66`,
-                                        }}
-                                    />
-
-                                    <div
-                                        className="absolute -inset-2 border"
-                                        style={{
-                                            borderColor:
-                                                `${settings.border_color}55`,
-                                        }}
-                                    />
-
-                                    <div
-                                        className="relative h-full w-full overflow-hidden border"
-                                        style={{
-                                            borderColor:
-                                                `${settings.border_color}aa`,
-                                            backgroundColor:
-                                                settings.card_background_color,
-                                        }}
-                                    >
-                                        {profile.avatar ? (
-                                            <AvatarImage
-                                                src={profile.avatar}
-                                                alt={profile.display_name}
-                                                zoom={Number(
-                                                    profile.avatar_zoom ?? 1,
+                                                        Visit Website ↗
+                                                    </a>
                                                 )}
-                                                positionX={Number(
-                                                    profile.avatar_position_x ?? 50,
-                                                )}
-                                                positionY={Number(
-                                                    profile.avatar_position_y ?? 50,
-                                                )}
-                                            />
-                                        ) : (
-                                            <div
-                                                className="flex h-full w-full items-center justify-center"
-                                                style={{
-                                                    backgroundColor:
-                                                        settings.card_background_color,
-                                                }}
-                                            >
-                                                <span
-                                                    className="text-[clamp(4rem,10vw,9rem)] font-light tracking-[-0.08em]"
-                                                    style={{
-                                                        color:
-                                                            settings.primary_color,
-                                                    }}
-                                                >
-                                                    {initials}
-                                                </span>
                                             </div>
-                                        )}
-
-                                        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,transparent_35%,rgba(0,0,0,0.35)_100%)]" />
-
-                                        <div className="absolute left-5 top-5 flex items-center gap-3 sm:left-7 sm:top-7">
-                                            <span
-                                                className="h-px w-8"
-                                                style={{
-                                                    backgroundColor:
-                                                        settings.accent_color,
-                                                }}
-                                            />
-
-                                            <span className="text-[8px] uppercase tracking-[0.28em] text-white/70">
-                                                {profile.display_name}
-                                            </span>
-                                        </div>
-
-                                        <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between sm:bottom-7 sm:left-7 sm:right-7">
-                                            <span className="text-[8px] uppercase tracking-[0.25em] text-white/55">
-                                                @{profile.username}
-                                            </span>
-
-                                            {profile.location && (
-                                                <span className="text-right text-[8px] uppercase tracking-[0.2em] text-white/55">
-                                                    {
-                                                        profile.location
-                                                    }
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="lg:pt-3">
-                                <p
-                                    className="max-w-4xl whitespace-pre-line text-2xl font-light leading-[1.45] tracking-[-0.035em] sm:text-3xl lg:text-[30]"
-                                    style={{
-                                        color:
-                                            settings.text_color,
-                                    }}
-                                >
-                                    {profile.about_me ??
-                                        profile.bio ??
-                                        'An independent artist building work with intention, identity, and a distinct point of view.'}
-                                </p>
-
-                                <div className="mt-12 border-t border-white/10 pt-6">
-                                    <div className="flex flex-wrap items-center justify-between gap-5">
-                                        <div className="flex flex-wrap gap-x-7 gap-y-3">
-                                            {profile.location && (
-                                                <span
-                                                    className="text-[8px] uppercase tracking-[0.2em]"
-                                                    style={{
-                                                        color:
-                                                            settings.card_text_color,
-                                                    }}
-                                                >
-                                                    Based in{' '}
-                                                    {
-                                                        profile.location
-                                                    }
-                                                </span>
-                                            )}
-
-                                            {profile.website && (
-                                                <a
-                                                    href={
-                                                        profile.website
-                                                    }
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="text-[8px] uppercase tracking-[0.2em] underline decoration-white/20 underline-offset-4 transition-colors hover:decoration-white"
-                                                    style={{
-                                                        color:
-                                                            settings.primary_color,
-                                                    }}
-                                                >
-                                                    Visit Website ↗
-                                                </a>
-                                            )}
-                                        </div>
-
-                                        <span
-                                            className="text-[8px] uppercase tracking-[0.2em]"
-                                            style={{
-                                                color:
-                                                    settings.muted_text_color,
-                                            }}
-                                        >
-                                            Independent / Original
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            )}
-
-            {settings.show_footer && (
-                <footer
-                    id="footer"
-                    className="border-t px-6 py-12 sm:px-8 lg:px-12"
-                    style={{
-                        borderColor: `${settings.border_color}66`,
-                        backgroundColor:
-                            settings.surface_color,
-                    }}
-                >
-                    <div className="mx-auto max-w-[1600px]">
-                        <div className="grid gap-10 lg:grid-cols-[1fr_auto_1fr] lg:items-end">
-                            <div>
-                                <p
-                                    className="text-[8px] uppercase tracking-[0.35em]"
-                                    style={{
-                                        color:
-                                            settings.muted_text_color,
-                                    }}
-                                >
-                                    {settings.footer_label ||
-                                        profile.display_name}
-                                </p>
-
-                                <h2
-                                    className="mt-4 max-w-xl text-3xl font-light tracking-[-0.04em] sm:text-4xl"
-                                    style={{
-                                        color:
-                                            settings.primary_color,
-                                    }}
-                                >
-                                    {settings.footer_message ||
-                                        'Independent work, shared with intention.'}
-                                </h2>
-
-                                {settings.show_footer_socials && (
-                                    <div className="mt-6 flex flex-wrap items-center gap-3">
-                                        <button
-                                            type="button"
-                                            onClick={handleShare}
-                                            className="group inline-flex items-center gap-3 border px-4 py-2.5 text-[8px] uppercase tracking-[0.22em] transition-all duration-300 hover:-translate-y-0.5"
-                                            style={{
-                                                borderColor:
-                                                    `${settings.border_color}99`,
-                                                color:
-                                                    settings.card_text_color,
-                                                backgroundColor:
-                                                    settings.card_background_color,
-                                            }}
-                                        >
-                                            <span>
-                                                {shareFeedback
-                                                    ? 'Link Copied'
-                                                    : 'Share Portfolio'}
-                                            </span>
 
                                             <span
-                                                className="transition-transform duration-300 group-hover:translate-x-1"
+                                                className="text-[8px] uppercase tracking-[0.2em]"
                                                 style={{
                                                     color:
-                                                        settings.card_primary_color,
+                                                        settings.muted_text_color,
                                                 }}
                                             >
-                                                ↗
+                                                Independent / Original
                                             </span>
-                                        </button>
+                                        </div>
                                     </div>
-                                )}
-                            </div>
-
-                            <div className="flex justify-start lg:justify-center">
-                                {settings.footer_logo ? (
-                                    <img
-                                        src={`/storage/${settings.footer_logo}`}
-                                        alt="Footer logo"
-                                        className="max-h-16 w-auto max-w-[180px] object-contain"
-                                    />
-                                ) : (
-                                    <div
-                                        className="flex h-12 w-12 items-center justify-center"
-                                        style={{
-                                            border:
-                                                `1px solid ${settings.border_color}66`,
-                                        }}
-                                    >
-                                        <span
-                                            className="h-1.5 w-1.5 rounded-full"
-                                            style={{
-                                                backgroundColor:
-                                                    settings.primary_color,
-                                                boxShadow:
-                                                    `0 0 14px ${settings.primary_color}`,
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="flex flex-col items-start gap-4 lg:items-end">
-                                <div className="flex flex-wrap items-center gap-5">
-                                    <span
-                                        className="text-[8px] uppercase tracking-[0.2em]"
-                                        style={{
-                                            color:
-                                                settings.card_text_color,
-                                        }}
-                                    >
-                                        {settings.copyright_text ||
-                                            `© ${new Date().getFullYear()} ${profile.display_name}`}
-                                    </span>
-
-                                    <a
-                                        href="#top"
-                                        className="text-[8px] uppercase tracking-[0.2em] transition-colors hover:text-white"
-                                        style={{
-                                            color:
-                                                settings.card_text_color,
-                                        }}
-                                    >
-                                        Back to top ↑
-                                    </a>
                                 </div>
+                            </div>
+                        </div>
+                    </section>
+                )}
 
-                                {settings.show_powered_by_lira && (
-                                    <a
-                                        href="/"
-                                        className="group flex items-center gap-2 text-[8px] uppercase tracking-[0.2em]"
+                {settings.show_footer && (
+                    <footer
+                        id="footer"
+                        className="border-t px-6 py-12 sm:px-8 lg:px-12"
+                        style={{
+                            borderColor: `${settings.border_color}66`,
+                            backgroundColor:
+                                settings.surface_color,
+                        }}
+                    >
+                        <div className="mx-auto max-w-[1600px]">
+                            <div className="grid gap-10 lg:grid-cols-[1fr_auto_1fr] lg:items-end">
+                                <div>
+                                    <p
+                                        className="text-[8px] uppercase tracking-[0.35em]"
                                         style={{
                                             color:
                                                 settings.muted_text_color,
                                         }}
                                     >
-                                        <span>Powered by</span>
+                                        {settings.footer_label ||
+                                            profile.display_name}
+                                    </p>
 
+                                    <h2
+                                        className="mt-4 max-w-xl text-3xl font-light tracking-[-0.04em] sm:text-4xl"
+                                        style={{
+                                            color:
+                                                settings.primary_color,
+                                        }}
+                                    >
+                                        {settings.footer_message ||
+                                            'Independent work, shared with intention.'}
+                                    </h2>
+
+                                    {settings.show_footer_socials && (
+                                        <div className="mt-6 flex flex-wrap items-center gap-3">
+                                            {socialLinks.map((socialLink) => (
+                                                <a
+                                                    key={socialLink.id}
+                                                    href={socialLink.url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="inline-flex items-center border px-4 py-2.5 text-[8px] uppercase tracking-[0.22em] transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.04]"
+                                                    style={{
+                                                        borderColor:
+                                                            `${settings.border_color}99`,
+                                                        color:
+                                                            settings.card_text_color,
+                                                        backgroundColor:
+                                                            settings.card_background_color,
+                                                    }}
+                                                >
+                                                    {socialLink.platform.replace('_', ' ')}
+                                                    <span
+                                                        className="ml-3"
+                                                        style={{
+                                                            color:
+                                                                settings.card_primary_color,
+                                                        }}
+                                                    >
+                                                        ↗
+                                                    </span>
+                                                </a>
+                                            ))}
+
+                                            <button
+                                                type="button"
+                                                onClick={handleShare}
+                                                className="group inline-flex items-center gap-3 border px-4 py-2.5 text-[8px] uppercase tracking-[0.22em] transition-all duration-300 hover:-translate-y-0.5"
+                                                style={{
+                                                    borderColor:
+                                                        `${settings.border_color}99`,
+                                                    color:
+                                                        settings.card_text_color,
+                                                    backgroundColor:
+                                                        settings.card_background_color,
+                                                }}
+                                            >
+                                                <span>
+                                                    {shareFeedback
+                                                        ? 'Link Copied'
+                                                        : 'Share Portfolio'}
+                                                </span>
+
+                                                <span
+                                                    className="transition-transform duration-300 group-hover:translate-x-1"
+                                                    style={{
+                                                        color:
+                                                            settings.card_primary_color,
+                                                    }}
+                                                >
+                                                    ↗
+                                                </span>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex justify-start lg:justify-center">
+                                    {settings.footer_logo ? (
                                         <img
-                                            src="/images/brand/Lira_logo.png"
-                                            alt="LIRA"
-                                            className="h-5 w-auto object-contain opacity-80 transition-opacity duration-300 group-hover:opacity-100"
+                                            src={`/storage/${settings.footer_logo}`}
+                                            alt="Footer logo"
+                                            className="max-h-16 w-auto max-w-[180px] object-contain"
                                         />
-                                    </a>
-                                )}
+                                    ) : (
+                                        <div
+                                            className="flex h-12 w-12 items-center justify-center"
+                                            style={{
+                                                border:
+                                                    `1px solid ${settings.border_color}66`,
+                                            }}
+                                        >
+                                            <span
+                                                className="h-1.5 w-1.5 rounded-full"
+                                                style={{
+                                                    backgroundColor:
+                                                        settings.primary_color,
+                                                    boxShadow:
+                                                        `0 0 14px ${settings.primary_color}`,
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col items-start gap-4 lg:items-end">
+                                    <div className="flex flex-wrap items-center gap-5">
+                                        <span
+                                            className="text-[8px] uppercase tracking-[0.2em]"
+                                            style={{
+                                                color:
+                                                    settings.card_text_color,
+                                            }}
+                                        >
+                                            {settings.copyright_text ||
+                                                `© ${new Date().getFullYear()} ${profile.display_name}`}
+                                        </span>
+
+                                        <a
+                                            href="#top"
+                                            className="text-[8px] uppercase tracking-[0.2em] transition-colors hover:text-white"
+                                            style={{
+                                                color:
+                                                    settings.card_text_color,
+                                            }}
+                                        >
+                                            Back to top ↑
+                                        </a>
+                                    </div>
+
+                                    {settings.show_powered_by_lira && (
+                                        <a
+                                            href="/"
+                                            className="group flex items-center gap-2 text-[8px] uppercase tracking-[0.2em]"
+                                            style={{
+                                                color:
+                                                    settings.muted_text_color,
+                                            }}
+                                        >
+                                            <span>Powered by</span>
+
+                                            <img
+                                                src="/images/brand/Lira_logo.png"
+                                                alt="LIRA"
+                                                className="h-5 w-auto object-contain opacity-80 transition-opacity duration-300 group-hover:opacity-100"
+                                            />
+                                        </a>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </footer>
-            )}
-        </main>
+                    </footer>
+                )}
+            </main>
+        </>
     );
 }

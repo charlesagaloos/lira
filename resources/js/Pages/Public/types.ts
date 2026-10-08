@@ -130,6 +130,14 @@ export interface PortfolioRelease {
 
     lyrics: string | null;
 }
+
+export interface SocialLink {
+    id: number;
+    platform: string;
+    url: string;
+    position: number;
+    is_visible: boolean;
+}
 export interface PortfolioGalleryImage {
     id: number;
     image: string;
@@ -153,6 +161,8 @@ export interface PortfolioProfile {
 
     avatar: string | null;
     cover_image: string | null;
+
+    social_links: SocialLink[];
 
     portfolio_settings: PortfolioSettings;
     projects: PortfolioProject[];

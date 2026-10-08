@@ -1,6 +1,6 @@
 # LIRA
 
-### Local Independent Resource for Artists
+### Limitless Independent Resources for Artists
 
 > **Your art. Your identity. Your space.**
 

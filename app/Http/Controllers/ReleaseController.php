@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Release;
+use App\Services\ImageModerationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -45,8 +46,10 @@ class ReleaseController extends Controller
         return Inertia::render('Releases/Create');
     }
 
-    public function store(Request $request): RedirectResponse
-    {
+    public function store(
+        Request $request,
+        ImageModerationService $imageModerationService,
+    ): RedirectResponse {
         $profile = $request->user()->artistProfile;
 
         abort_unless($profile, 404);
@@ -114,12 +117,25 @@ class ReleaseController extends Controller
         ]);
 
         if ($request->hasFile('artwork')) {
+            $moderation = $imageModerationService->check(
+                $request->file('artwork'),
+            );
+
+            if (!$moderation['allowed']) {
+                return back()
+                    ->withErrors([
+                        'artwork' => $moderation['message'],
+                    ])
+                    ->withInput();
+            }
+
             $validated['artwork'] = $request
                 ->file('artwork')
                 ->store('release-artwork', 'public');
         }
 
-        $validated['position'] = $profile->releases()->max('position') + 1;
+        $validated['position'] =
+            ($profile->releases()->max('position') ?? 0) + 1;
 
         $profile->releases()->create($validated);
 
@@ -137,8 +153,11 @@ class ReleaseController extends Controller
         ]);
     }
 
-    public function update(Request $request, Release $release): RedirectResponse
-    {
+    public function update(
+        Request $request,
+        Release $release,
+        ImageModerationService $imageModerationService,
+    ): RedirectResponse {
         $this->ensureOwnership($request, $release);
 
         $validated = $request->validate([
@@ -203,18 +222,19 @@ class ReleaseController extends Controller
             ],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | ARTWORK
-        |--------------------------------------------------------------------------
-        |
-        | Only replace the existing artwork when a new file was uploaded.
-        | If no new artwork was selected, remove the nullable artwork value
-        | from the update payload so the existing database value is preserved.
-        |
-        */
-
         if ($request->hasFile('artwork')) {
+            $moderation = $imageModerationService->check(
+                $request->file('artwork'),
+            );
+
+            if (!$moderation['allowed']) {
+                return back()
+                    ->withErrors([
+                        'artwork' => $moderation['message'],
+                    ])
+                    ->withInput();
+            }
+
             $oldArtwork = $release->artwork;
 
             $validated['artwork'] = $request
@@ -227,12 +247,6 @@ class ReleaseController extends Controller
         } else {
             unset($validated['artwork']);
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | UPDATE RELEASE
-        |--------------------------------------------------------------------------
-        */
 
         $release->update($validated);
 

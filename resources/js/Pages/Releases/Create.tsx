@@ -117,6 +117,7 @@ function FieldLabel({
                     OPTIONAL
                 </span>
             )}
+
         </label>
     );
 }
@@ -224,6 +225,64 @@ export default function Create() {
 
     /*
     |--------------------------------------------------------------------------
+    | VALIDATION FOCUS
+    |--------------------------------------------------------------------------
+    */
+
+    function focusFirstError(
+        validationErrors: Record<string, string>,
+    ) {
+        const errorKeys = Object.keys(validationErrors);
+
+        if (errorKeys.length === 0) {
+            return;
+        }
+
+        const firstError = errorKeys[0];
+
+        const selectors: Record<string, string> = {
+            title: '#title',
+            release_type: '#release_type',
+            release_date: '#release_date',
+            description: '#description',
+            artwork: '#artwork',
+            spotify_url: '#spotify_url',
+            apple_music_url: '#apple_music_url',
+            youtube_url: '#youtube_url',
+            soundcloud_url: '#soundcloud_url',
+            bandcamp_url: '#bandcamp_url',
+            lyrics: '#lyrics',
+            is_visible: '#is_visible',
+        };
+
+        const selector = selectors[firstError];
+
+        if (!selector) {
+            return;
+        }
+
+        window.setTimeout(() => {
+            const element = document.querySelector<
+                HTMLInputElement |
+                HTMLTextAreaElement |
+                HTMLButtonElement
+            >(selector);
+
+            if (!element) {
+                return;
+            }
+
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+
+            element.focus();
+        }, 50);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | SUBMIT
     |--------------------------------------------------------------------------
     */
@@ -243,7 +302,13 @@ export default function Create() {
                         string
                     >;
 
-                return Object.keys(pageErrors).length === 0;
+                if (Object.keys(pageErrors).length > 0) {
+                    focusFirstError(pageErrors);
+
+                    return false;
+                }
+
+                return true;
             },
 
             onSuccess: () => {
@@ -528,13 +593,6 @@ export default function Create() {
                                                     Square artwork recommended
                                                 </p>
 
-                                                <label
-                                                    htmlFor="artwork"
-                                                    className="cursor-pointer text-[9px] uppercase tracking-[0.16em] text-zinc-600 transition hover:text-white"
-                                                >
-                                                    Replace Artwork
-                                                </label>
-
                                             </div>
 
                                         </div>
@@ -771,6 +829,7 @@ export default function Create() {
                                 <div className="rounded-2xl border border-white/[0.07] bg-black/20 p-4">
 
                                     <button
+                                        id="is_visible"
                                         type="button"
                                         onClick={() =>
                                             setData(
@@ -1075,12 +1134,6 @@ function ReleaseTypeDropdown({
             (option) => option.value === value,
         ) ?? releaseTypeOptions[0];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Close when clicking outside
-    |--------------------------------------------------------------------------
-    */
-
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (
@@ -1105,12 +1158,6 @@ function ReleaseTypeDropdown({
             );
         };
     }, []);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Keyboard
-    |--------------------------------------------------------------------------
-    */
 
     function handleKeyDown(
         event: React.KeyboardEvent<HTMLButtonElement>,
@@ -1150,11 +1197,8 @@ function ReleaseTypeDropdown({
             ref={dropdownRef}
             className="relative z-20"
         >
-            {/* =========================================================
-                TRIGGER
-            ========================================================== */}
-
             <button
+                id="release_type"
                 type="button"
                 aria-haspopup="listbox"
                 aria-expanded={open}
@@ -1198,23 +1242,11 @@ function ReleaseTypeDropdown({
                 </svg>
             </button>
 
-            {/* =========================================================
-                INLINE OPTIONS
-
-                IMPORTANT:
-                This intentionally stays in normal document flow.
-                It does NOT use absolute/fixed positioning or a portal.
-                That prevents the GlassSection overflow/stacking context
-                from causing the menu to appear behind the textarea.
-            ========================================================== */}
-
             {open && (
                 <div
                     role="listbox"
                     className="mt-2 w-full overflow-hidden rounded-2xl border border-white/[0.12] bg-[#08090b] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.65)]"
                 >
-                    {/* Chrome reflection */}
-
                     <div className="pointer-events-none absolute left-0 right-0 top-[58px] h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)]" />
 
                     {releaseTypeOptions.map(
@@ -1322,7 +1354,6 @@ function ReleaseType({
                 : 'border-white/[0.05] bg-black/10'
                 }`}
         >
-
             <div className="flex items-center gap-3">
 
                 <span

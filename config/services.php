@@ -41,4 +41,9 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'sightengine' => [
+        'user' => env('SIGHTENGINE_USER'),
+        'secret' => env('SIGHTENGINE_SECRET'),
+    ],
+
 ];

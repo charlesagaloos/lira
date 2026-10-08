@@ -4,6 +4,7 @@ use App\Http\Controllers\ArtistProfileController;
 use App\Http\Controllers\Admin\ArtistVerificationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\PublicPortfolioController;
@@ -94,6 +95,30 @@ Route::delete('/dashboard/projects/{project}', [ProjectController::class, 'destr
 Route::patch('/dashboard/projects/{project}/visibility', [ProjectController::class, 'toggleVisibility'])
     ->middleware(['auth', 'verified', 'verified.artist'])
     ->name('projects.visibility');
+
+Route::get('/dashboard/gallery', [GalleryController::class, 'index'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('gallery.index');
+
+Route::get('/dashboard/gallery/create', [GalleryController::class, 'create'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('gallery.create');
+
+Route::post('/dashboard/gallery', [GalleryController::class, 'store'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('gallery.store');
+
+Route::get('/dashboard/gallery/{galleryImage}/edit', [GalleryController::class, 'edit'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('gallery.edit');
+
+Route::put('/dashboard/gallery/{galleryImage}', [GalleryController::class, 'update'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('gallery.update');
+
+Route::delete('/dashboard/gallery/{galleryImage}', [GalleryController::class, 'destroy'])
+    ->middleware(['auth', 'verified', 'verified.artist'])
+    ->name('gallery.destroy');
 
 Route::get('/dashboard/releases', [ReleaseController::class, 'index'])
     ->middleware(['auth', 'verified', 'verified.artist'])

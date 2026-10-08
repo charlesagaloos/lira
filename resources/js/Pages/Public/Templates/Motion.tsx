@@ -1,5 +1,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 
+import { Head } from '@inertiajs/react';
+
 import AvatarImage from '../../../Components/Portfolio/AvatarImage';
 
 import type {
@@ -427,39 +429,39 @@ export default function MotionTemplate({
         savedNavigationItems.length > 0
             ? savedNavigationItems
             : [
-                  {
-                      id: -1,
-                      label: 'Work',
-                      destination: 'work',
-                      url: null,
-                      sort_order: 0,
-                      is_visible: true,
-                  },
-                  ...(settings.show_music && releases.length > 0
-                      ? [
-                            {
-                                id: -2,
-                                label: 'Music',
-                                destination: 'music',
-                                url: null,
-                                sort_order: 1,
-                                is_visible: true,
-                            },
-                        ]
-                      : []),
-                  ...(settings.show_about
-                      ? [
-                            {
-                                id: -3,
-                                label: 'About',
-                                destination: 'about',
-                                url: null,
-                                sort_order: 2,
-                                is_visible: true,
-                            },
-                        ]
-                      : []),
-              ];
+                {
+                    id: -1,
+                    label: 'Work',
+                    destination: 'work',
+                    url: null,
+                    sort_order: 0,
+                    is_visible: true,
+                },
+                ...(settings.show_music && releases.length > 0
+                    ? [
+                        {
+                            id: -2,
+                            label: 'Music',
+                            destination: 'music',
+                            url: null,
+                            sort_order: 1,
+                            is_visible: true,
+                        },
+                    ]
+                    : []),
+                ...(settings.show_about
+                    ? [
+                        {
+                            id: -3,
+                            label: 'About',
+                            destination: 'about',
+                            url: null,
+                            sort_order: 2,
+                            is_visible: true,
+                        },
+                    ]
+                    : []),
+            ];
 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
@@ -469,9 +471,9 @@ export default function MotionTemplate({
     const visibleReleases =
         settings.music_release_display === 'latest'
             ? releases.slice(
-                  0,
-                  Math.max(1, settings.music_release_limit),
-              )
+                0,
+                Math.max(1, settings.music_release_limit),
+            )
             : releases;
 
     const galleryImages = (
@@ -669,8 +671,8 @@ export default function MotionTemplate({
                         current === null
                             ? null
                             : current === 0
-                              ? galleryImages.length - 1
-                              : current - 1,
+                                ? galleryImages.length - 1
+                                : current - 1,
                     );
                 }
 
@@ -679,8 +681,8 @@ export default function MotionTemplate({
                         current === null
                             ? null
                             : current === galleryImages.length - 1
-                              ? 0
-                              : current + 1,
+                                ? 0
+                                : current + 1,
                     );
                 }
             }
@@ -765,13 +767,23 @@ export default function MotionTemplate({
         '--motion-border': settings.border_color,
     } as CSSProperties;
 
+    const faviconUrl = settings.footer_logo ? `/storage/${settings.footer_logo}` : '/images/brand/Lira_logo.png';
+
+    const socialLinks = (profile.social_links ?? []).filter(
+        (link) => link.is_visible && link.url,
+    );
+
     return (
-        <main
-            id="top"
-            style={pageStyle}
-            className="motion-template min-h-screen overflow-x-hidden"
-        >
-            <style>{`
+        <>
+            <Head>
+                <link rel="icon" type="image/png" href={faviconUrl} />
+            </Head>
+            <main
+                id="top"
+                style={pageStyle}
+                className="motion-template min-h-screen overflow-x-hidden"
+            >
+                <style>{`
                 .motion-template {
                     --motion-grid: rgba(255,255,255,.045);
                 }
@@ -1478,104 +1490,36 @@ export default function MotionTemplate({
                 }
             `}</style>
 
-            {/* Navigation */}
-            {settings.show_navigation && (
-                <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-7 sm:pt-6">
-                    <div className="mx-auto flex max-w-[1320px] items-center justify-between">
-                        <a
-                            href="#top"
-                            className="group inline-flex items-center gap-3"
-                            aria-label={`Go to ${profile.display_name} home`}
-                        >
-                            <span
-                                className="h-px w-7 transition-all duration-300 group-hover:w-12"
-                                style={{
-                                    backgroundColor: settings.accent_color,
-                                }}
-                            />
-                            <span
-                                className="text-[8px] uppercase tracking-[0.28em]"
-                                style={{ color: settings.text_color }}
+                {/* Navigation */}
+                {settings.show_navigation && (
+                    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-7 sm:pt-6">
+                        <div className="mx-auto flex max-w-[1320px] items-center justify-between">
+                            <a
+                                href="#top"
+                                className="group inline-flex items-center gap-3"
+                                aria-label={`Go to ${profile.display_name} home`}
                             >
-                                {profile.display_name}
-                            </span>
-                        </a>
-
-                        <nav
-                            className="hidden items-center gap-1 border px-1 py-1 backdrop-blur-xl md:flex"
-                            style={{
-                                borderColor: settings.border_color,
-                                backgroundColor: `${settings.background_color}cc`,
-                            }}
-                            aria-label="Portfolio navigation"
-                        >
-                            {navigationItems.map((item, index) => (
-                                <a
-                                    key={item.id}
-                                    href={getNavigationHref(item)}
-                                    target={
-                                        item.destination === 'external'
-                                            ? '_blank'
-                                            : undefined
-                                    }
-                                    rel={
-                                        item.destination === 'external'
-                                            ? 'noreferrer'
-                                            : undefined
-                                    }
-                                    className="group relative px-4 py-2.5 text-[7px] uppercase tracking-[0.22em] transition-colors duration-300"
+                                <span
+                                    className="h-px w-7 transition-all duration-300 group-hover:w-12"
                                     style={{
-                                        color: settings.text_color,
+                                        backgroundColor: settings.accent_color,
                                     }}
+                                />
+                                <span
+                                    className="text-[8px] uppercase tracking-[0.28em]"
+                                    style={{ color: settings.text_color }}
                                 >
-                                    <span className="relative z-10">
-                                        {String(index + 1).padStart(2, '0')} /{' '}
-                                        {item.label}
-                                    </span>
+                                    {profile.display_name}
+                                </span>
+                            </a>
 
-                                    <span
-                                        className="absolute inset-0 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
-                                        style={{
-                                            backgroundColor:
-                                                settings.accent_color,
-                                            opacity: 0.12,
-                                        }}
-                                    />
-                                </a>
-                            ))}
-                        </nav>
-
-                        <button
-                            type="button"
-                            className="flex h-10 w-10 items-center justify-center border backdrop-blur-xl transition duration-300 hover:rotate-90 md:hidden"
-                            style={{
-                                borderColor: settings.border_color,
-                                backgroundColor: `${settings.background_color}cc`,
-                                color: settings.text_color,
-                            }}
-                            onClick={() =>
-                                setMobileMenuOpen((open) => !open)
-                            }
-                            aria-label="Toggle navigation"
-                            aria-expanded={mobileMenuOpen}
-                        >
-                            <span className="text-base leading-none">
-                                {mobileMenuOpen ? '×' : '＋'}
-                            </span>
-                        </button>
-                    </div>
-
-                    {mobileMenuOpen && (
-                        <div
-                            className="mx-auto mt-3 max-w-[1320px] border backdrop-blur-2xl md:hidden"
-                            style={{
-                                borderColor: settings.border_color,
-                                backgroundColor: `${settings.background_color}f2`,
-                            }}
-                        >
                             <nav
-                                className="grid grid-cols-2"
-                                aria-label="Mobile portfolio navigation"
+                                className="hidden items-center gap-1 border px-1 py-1 backdrop-blur-xl md:flex"
+                                style={{
+                                    borderColor: settings.border_color,
+                                    backgroundColor: `${settings.background_color}cc`,
+                                }}
+                                aria-label="Portfolio navigation"
                             >
                                 {navigationItems.map((item, index) => (
                                     <a
@@ -1591,134 +1535,236 @@ export default function MotionTemplate({
                                                 ? 'noreferrer'
                                                 : undefined
                                         }
-                                        onClick={() =>
-                                            setMobileMenuOpen(false)
-                                        }
-                                        className="border-b border-r px-4 py-5 text-[8px] uppercase tracking-[0.22em] transition-opacity hover:opacity-55"
+                                        className="group relative px-4 py-2.5 text-[7px] uppercase tracking-[0.22em] transition-colors duration-300"
                                         style={{
-                                            borderColor:
-                                                settings.border_color,
-                                            color:
-                                                settings.text_color,
+                                            color: settings.text_color,
                                         }}
                                     >
-                                        <span
-                                            className="mr-2"
-                                            style={{
-                                                color:
-                                                    settings.accent_color,
-                                            }}
-                                        >
-                                            {String(index + 1).padStart(
-                                                2,
-                                                '0',
-                                            )}
+                                        <span className="relative z-10">
+                                            {String(index + 1).padStart(2, '0')} /{' '}
+                                            {item.label}
                                         </span>
-                                        {item.label}
+
+                                        <span
+                                            className="absolute inset-0 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
+                                            style={{
+                                                backgroundColor:
+                                                    settings.accent_color,
+                                                opacity: 0.12,
+                                            }}
+                                        />
                                     </a>
                                 ))}
                             </nav>
-                        </div>
-                    )}
-                </header>
-            )}
 
-            {/* Hero */}
-            {settings.show_hero && (
-                <section
-                    className="relative min-h-[100svh] overflow-hidden border-b"
-                    style={{
-                        borderColor: settings.border_color,
-                    }}
-                >
-                    {coverImage && (
-                        <img
-                            src={coverImage}
-                            alt=""
-                            aria-hidden="true"
-                            className="motion-hero-image absolute inset-0 h-full w-full object-cover"
-                            style={{
-                                objectPosition: `${settings.cover_image_position_x ?? 50}% ${settings.cover_image_position_y ?? 50}%`,
-                                transform: `translate(${settings.cover_image_offset_x ?? 0}%, ${settings.cover_image_offset_y ?? 0}%) scale(${settings.cover_image_zoom ?? 1})`,
-                            }}
-                        />
-                    )}
-
-                    <div
-                        className="absolute inset-0"
-                        style={{
-                            background: coverImage
-                                ? 'linear-gradient(90deg, rgba(0,0,0,.97) 0%, rgba(0,0,0,.78) 28%, rgba(0,0,0,.28) 58%, rgba(0,0,0,.08) 100%)'
-                                : `linear-gradient(135deg, ${settings.background_color} 0%, ${settings.surface_color} 100%)`,
-                        }}
-                    />
-
-                    <div
-                        className="absolute inset-0"
-                        style={{
-                            background:
-                                'linear-gradient(0deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.12) 45%, rgba(0,0,0,.3) 100%)',
-                        }}
-                    />
-
-                    <div
-                        className="absolute inset-0 opacity-20"
-                        style={{
-                            backgroundImage:
-                                'linear-gradient(var(--motion-grid) 1px, transparent 1px), linear-gradient(90deg, var(--motion-grid) 1px, transparent 1px)',
-                            backgroundSize: '80px 80px',
-                        }}
-                    />
-
-                    <div className="relative mx-auto flex min-h-[100svh] max-w-[1320px] flex-col justify-end px-5 pb-16 pt-32 sm:px-8 sm:pb-20 lg:pb-24">
-                        <div className="motion-hero-copy max-w-[980px]">
-                            <div className="mb-7 flex items-center gap-3">
-                                <span
-                                    className="h-px w-10"
-                                    style={{
-                                        backgroundColor:
-                                            settings.accent_color,
-                                    }}
-                                />
-                                <p
-                                    className="text-[7px] uppercase tracking-[0.34em]"
-                                    style={{
-                                        color: settings.accent_color,
-                                    }}
-                                >
-                                    {settings.hero_label ||
-                                        profile.artist_type ||
-                                        'Visual Artist'}
-                                </p>
-                            </div>
-
-                            <h1
-                                className="max-w-[900px] whitespace-pre-line text-[clamp(4rem,12vw,11rem)] font-black uppercase leading-[0.76] tracking-[-0.085em]"
+                            <button
+                                type="button"
+                                className="flex h-10 w-10 items-center justify-center border backdrop-blur-xl transition duration-300 hover:rotate-90 md:hidden"
                                 style={{
+                                    borderColor: settings.border_color,
+                                    backgroundColor: `${settings.background_color}cc`,
                                     color: settings.text_color,
                                 }}
+                                onClick={() =>
+                                    setMobileMenuOpen((open) => !open)
+                                }
+                                aria-label="Toggle navigation"
+                                aria-expanded={mobileMenuOpen}
                             >
-                                {heroStatement || profile.display_name}
-                            </h1>
+                                <span className="text-base leading-none">
+                                    {mobileMenuOpen ? '×' : '＋'}
+                                </span>
+                            </button>
+                        </div>
 
-                            <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
-                                <span
-                                    className="text-[9px] uppercase tracking-[0.28em]"
+                        {mobileMenuOpen && (
+                            <div
+                                className="mx-auto mt-3 max-w-[1320px] border backdrop-blur-2xl md:hidden"
+                                style={{
+                                    borderColor: settings.border_color,
+                                    backgroundColor: `${settings.background_color}f2`,
+                                }}
+                            >
+                                <nav
+                                    className="grid grid-cols-2"
+                                    aria-label="Mobile portfolio navigation"
+                                >
+                                    {navigationItems.map((item, index) => (
+                                        <a
+                                            key={item.id}
+                                            href={getNavigationHref(item)}
+                                            target={
+                                                item.destination === 'external'
+                                                    ? '_blank'
+                                                    : undefined
+                                            }
+                                            rel={
+                                                item.destination === 'external'
+                                                    ? 'noreferrer'
+                                                    : undefined
+                                            }
+                                            onClick={() =>
+                                                setMobileMenuOpen(false)
+                                            }
+                                            className="border-b border-r px-4 py-5 text-[8px] uppercase tracking-[0.22em] transition-opacity hover:opacity-55"
+                                            style={{
+                                                borderColor:
+                                                    settings.border_color,
+                                                color:
+                                                    settings.text_color,
+                                            }}
+                                        >
+                                            <span
+                                                className="mr-2"
+                                                style={{
+                                                    color:
+                                                        settings.accent_color,
+                                                }}
+                                            >
+                                                {String(index + 1).padStart(
+                                                    2,
+                                                    '0',
+                                                )}
+                                            </span>
+                                            {item.label}
+                                        </a>
+                                    ))}
+                                </nav>
+                            </div>
+                        )}
+                    </header>
+                )}
+
+                {/* Hero */}
+                {settings.show_hero && (
+                    <section
+                        className="relative min-h-[100svh] overflow-hidden border-b"
+                        style={{
+                            borderColor: settings.border_color,
+                        }}
+                    >
+                        {coverImage && (
+                            <img
+                                src={coverImage}
+                                alt=""
+                                aria-hidden="true"
+                                className="motion-hero-image absolute inset-0 h-full w-full object-cover"
+                                style={{
+                                    objectPosition: `${settings.cover_image_position_x ?? 50}% ${settings.cover_image_position_y ?? 50}%`,
+                                    transform: `translate(${settings.cover_image_offset_x ?? 0}%, ${settings.cover_image_offset_y ?? 0}%) scale(${settings.cover_image_zoom ?? 1})`,
+                                }}
+                            />
+                        )}
+
+                        <div
+                            className="absolute inset-0"
+                            style={{
+                                background: coverImage
+                                    ? 'linear-gradient(90deg, rgba(0,0,0,.97) 0%, rgba(0,0,0,.78) 28%, rgba(0,0,0,.28) 58%, rgba(0,0,0,.08) 100%)'
+                                    : `linear-gradient(135deg, ${settings.background_color} 0%, ${settings.surface_color} 100%)`,
+                            }}
+                        />
+
+                        <div
+                            className="absolute inset-0"
+                            style={{
+                                background:
+                                    'linear-gradient(0deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.12) 45%, rgba(0,0,0,.3) 100%)',
+                            }}
+                        />
+
+                        <div
+                            className="absolute inset-0 opacity-20"
+                            style={{
+                                backgroundImage:
+                                    'linear-gradient(var(--motion-grid) 1px, transparent 1px), linear-gradient(90deg, var(--motion-grid) 1px, transparent 1px)',
+                                backgroundSize: '80px 80px',
+                            }}
+                        />
+
+                        <div className="relative mx-auto flex min-h-[100svh] max-w-[1320px] flex-col justify-end px-5 pb-16 pt-32 sm:px-8 sm:pb-20 lg:pb-24">
+                            <div className="motion-hero-copy max-w-[980px]">
+                                <div className="mb-7 flex items-center gap-3">
+                                    <span
+                                        className="h-px w-10"
+                                        style={{
+                                            backgroundColor:
+                                                settings.accent_color,
+                                        }}
+                                    />
+                                    <p
+                                        className="text-[7px] uppercase tracking-[0.34em]"
+                                        style={{
+                                            color: settings.accent_color,
+                                        }}
+                                    >
+                                        {settings.hero_label ||
+                                            profile.artist_type ||
+                                            'Visual Artist'}
+                                    </p>
+                                </div>
+
+                                <h1
+                                    className="max-w-[900px] whitespace-pre-line text-[clamp(4rem,12vw,11rem)] font-black uppercase leading-[0.76] tracking-[-0.085em]"
                                     style={{
                                         color: settings.text_color,
                                     }}
                                 >
-                                    {profile.display_name}
-                                </span>
+                                    {heroStatement || profile.display_name}
+                                </h1>
 
-                                <span
-                                    className="h-px w-10"
-                                    style={{
-                                        backgroundColor:
-                                            settings.border_color,
-                                    }}
-                                />
+                                <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+                                    <span
+                                        className="text-[9px] uppercase tracking-[0.28em]"
+                                        style={{
+                                            color: settings.text_color,
+                                        }}
+                                    >
+                                        {profile.display_name}
+                                    </span>
 
+                                    <span
+                                        className="h-px w-10"
+                                        style={{
+                                            backgroundColor:
+                                                settings.border_color,
+                                        }}
+                                    />
+
+                                    <span
+                                        className="text-[7px] uppercase tracking-[0.28em]"
+                                        style={{
+                                            color:
+                                                settings.muted_text_color,
+                                        }}
+                                    >
+                                        {profile.location ||
+                                            'Independent creative practice'}
+                                    </span>
+                                </div>
+
+                                <div className="mt-10">
+                                    <a
+                                        href="#work"
+                                        className="group inline-flex items-center gap-4 border px-4 py-3 text-[7px] uppercase tracking-[0.25em] transition-all duration-300 hover:bg-white hover:text-black"
+                                        style={{
+                                            borderColor:
+                                                settings.text_color,
+                                            color: settings.text_color,
+                                        }}
+                                    >
+                                        <span>
+                                            {settings.work_label ||
+                                                'Selected Work'}
+                                        </span>
+                                        <span className="transition-transform duration-300 group-hover:translate-x-1">
+                                            →
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div className="absolute bottom-6 right-5 hidden flex-col items-end gap-2 sm:right-8 md:flex">
                                 <span
                                     className="text-[7px] uppercase tracking-[0.28em]"
                                     style={{
@@ -1726,145 +1772,174 @@ export default function MotionTemplate({
                                             settings.muted_text_color,
                                     }}
                                 >
-                                    {profile.location ||
-                                        'Independent creative practice'}
+                                    Scroll to explore
                                 </span>
-                            </div>
-
-                            <div className="mt-10">
-                                <a
-                                    href="#work"
-                                    className="group inline-flex items-center gap-4 border px-4 py-3 text-[7px] uppercase tracking-[0.25em] transition-all duration-300 hover:bg-white hover:text-black"
+                                <span
+                                    className="h-10 w-px"
                                     style={{
-                                        borderColor:
-                                            settings.text_color,
-                                        color: settings.text_color,
+                                        backgroundColor:
+                                            settings.border_color,
                                     }}
+                                />
+                            </div>
+                        </div>
+                    </section>
+                )}
+
+                {/* Moving statement */}
+                {settings.show_hero && heroStatement && (
+                    <div
+                        className="overflow-hidden border-b py-4"
+                        style={{
+                            borderColor: settings.border_color,
+                        }}
+                    >
+                        <div className="motion-marquee flex w-max">
+                            {[0, 1].map((copy) => (
+                                <div
+                                    key={copy}
+                                    className="flex shrink-0 items-center"
                                 >
-                                    <span>
+                                    <span
+                                        className="px-5 text-[8px] uppercase tracking-[0.28em] sm:px-8"
+                                        style={{
+                                            color:
+                                                settings.muted_text_color,
+                                        }}
+                                    >
+                                        {heroStatement}
+                                    </span>
+                                    <span
+                                        className="px-5 text-[8px] sm:px-8"
+                                        style={{
+                                            color:
+                                                settings.accent_color,
+                                        }}
+                                    >
+                                        ●
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Work */}
+                {settings.show_work && (
+                    <section
+                        id="work"
+                        className="border-b px-5 py-16 sm:px-8 sm:py-24"
+                        style={{
+                            borderColor: settings.border_color,
+                        }}
+                    >
+                        <div className="mx-auto max-w-[1320px]">
+                            <div className="mb-10 flex flex-col gap-6 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
+                                <div>
+                                    <p
+                                        className="text-[7px] uppercase tracking-[0.32em]"
+                                        style={{
+                                            color: settings.accent_color,
+                                        }}
+                                    >
+                                        01 / Selected Work
+                                    </p>
+
+                                    <h2
+                                        className="mt-3 max-w-4xl text-[clamp(2.8rem,7vw,7rem)] font-black uppercase leading-[0.76] tracking-[-0.08em]"
+                                        style={{
+                                            color: settings.text_color,
+                                        }}
+                                    >
                                         {settings.work_label ||
                                             'Selected Work'}
-                                    </span>
-                                    <span className="transition-transform duration-300 group-hover:translate-x-1">
-                                        →
-                                    </span>
-                                </a>
-                            </div>
-                        </div>
+                                    </h2>
+                                </div>
 
-                        <div className="absolute bottom-6 right-5 hidden flex-col items-end gap-2 sm:right-8 md:flex">
-                            <span
-                                className="text-[7px] uppercase tracking-[0.28em]"
-                                style={{
-                                    color:
-                                        settings.muted_text_color,
-                                }}
-                            >
-                                Scroll to explore
-                            </span>
-                            <span
-                                className="h-10 w-px"
-                                style={{
-                                    backgroundColor:
-                                        settings.border_color,
-                                }}
-                            />
-                        </div>
-                    </div>
-                </section>
-            )}
-
-            {/* Moving statement */}
-            {settings.show_hero && heroStatement && (
-                <div
-                    className="overflow-hidden border-b py-4"
-                    style={{
-                        borderColor: settings.border_color,
-                    }}
-                >
-                    <div className="motion-marquee flex w-max">
-                        {[0, 1].map((copy) => (
-                            <div
-                                key={copy}
-                                className="flex shrink-0 items-center"
-                            >
-                                <span
-                                    className="px-5 text-[8px] uppercase tracking-[0.28em] sm:px-8"
-                                    style={{
-                                        color:
-                                            settings.muted_text_color,
-                                    }}
-                                >
-                                    {heroStatement}
-                                </span>
-                                <span
-                                    className="px-5 text-[8px] sm:px-8"
-                                    style={{
-                                        color:
-                                            settings.accent_color,
-                                    }}
-                                >
-                                    ●
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Work */}
-            {settings.show_work && (
-                <section
-                    id="work"
-                    className="border-b px-5 py-16 sm:px-8 sm:py-24"
-                    style={{
-                        borderColor: settings.border_color,
-                    }}
-                >
-                    <div className="mx-auto max-w-[1320px]">
-                        <div className="mb-10 flex flex-col gap-6 sm:mb-14 sm:flex-row sm:items-end sm:justify-between">
-                            <div>
-                                <p
-                                    className="text-[7px] uppercase tracking-[0.32em]"
-                                    style={{
-                                        color: settings.accent_color,
-                                    }}
-                                >
-                                    01 / Selected Work
-                                </p>
-
-                                <h2
-                                    className="mt-3 max-w-4xl text-[clamp(2.8rem,7vw,7rem)] font-black uppercase leading-[0.76] tracking-[-0.08em]"
-                                    style={{
-                                        color: settings.text_color,
-                                    }}
-                                >
-                                    {settings.work_label ||
-                                        'Selected Work'}
-                                </h2>
+                                {settings.work_description && (
+                                    <p
+                                        className="max-w-sm text-xs leading-6 sm:text-right"
+                                        style={{
+                                            color:
+                                                settings.muted_text_color,
+                                        }}
+                                    >
+                                        {settings.work_description}
+                                    </p>
+                                )}
                             </div>
 
-                            {settings.work_description && (
-                                <p
-                                    className="max-w-sm text-xs leading-6 sm:text-right"
-                                    style={{
-                                        color:
-                                            settings.muted_text_color,
-                                    }}
-                                >
-                                    {settings.work_description}
-                                </p>
-                            )}
-                        </div>
+                            {projects.length > 0 ? (
+                                <div className="grid gap-3 md:grid-cols-12 md:gap-5">
+                                    {projects.slice(0, 3).map((project, index) => {
+                                        const image = getAssetUrl(
+                                            project.thumbnail,
+                                        );
 
-                        {projects.length > 0 ? (
-                            <div className="grid gap-3 md:grid-cols-12 md:gap-5">
-                                {projects.slice(0, 3).map((project, index) => {
-                                    const image = getAssetUrl(
-                                        project.thumbnail,
-                                    );
+                                        if (index === 0) {
+                                            return (
+                                                <a
+                                                    key={project.id}
+                                                    href={getProjectUrl(
+                                                        profile,
+                                                        project,
+                                                    )}
+                                                    className="motion-work-card group relative min-h-[420px] overflow-hidden border md:col-span-8 md:min-h-[620px]"
+                                                    style={{
+                                                        borderColor:
+                                                            settings.border_color,
+                                                    }}
+                                                >
+                                                    {image ? (
+                                                        <img
+                                                            src={image}
+                                                            alt={project.title}
+                                                            className="absolute inset-0 h-full w-full object-cover"
+                                                            style={{
+                                                                objectPosition: `${project.thumbnail_position_x ?? 50}% ${project.thumbnail_position_y ?? 50}%`,
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <div
+                                                            className="absolute inset-0"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    settings.surface_color,
+                                                            }}
+                                                        />
+                                                    )}
 
-                                    if (index === 0) {
+                                                    <div
+                                                        className="absolute inset-0"
+                                                        style={{
+                                                            background:
+                                                                'linear-gradient(0deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.05) 62%)',
+                                                        }}
+                                                    />
+
+                                                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
+                                                        <div className="flex items-end justify-between gap-5">
+                                                            <div>
+                                                                <p className="text-[8px] uppercase tracking-[0.25em] text-white/55">
+                                                                    01 / Selected
+                                                                    Work
+                                                                </p>
+                                                                <h3 className="mt-2 max-w-2xl text-[clamp(1.8rem,4vw,4rem)] font-light leading-[0.9] tracking-[-0.05em] text-white">
+                                                                    {
+                                                                        project.title
+                                                                    }
+                                                                </h3>
+                                                            </div>
+
+                                                            <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-white/40 text-xs text-white transition duration-300 group-hover:bg-white group-hover:text-black">
+                                                                ↗
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            );
+                                        }
+
                                         return (
                                             <a
                                                 key={project.id}
@@ -1872,7 +1947,10 @@ export default function MotionTemplate({
                                                     profile,
                                                     project,
                                                 )}
-                                                className="motion-work-card group relative min-h-[420px] overflow-hidden border md:col-span-8 md:min-h-[620px]"
+                                                className={`motion-work-card group relative min-h-[300px] overflow-hidden border md:col-span-4 ${index === 1
+                                                    ? 'md:translate-y-14'
+                                                    : 'md:-translate-y-2'
+                                                    }`}
                                                 style={{
                                                     borderColor:
                                                         settings.border_color,
@@ -1901,613 +1979,488 @@ export default function MotionTemplate({
                                                     className="absolute inset-0"
                                                     style={{
                                                         background:
-                                                            'linear-gradient(0deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.05) 62%)',
+                                                            'linear-gradient(0deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.08) 70%)',
                                                     }}
                                                 />
 
-                                                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-7">
-                                                    <div className="flex items-end justify-between gap-5">
+                                                <div className="absolute inset-x-0 bottom-0 p-5">
+                                                    <div className="flex items-end justify-between gap-4">
                                                         <div>
-                                                            <p className="text-[8px] uppercase tracking-[0.25em] text-white/55">
-                                                                01 / Selected
-                                                                Work
+                                                            <p className="text-[7px] uppercase tracking-[0.25em] text-white/55">
+                                                                {String(
+                                                                    index + 1,
+                                                                ).padStart(2, '0')}
                                                             </p>
-                                                            <h3 className="mt-2 max-w-2xl text-[clamp(1.8rem,4vw,4rem)] font-light leading-[0.9] tracking-[-0.05em] text-white">
+                                                            <h3 className="mt-2 text-xl font-light leading-tight tracking-[-0.03em] text-white sm:text-2xl">
                                                                 {
                                                                     project.title
                                                                 }
                                                             </h3>
                                                         </div>
 
-                                                        <span className="flex h-9 w-9 shrink-0 items-center justify-center border border-white/40 text-xs text-white transition duration-300 group-hover:bg-white group-hover:text-black">
+                                                        <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-white/35 text-[10px] text-white">
                                                             ↗
                                                         </span>
                                                     </div>
                                                 </div>
                                             </a>
                                         );
-                                    }
+                                    })}
+                                </div>
+                            ) : (
+                                <div
+                                    className="border-y py-16 text-center"
+                                    style={{
+                                        borderColor:
+                                            settings.border_color,
+                                        color:
+                                            settings.muted_text_color,
+                                    }}
+                                >
+                                    <p className="text-[8px] uppercase tracking-[0.3em]">
+                                        No selected work yet
+                                    </p>
+                                </div>
+                            )}
 
-                                    return (
-                                        <a
-                                            key={project.id}
-                                            href={getProjectUrl(
-                                                profile,
-                                                project,
-                                            )}
-                                            className={`motion-work-card group relative min-h-[300px] overflow-hidden border md:col-span-4 ${
-                                                index === 1
-                                                    ? 'md:translate-y-14'
-                                                    : 'md:-translate-y-2'
-                                            }`}
-                                            style={{
-                                                borderColor:
-                                                    settings.border_color,
-                                            }}
-                                        >
-                                            {image ? (
-                                                <img
-                                                    src={image}
-                                                    alt={project.title}
-                                                    className="absolute inset-0 h-full w-full object-cover"
-                                                    style={{
-                                                        objectPosition: `${project.thumbnail_position_x ?? 50}% ${project.thumbnail_position_y ?? 50}%`,
-                                                    }}
-                                                />
-                                            ) : (
-                                                <div
-                                                    className="absolute inset-0"
-                                                    style={{
-                                                        backgroundColor:
-                                                            settings.surface_color,
-                                                    }}
-                                                />
-                                            )}
-
-                                            <div
-                                                className="absolute inset-0"
-                                                style={{
-                                                    background:
-                                                        'linear-gradient(0deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.08) 70%)',
-                                                }}
+                            {projects.length > 3 && (
+                                <div className="mt-12 border-t pt-6">
+                                    <div className="grid gap-4">
+                                        {projects.slice(3).map((project, index) => (
+                                            <MotionProjectRow
+                                                key={project.id}
+                                                project={project}
+                                                index={index + 3}
+                                                profile={profile}
                                             />
-
-                                            <div className="absolute inset-x-0 bottom-0 p-5">
-                                                <div className="flex items-end justify-between gap-4">
-                                                    <div>
-                                                        <p className="text-[7px] uppercase tracking-[0.25em] text-white/55">
-                                                            {String(
-                                                                index + 1,
-                                                            ).padStart(2, '0')}
-                                                        </p>
-                                                        <h3 className="mt-2 text-xl font-light leading-tight tracking-[-0.03em] text-white sm:text-2xl">
-                                                            {
-                                                                project.title
-                                                            }
-                                                        </h3>
-                                                    </div>
-
-                                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center border border-white/35 text-[10px] text-white">
-                                                        ↗
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </a>
-                                    );
-                                })}
-                            </div>
-                        ) : (
-                            <div
-                                className="border-y py-16 text-center"
-                                style={{
-                                    borderColor:
-                                        settings.border_color,
-                                    color:
-                                        settings.muted_text_color,
-                                }}
-                            >
-                                <p className="text-[8px] uppercase tracking-[0.3em]">
-                                    No selected work yet
-                                </p>
-                            </div>
-                        )}
-
-                        {projects.length > 3 && (
-                            <div className="mt-12 border-t pt-6">
-                                <div className="grid gap-4">
-                                    {projects.slice(3).map((project, index) => (
-                                        <MotionProjectRow
-                                            key={project.id}
-                                            project={project}
-                                            index={index + 3}
-                                            profile={profile}
-                                        />
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                    </div>
-                </section>
-            )}
-
-            {/* Artist Message */}
-            {settings.show_artist_message && (
-                <section
-                    id="artist-message"
-                    className="border-y px-5 py-20 sm:px-8 sm:py-28"
-                    style={{
-                        borderColor: settings.border_color,
-                    }}
-                >
-                    <div className="mx-auto max-w-[1320px]">
-                        <p
-                            className="text-[7px] uppercase tracking-[0.3em]"
-                            style={{
-                                color: settings.accent_color,
-                            }}
-                        >
-                            {settings.artist_message_label ||
-                                'A note from the artist'}
-                        </p>
-
-                        <p
-                            className="mt-8 max-w-6xl text-[clamp(2.1rem,5vw,5.8rem)] font-light leading-[0.92] tracking-[-0.06em]"
-                            style={{
-                                color: settings.text_color,
-                            }}
-                        >
-                            {settings.artist_message?.trim() ||
-                                'Create with intention. Share your story with the world.'}
-                        </p>
-                    </div>
-                </section>
-            )}
-
-            {/* Gallery */}
-            {settings.show_gallery &&
-                galleryImages.length > 0 && (
-                    <section
-                        id="gallery"
-                        className="px-5 py-20 sm:px-8 sm:py-28"
-                    >
-                        <div className="mx-auto max-w-[1320px]">
-                            <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-                                <div>
-                                    <p
-                                        className="text-[7px] uppercase tracking-[0.3em]"
-                                        style={{
-                                            color:
-                                                settings.accent_color,
-                                        }}
-                                    >
-                                        02 / Gallery
-                                    </p>
-
-                                    <h2
-                                        className="mt-4 text-[clamp(3rem,8vw,8rem)] font-light uppercase leading-[0.75] tracking-[-0.08em]"
-                                        style={{
-                                            color:
-                                                settings.text_color,
-                                        }}
-                                    >
-                                        {settings.gallery_label ||
-                                            'Archive'}
-                                    </h2>
-                                </div>
-
-                                {settings.gallery_description && (
-                                    <p
-                                        className="max-w-md text-xs leading-6"
-                                        style={{
-                                            color:
-                                                settings.muted_text_color,
-                                        }}
-                                    >
-                                        {settings.gallery_description}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div
-                                className="motion-gallery"
-                                data-desktop-display={
-                                    galleryDesktop.display
-                                }
-                                data-tablet-display={
-                                    galleryTablet.display
-                                }
-                                data-mobile-display={
-                                    galleryMobile.display
-                                }
-                                data-desktop-aspect={
-                                    galleryDesktop.imageAspect
-                                }
-                                data-tablet-aspect={
-                                    galleryTablet.imageAspect
-                                }
-                                data-mobile-aspect={
-                                    galleryMobile.imageAspect
-                                }
-                                style={
-                                    {
-                                        '--motion-gallery-desktop-columns':
-                                            galleryDesktop.columns,
-                                        '--motion-gallery-tablet-columns':
-                                            galleryTablet.columns,
-                                        '--motion-gallery-mobile-columns':
-                                            galleryMobile.columns,
-                                    } as CSSProperties
-                                }
-                            >
-                                <div className="motion-gallery-layout">
-                                    {galleryImages.map(
-                                        (image, index) => {
-                                            const src =
-                                                getAssetUrl(
-                                                    image.image,
-                                                );
-
-                                            if (!src) {
-                                                return null;
-                                            }
-
-                                            return (
-                                                <button
-                                                    key={image.id}
-                                                    type="button"
-                                                    onClick={() =>
-                                                        openLightbox(
-                                                            index,
-                                                        )
-                                                    }
-                                                    data-gallery-index={String(
-                                                        index + 1,
-                                                    ).padStart(2, '0')}
-                                                    className="motion-gallery-card group relative overflow-hidden border text-left"
-                                                    style={{
-                                                        borderColor:
-                                                            settings.border_color,
-                                                    }}
-                                                >
-                                                    <img
-                                                        src={src}
-                                                        alt={
-                                                            image.alt_text ||
-                                                            image.title ||
-                                                            'Gallery image'
-                                                        }
-                                                        className="motion-gallery-image h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
-                                                    />
-
-                                                    {(settings.gallery_show_titles ||
-                                                        settings.gallery_show_captions) && (
-                                                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-4 pt-14 opacity-0 transition duration-300 group-hover:opacity-100">
-                                                            {settings.gallery_show_titles &&
-                                                                image.title && (
-                                                                    <p className="text-xs text-white">
-                                                                        {
-                                                                            image.title
-                                                                        }
-                                                                    </p>
-                                                                )}
-
-                                                            {settings.gallery_show_captions &&
-                                                                image.caption && (
-                                                                    <p className="mt-1 text-[9px] leading-4 text-white/65">
-                                                                        {
-                                                                            image.caption
-                                                                        }
-                                                                    </p>
-                                                                )}
-                                                        </div>
-                                                    )}
-
-                                                    <span className="absolute right-3 top-3 border border-white/30 bg-black/30 px-2 py-1 text-[7px] uppercase tracking-[0.2em] text-white opacity-0 backdrop-blur-sm transition group-hover:opacity-100">
-                                                        {String(
-                                                            index + 1,
-                                                        ).padStart(
-                                                            2,
-                                                            '0',
-                                                        )}
-                                                    </span>
-                                                </button>
-                                            );
-                                        },
-                                    )}
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </section>
                 )}
 
-            {/* Music */}
-            {settings.show_music &&
-                visibleReleases.length > 0 && (
+                {/* Artist Message */}
+                {settings.show_artist_message && (
                     <section
-                        id="music"
-                        className="border-t px-5 py-20 sm:px-8 sm:py-28"
+                        id="artist-message"
+                        className="border-y px-5 py-20 sm:px-8 sm:py-28"
                         style={{
                             borderColor: settings.border_color,
                         }}
                     >
                         <div className="mx-auto max-w-[1320px]">
-                            <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-                                <div>
-                                    <p
-                                        className="text-[7px] uppercase tracking-[0.3em]"
-                                        style={{
-                                            color:
-                                                settings.accent_color,
-                                        }}
-                                    >
-                                        03 / Sound
-                                    </p>
+                            <p
+                                className="text-[7px] uppercase tracking-[0.3em]"
+                                style={{
+                                    color: settings.accent_color,
+                                }}
+                            >
+                                {settings.artist_message_label ||
+                                    'A note from the artist'}
+                            </p>
 
-                                    <h2
-                                        className="mt-4 text-[clamp(3rem,8vw,8rem)] font-light uppercase leading-[0.75] tracking-[-0.08em]"
-                                        style={{
-                                            color:
-                                                settings.text_color,
-                                        }}
-                                    >
-                                        {settings.music_label ||
-                                            'Music'}
-                                    </h2>
+                            <p
+                                className="mt-8 max-w-6xl text-[clamp(2.1rem,5vw,5.8rem)] font-light leading-[0.92] tracking-[-0.06em]"
+                                style={{
+                                    color: settings.text_color,
+                                }}
+                            >
+                                {settings.artist_message?.trim() ||
+                                    'Create with intention. Share your story with the world.'}
+                            </p>
+                        </div>
+                    </section>
+                )}
+
+                {/* Gallery */}
+                {settings.show_gallery &&
+                    galleryImages.length > 0 && (
+                        <section
+                            id="gallery"
+                            className="px-5 py-20 sm:px-8 sm:py-28"
+                        >
+                            <div className="mx-auto max-w-[1320px]">
+                                <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+                                    <div>
+                                        <p
+                                            className="text-[7px] uppercase tracking-[0.3em]"
+                                            style={{
+                                                color:
+                                                    settings.accent_color,
+                                            }}
+                                        >
+                                            02 / Gallery
+                                        </p>
+
+                                        <h2
+                                            className="mt-4 text-[clamp(3rem,8vw,8rem)] font-light uppercase leading-[0.75] tracking-[-0.08em]"
+                                            style={{
+                                                color:
+                                                    settings.text_color,
+                                            }}
+                                        >
+                                            {settings.gallery_label ||
+                                                'Archive'}
+                                        </h2>
+                                    </div>
+
+                                    {settings.gallery_description && (
+                                        <p
+                                            className="max-w-md text-xs leading-6"
+                                            style={{
+                                                color:
+                                                    settings.muted_text_color,
+                                            }}
+                                        >
+                                            {settings.gallery_description}
+                                        </p>
+                                    )}
                                 </div>
 
-                                <p
-                                    className="max-w-sm text-xs leading-6"
+                                <div
+                                    className="motion-gallery"
+                                    data-desktop-display={
+                                        galleryDesktop.display
+                                    }
+                                    data-tablet-display={
+                                        galleryTablet.display
+                                    }
+                                    data-mobile-display={
+                                        galleryMobile.display
+                                    }
+                                    data-desktop-aspect={
+                                        galleryDesktop.imageAspect
+                                    }
+                                    data-tablet-aspect={
+                                        galleryTablet.imageAspect
+                                    }
+                                    data-mobile-aspect={
+                                        galleryMobile.imageAspect
+                                    }
+                                    style={
+                                        {
+                                            '--motion-gallery-desktop-columns':
+                                                galleryDesktop.columns,
+                                            '--motion-gallery-tablet-columns':
+                                                galleryTablet.columns,
+                                            '--motion-gallery-mobile-columns':
+                                                galleryMobile.columns,
+                                        } as CSSProperties
+                                    }
+                                >
+                                    <div className="motion-gallery-layout">
+                                        {galleryImages.map(
+                                            (image, index) => {
+                                                const src =
+                                                    getAssetUrl(
+                                                        image.image,
+                                                    );
+
+                                                if (!src) {
+                                                    return null;
+                                                }
+
+                                                return (
+                                                    <button
+                                                        key={image.id}
+                                                        type="button"
+                                                        onClick={() =>
+                                                            openLightbox(
+                                                                index,
+                                                            )
+                                                        }
+                                                        data-gallery-index={String(
+                                                            index + 1,
+                                                        ).padStart(2, '0')}
+                                                        className="motion-gallery-card group relative overflow-hidden border text-left"
+                                                        style={{
+                                                            borderColor:
+                                                                settings.border_color,
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src={src}
+                                                            alt={
+                                                                image.alt_text ||
+                                                                image.title ||
+                                                                'Gallery image'
+                                                            }
+                                                            className="motion-gallery-image h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
+                                                        />
+
+                                                        {(settings.gallery_show_titles ||
+                                                            settings.gallery_show_captions) && (
+                                                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-4 pt-14 opacity-0 transition duration-300 group-hover:opacity-100">
+                                                                    {settings.gallery_show_titles &&
+                                                                        image.title && (
+                                                                            <p className="text-xs text-white">
+                                                                                {
+                                                                                    image.title
+                                                                                }
+                                                                            </p>
+                                                                        )}
+
+                                                                    {settings.gallery_show_captions &&
+                                                                        image.caption && (
+                                                                            <p className="mt-1 text-[9px] leading-4 text-white/65">
+                                                                                {
+                                                                                    image.caption
+                                                                                }
+                                                                            </p>
+                                                                        )}
+                                                                </div>
+                                                            )}
+
+                                                        <span className="absolute right-3 top-3 border border-white/30 bg-black/30 px-2 py-1 text-[7px] uppercase tracking-[0.2em] text-white opacity-0 backdrop-blur-sm transition group-hover:opacity-100">
+                                                            {String(
+                                                                index + 1,
+                                                            ).padStart(
+                                                                2,
+                                                                '0',
+                                                            )}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            },
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                {/* Music */}
+                {settings.show_music &&
+                    visibleReleases.length > 0 && (
+                        <section
+                            id="music"
+                            className="border-t px-5 py-20 sm:px-8 sm:py-28"
+                            style={{
+                                borderColor: settings.border_color,
+                            }}
+                        >
+                            <div className="mx-auto max-w-[1320px]">
+                                <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+                                    <div>
+                                        <p
+                                            className="text-[7px] uppercase tracking-[0.3em]"
+                                            style={{
+                                                color:
+                                                    settings.accent_color,
+                                            }}
+                                        >
+                                            03 / Sound
+                                        </p>
+
+                                        <h2
+                                            className="mt-4 text-[clamp(3rem,8vw,8rem)] font-light uppercase leading-[0.75] tracking-[-0.08em]"
+                                            style={{
+                                                color:
+                                                    settings.text_color,
+                                            }}
+                                        >
+                                            {settings.music_label ||
+                                                'Music'}
+                                        </h2>
+                                    </div>
+
+                                    <p
+                                        className="max-w-sm text-xs leading-6"
+                                        style={{
+                                            color:
+                                                settings.muted_text_color,
+                                        }}
+                                    >
+                                        Releases, experiments, and work made
+                                        to be heard.
+                                    </p>
+                                </div>
+
+                                <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                                    {visibleReleases.map((release) => (
+                                        <MotionReleaseCard
+                                            key={release.id}
+                                            release={release}
+                                            profile={profile}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                {/* About */}
+                {settings.show_about && (
+                    <section
+                        id="about"
+                        className="relative overflow-hidden border-b px-5 py-20 sm:px-8 sm:py-28"
+                        style={{
+                            borderColor: settings.border_color,
+                        }}
+                    >
+                        <div
+                            className="pointer-events-none absolute right-[-8%] top-[-12%] select-none text-[28vw] font-black uppercase leading-none tracking-[-0.12em]"
+                            style={{
+                                color: settings.border_color,
+                                opacity: 0.22,
+                            }}
+                        >
+                            04
+                        </div>
+
+                        <div className="relative mx-auto max-w-[1320px]">
+                            <div className="mb-12 flex items-center justify-between gap-6">
+                                <div className="flex items-center gap-3">
+                                    <span
+                                        className="h-px w-10"
+                                        style={{
+                                            backgroundColor:
+                                                settings.accent_color,
+                                        }}
+                                    />
+                                    <p
+                                        className="text-[7px] uppercase tracking-[0.34em]"
+                                        style={{
+                                            color: settings.accent_color,
+                                        }}
+                                    >
+                                        04 / About
+                                    </p>
+                                </div>
+
+                                <span
+                                    className="hidden text-[7px] uppercase tracking-[0.3em] sm:block"
                                     style={{
                                         color:
                                             settings.muted_text_color,
                                     }}
                                 >
-                                    Releases, experiments, and work made
-                                    to be heard.
-                                </p>
+                                    {profile.artist_type ||
+                                        'Independent Artist'}
+                                </span>
                             </div>
 
-                            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                                {visibleReleases.map((release) => (
-                                    <MotionReleaseCard
-                                        key={release.id}
-                                        release={release}
-                                        profile={profile}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-                )}
+                            <div className="grid items-start gap-12 lg:grid-cols-12 lg:gap-10">
+                                <div className="lg:col-span-5">
+                                    {profileImage ? (
+                                        <div className="relative max-w-[520px]">
+                                            <div
+                                                className="absolute -bottom-5 -right-5 h-full w-full border"
+                                                style={{
+                                                    borderColor:
+                                                        settings.accent_color,
+                                                    opacity: 0.45,
+                                                }}
+                                            />
 
-            {/* About */}
-            {settings.show_about && (
-                <section
-                    id="about"
-                    className="relative overflow-hidden border-b px-5 py-20 sm:px-8 sm:py-28"
-                    style={{
-                        borderColor: settings.border_color,
-                    }}
-                >
-                    <div
-                        className="pointer-events-none absolute right-[-8%] top-[-12%] select-none text-[28vw] font-black uppercase leading-none tracking-[-0.12em]"
-                        style={{
-                            color: settings.border_color,
-                            opacity: 0.22,
-                        }}
-                    >
-                        04
-                    </div>
+                                            <div
+                                                className="motion-about-image relative aspect-[4/5] overflow-hidden border"
+                                                style={{
+                                                    borderColor:
+                                                        settings.border_color,
+                                                }}
+                                            >
+                                                <AvatarImage
+                                                    src={profileImage}
+                                                    alt={profile.display_name}
+                                                    zoom={Number(profile.avatar_zoom ?? 1)}
+                                                    positionX={Number(
+                                                        profile.avatar_position_x ?? 50,
+                                                    )}
+                                                    positionY={Number(
+                                                        profile.avatar_position_y ?? 50,
+                                                    )}
+                                                />
 
-                    <div className="relative mx-auto max-w-[1320px]">
-                        <div className="mb-12 flex items-center justify-between gap-6">
-                            <div className="flex items-center gap-3">
-                                <span
-                                    className="h-px w-10"
-                                    style={{
-                                        backgroundColor:
-                                            settings.accent_color,
-                                    }}
-                                />
-                                <p
-                                    className="text-[7px] uppercase tracking-[0.34em]"
-                                    style={{
-                                        color: settings.accent_color,
-                                    }}
-                                >
-                                    04 / About
-                                </p>
-                            </div>
-
-                            <span
-                                className="hidden text-[7px] uppercase tracking-[0.3em] sm:block"
-                                style={{
-                                    color:
-                                        settings.muted_text_color,
-                                }}
-                            >
-                                {profile.artist_type ||
-                                    'Independent Artist'}
-                            </span>
-                        </div>
-
-                        <div className="grid items-start gap-12 lg:grid-cols-12 lg:gap-10">
-                            <div className="lg:col-span-5">
-                                {profileImage ? (
-                                    <div className="relative max-w-[520px]">
+                                                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/45 px-4 py-3 backdrop-blur-sm">
+                                                    <span className="text-[7px] uppercase tracking-[0.25em] text-white/75">
+                                                        {profile.display_name}
+                                                    </span>
+                                                    <span className="text-[7px] uppercase tracking-[0.25em] text-white/45">
+                                                        Motion / 04
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
                                         <div
-                                            className="absolute -bottom-5 -right-5 h-full w-full border"
-                                            style={{
-                                                borderColor:
-                                                    settings.accent_color,
-                                                opacity: 0.45,
-                                            }}
-                                        />
-
-                                        <div
-                                            className="motion-about-image relative aspect-[4/5] overflow-hidden border"
+                                            className="aspect-[4/5] max-w-[520px] border"
                                             style={{
                                                 borderColor:
                                                     settings.border_color,
+                                                backgroundColor:
+                                                    settings.surface_color,
                                             }}
-                                        >
-                                            <AvatarImage
-                                                src={profileImage}
-                                                alt={profile.display_name}
-                                                zoom={Number(profile.avatar_zoom ?? 1)}
-                                                positionX={Number(
-                                                    profile.avatar_position_x ?? 50,
-                                                )}
-                                                positionY={Number(
-                                                    profile.avatar_position_y ?? 50,
-                                                )}
-                                            />
-
-                                            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-black/45 px-4 py-3 backdrop-blur-sm">
-                                                <span className="text-[7px] uppercase tracking-[0.25em] text-white/75">
-                                                    {profile.display_name}
-                                                </span>
-                                                <span className="text-[7px] uppercase tracking-[0.25em] text-white/45">
-                                                    Motion / 04
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div
-                                        className="aspect-[4/5] max-w-[520px] border"
-                                        style={{
-                                            borderColor:
-                                                settings.border_color,
-                                            backgroundColor:
-                                                settings.surface_color,
-                                        }}
-                                    />
-                                )}
-                            </div>
-
-                            <div className="lg:col-span-7 lg:pt-8">
-                                <p
-                                    className="max-w-5xl text-[clamp(3.3rem,8vw,8.5rem)] font-black uppercase leading-[0.75] tracking-[-0.085em]"
-                                    style={{
-                                        color: settings.text_color,
-                                    }}
-                                >
-                                    {settings.about_label ||
-                                        'About'}
-                                </p>
-
-                                <div className="mt-10 grid gap-8 md:grid-cols-[1fr_auto]">
-                                    <p
-                                        className="max-w-2xl whitespace-pre-line text-sm leading-7 sm:text-base sm:leading-8"
-                                        style={{
-                                            color:
-                                                settings.muted_text_color,
-                                        }}
-                                    >
-                                        {profile.about_me ||
-                                            profile.bio ||
-                                            'A creative practice built through movement, image, sound, and experimentation.'}
-                                    </p>
-
-                                    <div
-                                        className="hidden text-right md:block"
-                                        style={{
-                                            color:
-                                                settings.muted_text_color,
-                                        }}
-                                    >
-                                        <span className="block text-[7px] uppercase tracking-[0.25em]">
-                                            Based in
-                                        </span>
-                                        <span
-                                            className="mt-2 block text-xs uppercase tracking-[0.15em]"
-                                            style={{
-                                                color:
-                                                    settings.text_color,
-                                            }}
-                                        >
-                                            {profile.location ||
-                                                'Independent practice'}
-                                        </span>
-                                    </div>
+                                        />
+                                    )}
                                 </div>
 
-                                <div
-                                    className="mt-12 grid border-y sm:grid-cols-3"
-                                    style={{
-                                        borderColor:
-                                            settings.border_color,
-                                    }}
-                                >
-                                    <div className="border-b px-4 py-5 sm:border-b-0 sm:border-r sm:px-5">
-                                        <span
-                                            className="block text-[7px] uppercase tracking-[0.25em]"
+                                <div className="lg:col-span-7 lg:pt-8">
+                                    <p
+                                        className="max-w-5xl text-[clamp(3.3rem,8vw,8.5rem)] font-black uppercase leading-[0.75] tracking-[-0.085em]"
+                                        style={{
+                                            color: settings.text_color,
+                                        }}
+                                    >
+                                        {settings.about_label ||
+                                            'About'}
+                                    </p>
+
+                                    <div className="mt-10 grid gap-8 md:grid-cols-[1fr_auto]">
+                                        <p
+                                            className="max-w-2xl whitespace-pre-line text-sm leading-7 sm:text-base sm:leading-8"
                                             style={{
                                                 color:
                                                     settings.muted_text_color,
                                             }}
                                         >
-                                            Practice
-                                        </span>
-                                        <span
-                                            className="mt-2 block text-xs uppercase tracking-[0.14em]"
-                                            style={{
-                                                color:
-                                                    settings.text_color,
-                                            }}
-                                        >
-                                            {profile.artist_type ||
-                                                'Creative'}
-                                        </span>
-                                    </div>
+                                            {profile.about_me ||
+                                                profile.bio ||
+                                                'A creative practice built through movement, image, sound, and experimentation.'}
+                                        </p>
 
-                                    <div className="border-b px-4 py-5 sm:border-b-0 sm:border-r sm:px-5">
-                                        <span
-                                            className="block text-[7px] uppercase tracking-[0.25em]"
+                                        <div
+                                            className="hidden text-right md:block"
                                             style={{
                                                 color:
                                                     settings.muted_text_color,
                                             }}
                                         >
-                                            Location
-                                        </span>
-                                        <span
-                                            className="mt-2 block text-xs uppercase tracking-[0.14em]"
-                                            style={{
-                                                color:
-                                                    settings.text_color,
-                                            }}
-                                        >
-                                            {profile.location || '—'}
-                                        </span>
-                                    </div>
-
-                                    <div className="px-4 py-5 sm:px-5">
-                                        <span
-                                            className="block text-[7px] uppercase tracking-[0.25em]"
-                                            style={{
-                                                color:
-                                                    settings.muted_text_color,
-                                            }}
-                                        >
-                                            Connect
-                                        </span>
-
-                                        {profile.website ? (
-                                            <a
-                                                href={profile.website}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="mt-2 inline-block text-xs uppercase tracking-[0.14em] transition-opacity hover:opacity-55"
+                                            <span className="block text-[7px] uppercase tracking-[0.25em]">
+                                                Based in
+                                            </span>
+                                            <span
+                                                className="mt-2 block text-xs uppercase tracking-[0.15em]"
                                                 style={{
                                                     color:
                                                         settings.text_color,
                                                 }}
                                             >
-                                                Website ↗
-                                            </a>
-                                        ) : (
+                                                {profile.location ||
+                                                    'Independent practice'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        className="mt-12 grid border-y sm:grid-cols-3"
+                                        style={{
+                                            borderColor:
+                                                settings.border_color,
+                                        }}
+                                    >
+                                        <div className="border-b px-4 py-5 sm:border-b-0 sm:border-r sm:px-5">
+                                            <span
+                                                className="block text-[7px] uppercase tracking-[0.25em]"
+                                                style={{
+                                                    color:
+                                                        settings.muted_text_color,
+                                                }}
+                                            >
+                                                Practice
+                                            </span>
                                             <span
                                                 className="mt-2 block text-xs uppercase tracking-[0.14em]"
                                                 style={{
@@ -2515,260 +2468,336 @@ export default function MotionTemplate({
                                                         settings.text_color,
                                                 }}
                                             >
-                                                —
+                                                {profile.artist_type ||
+                                                    'Creative'}
                                             </span>
-                                        )}
+                                        </div>
+
+                                        <div className="border-b px-4 py-5 sm:border-b-0 sm:border-r sm:px-5">
+                                            <span
+                                                className="block text-[7px] uppercase tracking-[0.25em]"
+                                                style={{
+                                                    color:
+                                                        settings.muted_text_color,
+                                                }}
+                                            >
+                                                Location
+                                            </span>
+                                            <span
+                                                className="mt-2 block text-xs uppercase tracking-[0.14em]"
+                                                style={{
+                                                    color:
+                                                        settings.text_color,
+                                                }}
+                                            >
+                                                {profile.location || '—'}
+                                            </span>
+                                        </div>
+
+                                        <div className="px-4 py-5 sm:px-5">
+                                            <span
+                                                className="block text-[7px] uppercase tracking-[0.25em]"
+                                                style={{
+                                                    color:
+                                                        settings.muted_text_color,
+                                                }}
+                                            >
+                                                Connect
+                                            </span>
+
+                                            {profile.website ? (
+                                                <a
+                                                    href={profile.website}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="mt-2 inline-block text-xs uppercase tracking-[0.14em] transition-opacity hover:opacity-55"
+                                                    style={{
+                                                        color:
+                                                            settings.text_color,
+                                                    }}
+                                                >
+                                                    Website ↗
+                                                </a>
+                                            ) : (
+                                                <span
+                                                    className="mt-2 block text-xs uppercase tracking-[0.14em]"
+                                                    style={{
+                                                        color:
+                                                            settings.text_color,
+                                                    }}
+                                                >
+                                                    —
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
-            )}
+                    </section>
+                )}
 
-            {/* Footer */}
-            {settings.show_footer && (
-                <footer
-                    id="footer"
-                    className="relative overflow-hidden border-t px-5 py-16 sm:px-8 sm:py-24"
-                    style={{
-                        borderColor: settings.border_color,
-                    }}
-                >
-                    <div
-                        className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full blur-3xl"
+                {/* Footer */}
+                {settings.show_footer && (
+                    <footer
+                        id="footer"
+                        className="relative overflow-hidden border-t px-5 py-16 sm:px-8 sm:py-24"
                         style={{
-                            backgroundColor: settings.accent_color,
-                            opacity: 0.08,
+                            borderColor: settings.border_color,
                         }}
-                    />
+                    >
+                        <div
+                            className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full blur-3xl"
+                            style={{
+                                backgroundColor: settings.accent_color,
+                                opacity: 0.08,
+                            }}
+                        />
 
-                    <div className="relative mx-auto max-w-[1320px]">
-                        <div className="flex flex-col gap-10">
-                            <div className="flex items-center gap-4">
-                                <span
-                                    className="h-px w-10"
-                                    style={{
-                                        backgroundColor:
-                                            settings.accent_color,
-                                    }}
-                                />
-                                <span
-                                    className="text-[7px] uppercase tracking-[0.35em]"
-                                    style={{
-                                        color:
-                                            settings.muted_text_color,
-                                    }}
-                                >
-                                    End of the practice
-                                </span>
-                            </div>
-
-                            <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
-                                <div>
-                                    {getAssetUrl(settings.footer_logo) && (
-                                        <img
-                                            src={
-                                                getAssetUrl(
-                                                    settings.footer_logo,
-                                                ) ?? undefined
-                                            }
-                                            alt={`${profile.display_name} footer logo`}
-                                            className="mb-8 max-h-16 w-auto max-w-[220px] object-contain object-left"
-                                        />
-                                    )}
-
-                                    <p
-                                        className="max-w-6xl text-[clamp(3.5rem,11vw,11rem)] font-black uppercase leading-[0.72] tracking-[-0.09em]"
+                        <div className="relative mx-auto max-w-[1320px]">
+                            <div className="flex flex-col gap-10">
+                                <div className="flex items-center gap-4">
+                                    <span
+                                        className="h-px w-10"
                                         style={{
-                                            color:
-                                                settings.text_color,
+                                            backgroundColor:
+                                                settings.accent_color,
                                         }}
-                                    >
-                                        {settings.footer_label ||
-                                            profile.display_name}
-                                    </p>
-
-                                    {settings.footer_message && (
-                                        <p
-                                            className="mt-8 max-w-xl text-xs leading-6"
-                                            style={{
-                                                color:
-                                                    settings.muted_text_color,
-                                            }}
-                                        >
-                                            {settings.footer_message}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="lg:text-right">
-                                    <p
-                                        className="text-[7px] uppercase tracking-[0.25em]"
+                                    />
+                                    <span
+                                        className="text-[7px] uppercase tracking-[0.35em]"
                                         style={{
                                             color:
                                                 settings.muted_text_color,
                                         }}
                                     >
-                                        {settings.copyright_text ||
-                                            `© ${new Date().getFullYear()} ${profile.display_name}`}
-                                    </p>
-
-                                    {settings.show_powered_by_lira && (
-                                        <a
-                                            href="/"
-                                            className="mt-5 inline-flex items-center gap-3 border px-4 py-3 text-[7px] uppercase tracking-[0.22em] transition hover:bg-white hover:text-black"
-                                            style={{
-                                                borderColor:
-                                                    settings.border_color,
-                                                color:
-                                                    settings.text_color,
-                                            }}
-                                            aria-label="Powered by LIRA"
-                                        >
-                                            <span>Powered by</span>
-                                            <img
-                                                src="/images/brand/Lira_logo.png"
-                                                alt="LIRA"
-                                                className="h-4 w-auto object-contain"
-                                            />
-                                        </a>
-                                    )}
+                                        End of the practice
+                                    </span>
                                 </div>
-                            </div>
 
-                            <div
-                                className="flex flex-col gap-3 border-t pt-5 text-[7px] uppercase tracking-[0.24em] sm:flex-row sm:items-center sm:justify-between"
-                                style={{
-                                    borderColor: settings.border_color,
-                                    color: settings.muted_text_color,
-                                }}
-                            >
-                                <span>Motion / Portfolio / Archive</span>
-                                <span>
-                                    {profile.location ||
-                                        'Independent creative practice'}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-            )}
+                                <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
+                                    <div>
+                                        {getAssetUrl(settings.footer_logo) && (
+                                            <img
+                                                src={
+                                                    getAssetUrl(
+                                                        settings.footer_logo,
+                                                    ) ?? undefined
+                                                }
+                                                alt={`${profile.display_name} footer logo`}
+                                                className="mb-8 max-h-16 w-auto max-w-[220px] object-contain object-left"
+                                            />
+                                        )}
 
-            {/* Gallery lightbox */}
-            {lightboxImage &&
-                settings.gallery_enable_lightbox && (
-                    <div
-                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-5 backdrop-blur-xl sm:p-8"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-label={
-                            lightboxImage.title ||
-                            'Gallery image'
-                        }
-                        onClick={closeLightbox}
-                    >
-                        <button
-                            type="button"
-                            onClick={closeLightbox}
-                            className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center border border-white/20 bg-black/40 text-lg text-white transition hover:bg-white/10 sm:right-8 sm:top-8"
-                            aria-label="Close gallery"
-                        >
-                            ×
-                        </button>
-
-                        {galleryImages.length > 1 && (
-                            <>
-                                <button
-                                    type="button"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        showPreviousImage();
-                                    }}
-                                    className="absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 text-lg text-white transition hover:bg-white/10 sm:left-8"
-                                    aria-label="Previous image"
-                                >
-                                    ←
-                                </button>
-
-                                <button
-                                    type="button"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        showNextImage();
-                                    }}
-                                    className="absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 text-lg text-white transition hover:bg-white/10 sm:right-8"
-                                    aria-label="Next image"
-                                >
-                                    →
-                                </button>
-                            </>
-                        )}
-
-                        <div
-                            className="relative max-h-[90vh] max-w-[92vw]"
-                            onClick={(event) =>
-                                event.stopPropagation()
-                            }
-                        >
-                            <img
-                                src={
-                                    getAssetUrl(
-                                        lightboxImage.image,
-                                    ) ?? undefined
-                                }
-                                alt={
-                                    lightboxImage.alt_text ||
-                                    lightboxImage.title ||
-                                    'Gallery image'
-                                }
-                                className="max-h-[78vh] max-w-[92vw] object-contain"
-                            />
-
-                            {(lightboxImage.title ||
-                                lightboxImage.caption) && (
-                                <div className="mt-4">
-                                    {lightboxImage.title && (
                                         <p
-                                            className="text-sm"
+                                            className="max-w-6xl text-[clamp(3.5rem,11vw,11rem)] font-black uppercase leading-[0.72] tracking-[-0.09em]"
                                             style={{
                                                 color:
                                                     settings.text_color,
                                             }}
                                         >
-                                            {lightboxImage.title}
+                                            {settings.footer_label ||
+                                                profile.display_name}
                                         </p>
-                                    )}
 
-                                    {lightboxImage.caption && (
+                                        {settings.footer_message && (
+                                            <p
+                                                className="mt-8 max-w-xl text-xs leading-6"
+                                                style={{
+                                                    color:
+                                                        settings.muted_text_color,
+                                                }}
+                                            >
+                                                {settings.footer_message}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="lg:text-right">
                                         <p
-                                            className="mt-1 max-w-2xl text-xs leading-5"
+                                            className="text-[7px] uppercase tracking-[0.25em]"
                                             style={{
                                                 color:
                                                     settings.muted_text_color,
                                             }}
                                         >
-                                            {
-                                                lightboxImage.caption
-                                            }
+                                            {settings.copyright_text ||
+                                                `© ${new Date().getFullYear()} ${profile.display_name}`}
                                         </p>
-                                    )}
+
+                                        {settings.show_footer_socials !== false && socialLinks.length > 0 && (
+                                            <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 lg:justify-end">
+                                                {socialLinks.map((socialLink) => (
+                                                    <a
+                                                        key={socialLink.id}
+                                                        href={socialLink.url}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-[7px] uppercase tracking-[0.18em] transition-opacity hover:opacity-50"
+                                                        style={{ color: settings.text_color }}
+                                                    >
+                                                        {socialLink.platform.replace('_', ' ')} ↗
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {settings.show_powered_by_lira && (
+                                            <a
+                                                href="/"
+                                                className="mt-5 inline-flex items-center gap-3 border px-4 py-3 text-[7px] uppercase tracking-[0.22em] transition hover:bg-white hover:text-black"
+                                                style={{
+                                                    borderColor:
+                                                        settings.border_color,
+                                                    color:
+                                                        settings.text_color,
+                                                }}
+                                                aria-label="Powered by LIRA"
+                                            >
+                                                <span>Powered by</span>
+                                                <img
+                                                    src="/images/brand/Lira_logo.png"
+                                                    alt="LIRA"
+                                                    className="h-4 w-auto object-contain"
+                                                />
+                                            </a>
+                                        )}
+                                    </div>
                                 </div>
+
+                                <div
+                                    className="flex flex-col gap-3 border-t pt-5 text-[7px] uppercase tracking-[0.24em] sm:flex-row sm:items-center sm:justify-between"
+                                    style={{
+                                        borderColor: settings.border_color,
+                                        color: settings.muted_text_color,
+                                    }}
+                                >
+                                    <span>Motion / Portfolio / Archive</span>
+                                    <span>
+                                        {profile.location ||
+                                            'Independent creative practice'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                )}
+
+                {/* Gallery lightbox */}
+                {lightboxImage &&
+                    settings.gallery_enable_lightbox && (
+                        <div
+                            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 p-5 backdrop-blur-xl sm:p-8"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={
+                                lightboxImage.title ||
+                                'Gallery image'
+                            }
+                            onClick={closeLightbox}
+                        >
+                            <button
+                                type="button"
+                                onClick={closeLightbox}
+                                className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center border border-white/20 bg-black/40 text-lg text-white transition hover:bg-white/10 sm:right-8 sm:top-8"
+                                aria-label="Close gallery"
+                            >
+                                ×
+                            </button>
+
+                            {galleryImages.length > 1 && (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            showPreviousImage();
+                                        }}
+                                        className="absolute left-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 text-lg text-white transition hover:bg-white/10 sm:left-8"
+                                        aria-label="Previous image"
+                                    >
+                                        ←
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            showNextImage();
+                                        }}
+                                        className="absolute right-4 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 text-lg text-white transition hover:bg-white/10 sm:right-8"
+                                        aria-label="Next image"
+                                    >
+                                        →
+                                    </button>
+                                </>
                             )}
 
-                            <span
-                                className="absolute right-0 top-full mt-3 text-[7px] uppercase tracking-[0.25em]"
-                                style={{
-                                    color:
-                                        settings.muted_text_color,
-                                }}
+                            <div
+                                className="relative max-h-[90vh] max-w-[92vw]"
+                                onClick={(event) =>
+                                    event.stopPropagation()
+                                }
                             >
-                                {(lightboxIndex ?? 0) + 1} /{' '}
-                                {galleryImages.length}
-                            </span>
+                                <img
+                                    src={
+                                        getAssetUrl(
+                                            lightboxImage.image,
+                                        ) ?? undefined
+                                    }
+                                    alt={
+                                        lightboxImage.alt_text ||
+                                        lightboxImage.title ||
+                                        'Gallery image'
+                                    }
+                                    className="max-h-[78vh] max-w-[92vw] object-contain"
+                                />
+
+                                {(lightboxImage.title ||
+                                    lightboxImage.caption) && (
+                                        <div className="mt-4">
+                                            {lightboxImage.title && (
+                                                <p
+                                                    className="text-sm"
+                                                    style={{
+                                                        color:
+                                                            settings.text_color,
+                                                    }}
+                                                >
+                                                    {lightboxImage.title}
+                                                </p>
+                                            )}
+
+                                            {lightboxImage.caption && (
+                                                <p
+                                                    className="mt-1 max-w-2xl text-xs leading-5"
+                                                    style={{
+                                                        color:
+                                                            settings.muted_text_color,
+                                                    }}
+                                                >
+                                                    {
+                                                        lightboxImage.caption
+                                                    }
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                <span
+                                    className="absolute right-0 top-full mt-3 text-[7px] uppercase tracking-[0.25em]"
+                                    style={{
+                                        color:
+                                            settings.muted_text_color,
+                                    }}
+                                >
+                                    {(lightboxIndex ?? 0) + 1} /{' '}
+                                    {galleryImages.length}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                )}
-        </main>
+                    )}
+            </main>
+        </>
     );
 }

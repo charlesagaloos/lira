@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ImageModerationService;
 use App\VerificationStatus;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -41,8 +42,10 @@ class ArtistProfileController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
-    {
+    public function store(
+        Request $request,
+        ImageModerationService $imageModerationService,
+    ): RedirectResponse {
         $validated = $request->validate([
             'avatar' => [
                 'nullable',
@@ -127,6 +130,18 @@ class ArtistProfileController extends Controller
         unset($validated['social_links']);
 
         if ($request->hasFile('avatar')) {
+            $moderation = $imageModerationService->check(
+                $request->file('avatar'),
+            );
+
+            if (!$moderation['allowed']) {
+                return back()
+                    ->withErrors([
+                        'avatar' => $moderation['message'],
+                    ])
+                    ->withInput();
+            }
+
             $validated['avatar'] = $request
                 ->file('avatar')
                 ->store('artist-avatars', 'public');
@@ -158,8 +173,10 @@ class ArtistProfileController extends Controller
             ->with('success', 'Artist profile created successfully.');
     }
 
-    public function update(Request $request): RedirectResponse
-    {
+    public function update(
+        Request $request,
+        ImageModerationService $imageModerationService,
+    ): RedirectResponse {
         $profile = $request->user()->artistProfile;
 
         $validated = $request->validate([
@@ -246,6 +263,18 @@ class ArtistProfileController extends Controller
         unset($validated['social_links']);
 
         if ($request->hasFile('avatar')) {
+            $moderation = $imageModerationService->check(
+                $request->file('avatar'),
+            );
+
+            if (!$moderation['allowed']) {
+                return back()
+                    ->withErrors([
+                        'avatar' => $moderation['message'],
+                    ])
+                    ->withInput();
+            }
+
             $oldAvatar = $profile->avatar;
 
             $validated['avatar'] = $request

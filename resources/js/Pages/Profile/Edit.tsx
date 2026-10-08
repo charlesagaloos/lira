@@ -1469,10 +1469,10 @@ export default function Edit({ profile }: Props) {
                         FORM ACTIONS
                     ====================================================== */}
 
-                    <div className="mt-6 flex flex-col-reverse items-stretch justify-between gap-4 sm:flex-row sm:items-center">
+                    <div className="mt-6 flex items-center justify-end gap-3">
                         <Link
                             href="/dashboard/profile"
-                            className="text-center text-xs text-zinc-600 transition hover:text-zinc-300 sm:text-left"
+                            className="inline-flex h-11 items-center justify-center rounded-full border border-white/[0.08] px-6 text-xs text-zinc-500 transition hover:border-white/[0.16] hover:bg-white/[0.04] hover:text-white"
                         >
                             Cancel
                         </Link>
@@ -1583,17 +1583,17 @@ export default function Edit({ profile }: Props) {
 
                                     <div
                                         className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.36)] ${avatarNaturalSize.width <
-                                                avatarNaturalSize.height
-                                                ? 'aspect-square w-full'
-                                                : 'aspect-square h-full'
+                                            avatarNaturalSize.height
+                                            ? 'aspect-square w-full'
+                                            : 'aspect-square h-full'
                                             }`}
                                     />
 
                                     <div
                                         className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ring-1 ring-white/20 ${avatarNaturalSize.width <
-                                                avatarNaturalSize.height
-                                                ? 'aspect-square w-full'
-                                                : 'aspect-square h-full'
+                                            avatarNaturalSize.height
+                                            ? 'aspect-square w-full'
+                                            : 'aspect-square h-full'
                                             }`}
                                     />
 

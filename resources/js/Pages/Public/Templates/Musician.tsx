@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { Head } from '@inertiajs/react';
 import { LiquidGlassCarousel as LiquidGlassCarouselComponent } from '../../../Components/UI/liquid-glass-carousel';
 import AvatarImage from '../../../Components/Portfolio/AvatarImage';
 
@@ -232,8 +233,8 @@ function MusicianReleaseCard({
         >
             <div
                 className={`relative overflow-hidden border ${featured
-                        ? 'aspect-[16/10] md:aspect-[16/9]'
-                        : 'aspect-square'
+                    ? 'aspect-[16/10] md:aspect-[16/9]'
+                    : 'aspect-square'
                     }`}
                 style={{
                     borderColor: 'var(--musician-border)',
@@ -971,8 +972,8 @@ function WorkWheelSection({
 
                 <div
                     className={`relative overflow-hidden border-2 ${wheelActive
-                            ? 'cursor-grab active:cursor-grabbing'
-                            : ''
+                        ? 'cursor-grab active:cursor-grabbing'
+                        : ''
                         }`}
                     style={{
                         borderColor: settings.text_color,
@@ -1132,10 +1133,10 @@ function WorkWheelSection({
                                     >
                                         <div
                                             className={`relative overflow-hidden border-2 ${wheelActive &&
-                                                    index ===
-                                                    activeIndex
-                                                    ? 'shadow-[18px_18px_0_rgba(255,255,255,.08)]'
-                                                    : ''
+                                                index ===
+                                                activeIndex
+                                                ? 'shadow-[18px_18px_0_rgba(255,255,255,.08)]'
+                                                : ''
                                                 }`}
                                             style={{
                                                 borderColor:
@@ -1523,8 +1524,8 @@ function MusicianFreeformGallery({
         <div
             ref={formationRef}
             className={`musician-formation ${isDragging
-                    ? 'is-dragging'
-                    : ''
+                ? 'is-dragging'
+                : ''
                 }`}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -1968,13 +1969,23 @@ export default function MusicianTemplate({
         borderColor: settings.border_color,
     };
 
+    const faviconUrl = settings.footer_logo ? `/storage/${settings.footer_logo}` : '/images/brand/Lira_logo.png';
+
+    const socialLinks = (profile.social_links ?? []).filter(
+        (link) => link.is_visible && link.url,
+    );
+
     return (
-        <main
-            id="top"
-            className="musician-template min-h-screen overflow-x-hidden"
-            style={pageStyle}
-        >
-            <style>{`
+        <>
+            <Head>
+                <link rel="icon" type="image/png" href={faviconUrl} />
+            </Head>
+            <main
+                id="top"
+                className="musician-template min-h-screen overflow-x-hidden"
+                style={pageStyle}
+            >
+                <style>{`
                 .musician-template {
                     --musician-line: color-mix(
                         in srgb,
@@ -3607,88 +3618,30 @@ export default function MusicianTemplate({
                 }
             `}</style>
 
-            {/* Navigation */}
-            {settings.show_navigation && (
-                <header className="musician-poster-nav fixed inset-x-0 top-0 z-50">
-                    <div className="mx-auto flex min-h-[58px] max-w-[1440px] items-center justify-between px-4 sm:px-7 lg:px-10">
-                        <a
-                            href="#top"
-                            className="flex items-center"
-                            aria-label={`Go to ${profile.display_name} home`}
-                        >
-                            <span
-                                className="text-[7px] font-bold uppercase tracking-[0.28em]"
-                                style={{
-                                    color:
-                                        settings.text_color,
-                                }}
+                {/* Navigation */}
+                {settings.show_navigation && (
+                    <header className="musician-poster-nav fixed inset-x-0 top-0 z-50">
+                        <div className="mx-auto flex min-h-[58px] max-w-[1440px] items-center justify-between px-4 sm:px-7 lg:px-10">
+                            <a
+                                href="#top"
+                                className="flex items-center"
+                                aria-label={`Go to ${profile.display_name} home`}
                             >
-                                {profile.display_name}
-                            </span>
-                        </a>
-
-                        <nav
-                            className="hidden items-center gap-1 md:flex"
-                            aria-label="Portfolio navigation"
-                        >
-                            {navigationItems.map((item) => (
-                                <a
-                                    key={item.id ?? item.label}
-                                    href={getNavigationHref(item)}
-                                    target={
-                                        item.destination === 'external'
-                                            ? '_blank'
-                                            : undefined
-                                    }
-                                    rel={
-                                        item.destination === 'external'
-                                            ? 'noreferrer'
-                                            : undefined
-                                    }
-                                    className="px-4 py-2 text-[7px] font-bold uppercase tracking-[0.22em] transition hover:bg-white/10 sm:px-5"
+                                <span
+                                    className="text-[7px] font-bold uppercase tracking-[0.28em]"
                                     style={{
                                         color:
                                             settings.text_color,
                                     }}
                                 >
-                                    {item.label}
-                                </a>
-                            ))}
-                        </nav>
+                                    {profile.display_name}
+                                </span>
+                            </a>
 
-                        <div className="flex items-center gap-3">
-                            <button
-                                type="button"
-                                className="flex h-9 w-9 items-center justify-center border md:hidden"
-                                style={{
-                                    borderColor:
-                                        settings.border_color,
-                                    color:
-                                        settings.text_color,
-                                }}
-                                onClick={() =>
-                                    setMobileMenuOpen((open) => !open)
-                                }
-                                aria-label="Toggle navigation"
-                                aria-expanded={mobileMenuOpen}
+                            <nav
+                                className="hidden items-center gap-1 md:flex"
+                                aria-label="Portfolio navigation"
                             >
-                                {mobileMenuOpen ? '×' : '☰'}
-                            </button>
-                        </div>
-                    </div>
-
-                    {mobileMenuOpen && (
-                        <nav
-                            className="border-t md:hidden"
-                            style={{
-                                borderColor:
-                                    settings.border_color,
-                                backgroundColor:
-                                    settings.background_color,
-                            }}
-                            aria-label="Mobile portfolio navigation"
-                        >
-                            <div className="mx-auto grid max-w-[1440px] grid-cols-2">
                                 {navigationItems.map((item) => (
                                     <a
                                         key={item.id ?? item.label}
@@ -3703,13 +3656,8 @@ export default function MusicianTemplate({
                                                 ? 'noreferrer'
                                                 : undefined
                                         }
-                                        onClick={() =>
-                                            setMobileMenuOpen(false)
-                                        }
-                                        className="border-b border-r px-4 py-4 text-[7px] font-bold uppercase tracking-[0.2em]"
+                                        className="px-4 py-2 text-[7px] font-bold uppercase tracking-[0.22em] transition hover:bg-white/10 sm:px-5"
                                         style={{
-                                            borderColor:
-                                                settings.border_color,
                                             color:
                                                 settings.text_color,
                                         }}
@@ -3717,450 +3665,513 @@ export default function MusicianTemplate({
                                         {item.label}
                                     </a>
                                 ))}
+                            </nav>
+
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    className="flex h-9 w-9 items-center justify-center border md:hidden"
+                                    style={{
+                                        borderColor:
+                                            settings.border_color,
+                                        color:
+                                            settings.text_color,
+                                    }}
+                                    onClick={() =>
+                                        setMobileMenuOpen((open) => !open)
+                                    }
+                                    aria-label="Toggle navigation"
+                                    aria-expanded={mobileMenuOpen}
+                                >
+                                    {mobileMenuOpen ? '×' : '☰'}
+                                </button>
                             </div>
-                        </nav>
-                    )}
-                </header>
-            )}
+                        </div>
 
-            {/* Hero Poster */}
-            <section
-                className="musician-poster-hero border-b px-4 pb-10 pt-24 sm:px-7 sm:pb-14 sm:pt-28 lg:px-10 lg:pb-16"
-                style={sectionStyle}
-            >
-                <div className="pointer-events-none absolute left-[7%] top-[18%] musician-poster-dots hidden sm:block" />
-                <div className="musician-poster-x left-[5%] top-[28%] hidden sm:block" />
-                <div className="musician-poster-x right-[8%] top-[12%] hidden sm:block scale-125" />
-
-                <div className="mx-auto grid max-w-[1440px] items-center gap-8 lg:grid-cols-12 lg:gap-10">
-                    <div className="musician-poster-animate order-2 lg:order-1 lg:col-span-5">
-                        <p
-                            className="text-[8px] font-bold uppercase tracking-[0.34em]"
-                            style={{ color: settings.text_color }}
-                        >
-                            {artistLabel}
-                        </p>
-
-                        <h1
-                            className="mt-5 max-w-[760px] text-[clamp(4rem,10vw,9rem)] font-black uppercase leading-[.73] tracking-[-.085em]"
-                            style={{ color: settings.text_color }}
-                        >
-                            {profile.display_name}
-                        </h1>
-
-                        <div
-                            className="mt-7 h-1 w-24"
-                            style={{
-                                backgroundColor:
-                                    settings.accent_color,
-                            }}
-                        />
-
-                        <p
-                            className="mt-6 max-w-xl whitespace-pre-line text-sm font-medium leading-7 sm:text-base"
-                            style={{
-                                color: settings.text_color,
-                            }}
-                        >
-                            {heroStatement}
-                        </p>
-
-                        <div className="mt-7 flex flex-wrap gap-3">
-                            <a
-                                href="#music"
-                                className="border-2 px-5 py-3 text-[7px] font-bold uppercase tracking-[0.24em] transition hover:bg-black/15"
+                        {mobileMenuOpen && (
+                            <nav
+                                className="border-t md:hidden"
                                 style={{
                                     borderColor:
-                                        settings.text_color,
+                                        settings.border_color,
+                                    backgroundColor:
+                                        settings.background_color,
+                                }}
+                                aria-label="Mobile portfolio navigation"
+                            >
+                                <div className="mx-auto grid max-w-[1440px] grid-cols-2">
+                                    {navigationItems.map((item) => (
+                                        <a
+                                            key={item.id ?? item.label}
+                                            href={getNavigationHref(item)}
+                                            target={
+                                                item.destination === 'external'
+                                                    ? '_blank'
+                                                    : undefined
+                                            }
+                                            rel={
+                                                item.destination === 'external'
+                                                    ? 'noreferrer'
+                                                    : undefined
+                                            }
+                                            onClick={() =>
+                                                setMobileMenuOpen(false)
+                                            }
+                                            className="border-b border-r px-4 py-4 text-[7px] font-bold uppercase tracking-[0.2em]"
+                                            style={{
+                                                borderColor:
+                                                    settings.border_color,
+                                                color:
+                                                    settings.text_color,
+                                            }}
+                                        >
+                                            {item.label}
+                                        </a>
+                                    ))}
+                                </div>
+                            </nav>
+                        )}
+                    </header>
+                )}
+
+                {/* Hero Poster */}
+                <section
+                    className="musician-poster-hero border-b px-4 pb-10 pt-24 sm:px-7 sm:pb-14 sm:pt-28 lg:px-10 lg:pb-16"
+                    style={sectionStyle}
+                >
+                    <div className="pointer-events-none absolute left-[7%] top-[18%] musician-poster-dots hidden sm:block" />
+                    <div className="musician-poster-x left-[5%] top-[28%] hidden sm:block" />
+                    <div className="musician-poster-x right-[8%] top-[12%] hidden sm:block scale-125" />
+
+                    <div className="mx-auto grid max-w-[1440px] items-center gap-8 lg:grid-cols-12 lg:gap-10">
+                        <div className="musician-poster-animate order-2 lg:order-1 lg:col-span-5">
+                            <p
+                                className="text-[8px] font-bold uppercase tracking-[0.34em]"
+                                style={{ color: settings.text_color }}
+                            >
+                                {artistLabel}
+                            </p>
+
+                            <h1
+                                className="mt-5 max-w-[760px] text-[clamp(4rem,10vw,9rem)] font-black uppercase leading-[.73] tracking-[-.085em]"
+                                style={{ color: settings.text_color }}
+                            >
+                                {profile.display_name}
+                            </h1>
+
+                            <div
+                                className="mt-7 h-1 w-24"
+                                style={{
+                                    backgroundColor:
+                                        settings.accent_color,
+                                }}
+                            />
+
+                            <p
+                                className="mt-6 max-w-xl whitespace-pre-line text-sm font-medium leading-7 sm:text-base"
+                                style={{
                                     color: settings.text_color,
                                 }}
                             >
-                                Listen now
-                            </a>
+                                {heroStatement}
+                            </p>
 
-                            {heroRelease && (
-                                <span
-                                    className="border px-4 py-3 text-[7px] uppercase tracking-[0.2em]"
+                            <div className="mt-7 flex flex-wrap gap-3">
+                                <a
+                                    href="#music"
+                                    className="border-2 px-5 py-3 text-[7px] font-bold uppercase tracking-[0.24em] transition hover:bg-black/15"
+                                    style={{
+                                        borderColor:
+                                            settings.text_color,
+                                        color: settings.text_color,
+                                    }}
+                                >
+                                    Listen now
+                                </a>
+
+                                {heroRelease && (
+                                    <span
+                                        className="border px-4 py-3 text-[7px] uppercase tracking-[0.2em]"
+                                        style={{
+                                            borderColor:
+                                                settings.border_color,
+                                            color:
+                                                settings.text_color,
+                                        }}
+                                    >
+                                        {heroRelease.title}
+                                        {latestReleaseDate
+                                            ? ` / ${latestReleaseDate}`
+                                            : ''}
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="mt-12 grid grid-cols-3 border-y">
+                                <div
+                                    className="border-r px-3 py-4"
                                     style={{
                                         borderColor:
                                             settings.border_color,
-                                        color:
-                                            settings.text_color,
-                                    }}
-                                >
-                                    {heroRelease.title}
-                                    {latestReleaseDate
-                                        ? ` / ${latestReleaseDate}`
-                                        : ''}
-                                </span>
-                            )}
-                        </div>
-
-                        <div className="mt-12 grid grid-cols-3 border-y">
-                            <div
-                                className="border-r px-3 py-4"
-                                style={{
-                                    borderColor:
-                                        settings.border_color,
-                                }}
-                            >
-                                <span
-                                    className="block text-[7px] uppercase tracking-[0.2em]"
-                                    style={{
-                                        color:
-                                            settings.muted_text_color,
-                                    }}
-                                >
-                                    Releases
-                                </span>
-                                <span
-                                    className="mt-2 block text-lg font-black"
-                                    style={{
-                                        color:
-                                            settings.text_color,
-                                    }}
-                                >
-                                    {profile.releases.length}
-                                </span>
-                            </div>
-                            <div
-                                className="border-r px-3 py-4"
-                                style={{
-                                    borderColor:
-                                        settings.border_color,
-                                }}
-                            >
-                                <span
-                                    className="block text-[7px] uppercase tracking-[0.2em]"
-                                    style={{
-                                        color:
-                                            settings.muted_text_color,
-                                    }}
-                                >
-                                    Work
-                                </span>
-                                <span
-                                    className="mt-2 block text-lg font-black"
-                                    style={{
-                                        color:
-                                            settings.text_color,
-                                    }}
-                                >
-                                    {profile.projects.length}
-                                </span>
-                            </div>
-                            <div className="px-3 py-4">
-                                <span
-                                    className="block text-[7px] uppercase tracking-[0.2em]"
-                                    style={{
-                                        color:
-                                            settings.muted_text_color,
-                                    }}
-                                >
-                                    Base
-                                </span>
-                                <span
-                                    className="mt-2 block truncate text-xs font-bold uppercase"
-                                    style={{
-                                        color:
-                                            settings.text_color,
-                                    }}
-                                >
-                                    {profile.location ||
-                                        'Independent'}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="order-1 flex justify-center lg:order-2 lg:col-span-7 lg:justify-end">
-                        <div className="musician-poster-animate musician-poster-frame w-full max-w-[760px]">
-                            {coverImage ? (
-                                <div className="relative aspect-[8/3] w-full overflow-hidden">
-                                    <div
-                                        className="absolute inset-0"
-                                        style={{
-                                            transform: `translate(${settings.cover_image_offset_x ?? 0}%, ${settings.cover_image_offset_y ?? 0}%)`,
-                                        }}
-                                    >
-                                        <img
-                                            src={coverImage}
-                                            alt={`${profile.display_name} cover`}
-                                            className="h-full w-full object-cover"
-                                            style={{
-                                                objectPosition: `${settings.cover_image_position_x ?? 50}% ${settings.cover_image_position_y ?? 50}%`,
-                                                transform: `scale(${settings.cover_image_zoom ?? 1})`,
-                                                transformOrigin: 'center',
-                                            }}
-                                            draggable={false}
-                                        />
-                                    </div>
-
-                                    <div
-                                        className="absolute inset-0 pointer-events-none"
-                                        style={{
-                                            background:
-                                                'linear-gradient(90deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.56) 24%, rgba(0,0,0,.16) 54%, transparent 78%), linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.30) 30%, transparent 68%), radial-gradient(circle at 48% 50%, transparent 32%, rgba(0,0,0,.28) 100%)',
-                                        }}
-                                    />
-
-                                    <div className="absolute left-5 top-5 border px-3 py-2 backdrop-blur-sm">
-                                        <span className="text-[7px] font-bold uppercase tracking-[0.28em] text-white">
-                                            Artist / Cover / Live
-                                        </span>
-                                    </div>
-
-                                    <div className="absolute bottom-5 right-5 text-right">
-                                        <span className="block text-[clamp(2rem,5vw,4rem)] font-black uppercase leading-[.78] tracking-[-.07em] text-white">
-                                            {profile.display_name}
-                                        </span>
-                                        <span className="mt-2 block text-[7px] font-bold uppercase tracking-[0.25em] text-white/70">
-                                            {artistLabel}
-                                        </span>
-                                    </div>
-
-                                    <span className="musician-poster-x -right-5 top-10 scale-75" />
-                                </div>
-                            ) : (
-                                <div
-                                    className="flex aspect-[8/3] w-full items-center justify-center"
-                                    style={{
-                                        backgroundColor:
-                                            settings.surface_color,
                                     }}
                                 >
                                     <span
-                                        className="text-[8px] font-bold uppercase tracking-[0.3em]"
+                                        className="block text-[7px] uppercase tracking-[0.2em]"
+                                        style={{
+                                            color:
+                                                settings.muted_text_color,
+                                        }}
+                                    >
+                                        Releases
+                                    </span>
+                                    <span
+                                        className="mt-2 block text-lg font-black"
                                         style={{
                                             color:
                                                 settings.text_color,
                                         }}
                                     >
-                                        {profile.display_name}
+                                        {profile.releases.length}
                                     </span>
                                 </div>
-                            )}
-
-                            <div
-                                className="grid grid-cols-3 border-t"
-                                style={{
-                                    borderColor:
-                                        settings.border_color,
-                                }}
-                            >
-                                <span
-                                    className="border-r px-3 py-3 text-[7px] uppercase tracking-[0.2em]"
+                                <div
+                                    className="border-r px-3 py-4"
                                     style={{
                                         borderColor:
                                             settings.border_color,
-                                        color:
-                                            settings.text_color,
                                     }}
                                 >
-                                    Artist
-                                </span>
-                                <span
-                                    className="border-r px-3 py-3 text-center text-[7px] uppercase tracking-[0.2em]"
-                                    style={{
-                                        borderColor:
-                                            settings.border_color,
-                                        color:
-                                            settings.text_color,
-                                    }}
-                                >
-                                    {artistLabel}
-                                </span>
-                                <span
-                                    className="px-3 py-3 text-right text-[7px] uppercase tracking-[0.2em]"
-                                    style={{
-                                        color:
-                                            settings.accent_color,
-                                    }}
-                                >
-                                    {profile.location ||
-                                        'Worldwide'}
-                                </span>
+                                    <span
+                                        className="block text-[7px] uppercase tracking-[0.2em]"
+                                        style={{
+                                            color:
+                                                settings.muted_text_color,
+                                        }}
+                                    >
+                                        Work
+                                    </span>
+                                    <span
+                                        className="mt-2 block text-lg font-black"
+                                        style={{
+                                            color:
+                                                settings.text_color,
+                                        }}
+                                    >
+                                        {profile.projects.length}
+                                    </span>
+                                </div>
+                                <div className="px-3 py-4">
+                                    <span
+                                        className="block text-[7px] uppercase tracking-[0.2em]"
+                                        style={{
+                                            color:
+                                                settings.muted_text_color,
+                                        }}
+                                    >
+                                        Base
+                                    </span>
+                                    <span
+                                        className="mt-2 block truncate text-xs font-bold uppercase"
+                                        style={{
+                                            color:
+                                                settings.text_color,
+                                        }}
+                                    >
+                                        {profile.location ||
+                                            'Independent'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </section>
 
-            {/* New Release / All Releases */}
-            {settings.show_music &&
-                releases.length > 0 && (
-                    <section
-                        id="music"
-                        className="musician-poster-section px-4 py-14 sm:px-7 sm:py-20 lg:px-10"
-                        style={{
-                            borderColor:
-                                settings.border_color,
-                        }}
-                    >
-                        <div className="mx-auto max-w-[1440px]">
-                            <div className="mb-8 flex items-end justify-between gap-5 border-b-2 pb-5"
-                                style={{
-                                    borderColor:
-                                        settings.text_color,
-                                }}
-                            >
-                                <div>
-                                    <p
-                                        className="text-[7px] font-bold uppercase tracking-[0.3em]"
+                        <div className="order-1 flex justify-center lg:order-2 lg:col-span-7 lg:justify-end">
+                            <div className="musician-poster-animate musician-poster-frame w-full max-w-[760px]">
+                                {coverImage ? (
+                                    <div className="relative aspect-[8/3] w-full overflow-hidden">
+                                        <div
+                                            className="absolute inset-0"
+                                            style={{
+                                                transform: `translate(${settings.cover_image_offset_x ?? 0}%, ${settings.cover_image_offset_y ?? 0}%)`,
+                                            }}
+                                        >
+                                            <img
+                                                src={coverImage}
+                                                alt={`${profile.display_name} cover`}
+                                                className="h-full w-full object-cover"
+                                                style={{
+                                                    objectPosition: `${settings.cover_image_position_x ?? 50}% ${settings.cover_image_position_y ?? 50}%`,
+                                                    transform: `scale(${settings.cover_image_zoom ?? 1})`,
+                                                    transformOrigin: 'center',
+                                                }}
+                                                draggable={false}
+                                            />
+                                        </div>
+
+                                        <div
+                                            className="absolute inset-0 pointer-events-none"
+                                            style={{
+                                                background:
+                                                    'linear-gradient(90deg, rgba(0,0,0,.82) 0%, rgba(0,0,0,.56) 24%, rgba(0,0,0,.16) 54%, transparent 78%), linear-gradient(0deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.30) 30%, transparent 68%), radial-gradient(circle at 48% 50%, transparent 32%, rgba(0,0,0,.28) 100%)',
+                                            }}
+                                        />
+
+                                        <div className="absolute left-5 top-5 border px-3 py-2 backdrop-blur-sm">
+                                            <span className="text-[7px] font-bold uppercase tracking-[0.28em] text-white">
+                                                Artist / Cover / Live
+                                            </span>
+                                        </div>
+
+                                        <div className="absolute bottom-5 right-5 text-right">
+                                            <span className="block text-[clamp(2rem,5vw,4rem)] font-black uppercase leading-[.78] tracking-[-.07em] text-white">
+                                                {profile.display_name}
+                                            </span>
+                                            <span className="mt-2 block text-[7px] font-bold uppercase tracking-[0.25em] text-white/70">
+                                                {artistLabel}
+                                            </span>
+                                        </div>
+
+                                        <span className="musician-poster-x -right-5 top-10 scale-75" />
+                                    </div>
+                                ) : (
+                                    <div
+                                        className="flex aspect-[8/3] w-full items-center justify-center"
                                         style={{
-                                            color:
-                                                settings.text_color,
+                                            backgroundColor:
+                                                settings.surface_color,
                                         }}
                                     >
-                                        01 / New Release
-                                    </p>
-                                    <h2
-                                        className="musician-section-title mt-3"
-                                        style={{
-                                            color:
-                                                settings.text_color,
-                                        }}
-                                    >
-                                        Music
-                                    </h2>
-                                </div>
-                                <span
-                                    className="text-[7px] font-bold uppercase tracking-[0.24em]"
-                                    style={{
-                                        color:
-                                            settings.accent_color,
-                                    }}
-                                >
-                                    {releases.length}{' '}
-                                    {releaseCountLabel}
-                                </span>
-                            </div>
-
-                            <div className="grid gap-7 lg:grid-cols-12">
-                                <div className="lg:col-span-8">
-                                    <MusicPlayerWidget
-                                        releases={releases}
-                                        activeReleaseId={activeReleaseId}
-                                        onChangeRelease={
-                                            setActiveReleaseId
-                                        }
-                                        artistName={
-                                            profile.display_name
-                                        }
-                                    />
-                                </div>
-
-                                <div className="lg:col-span-4">
-                                    <div className="mb-3 flex items-center justify-between">
-                                        <p
-                                            className="text-[7px] font-bold uppercase tracking-[0.28em]"
+                                        <span
+                                            className="text-[8px] font-bold uppercase tracking-[0.3em]"
                                             style={{
                                                 color:
                                                     settings.text_color,
                                             }}
                                         >
-                                            All Releases
-                                        </p>
-                                        <span
-                                            className="text-[7px] uppercase tracking-[0.2em]"
-                                            style={{
-                                                color:
-                                                    settings.muted_text_color,
-                                            }}
-                                        >
-                                            {releases.length}
+                                            {profile.display_name}
                                         </span>
                                     </div>
+                                )}
 
-                                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2">
-                                        {releases.map(
-                                            (
-                                                release,
-                                                index,
-                                            ) => (
-                                                <button
-                                                    key={
-                                                        release.id
-                                                    }
-                                                    type="button"
-                                                    onClick={() =>
-                                                        setActiveReleaseId(
-                                                            release.id,
-                                                        )
-                                                    }
-                                                    className="group border text-left transition duration-300 hover:-translate-y-1"
-                                                    style={{
-                                                        borderColor:
-                                                            release.id ===
-                                                                activeReleaseId
-                                                                ? settings.text_color
-                                                                : settings.border_color,
-                                                        backgroundColor:
-                                                            settings.surface_color,
-                                                        boxShadow:
-                                                            release.id ===
-                                                                activeReleaseId
-                                                                ? `6px 6px 0 ${settings.primary_color}`
-                                                                : undefined,
-                                                    }}
-                                                    aria-label={`Select ${release.title}`}
-                                                >
-                                                    <div className="aspect-square overflow-hidden">
-                                                        <ReleaseArtwork
-                                                            release={
-                                                                release
-                                                            }
-                                                        />
-                                                    </div>
-                                                    <div className="border-t p-3"
-                                                        style={{
-                                                            borderColor:
-                                                                settings.border_color,
-                                                        }}
-                                                    >
-                                                        <p
-                                                            className="truncate text-[8px] font-bold uppercase"
-                                                            style={{
-                                                                color:
-                                                                    settings.text_color,
-                                                            }}
-                                                        >
-                                                            {
-                                                                release.title
-                                                            }
-                                                        </p>
-                                                        <p
-                                                            className="mt-1 text-[7px] uppercase tracking-[0.16em]"
-                                                            style={{
-                                                                color:
-                                                                    settings.muted_text_color,
-                                                            }}
-                                                        >
-                                                            {String(
-                                                                index +
-                                                                1,
-                                                            ).padStart(
-                                                                2,
-                                                                '0',
-                                                            )}{' '}
-                                                            /{' '}
-                                                            {release.release_type ||
-                                                                'Release'}
-                                                        </p>
-                                                    </div>
-                                                </button>
-                                            ),
-                                        )}
-                                    </div>
+                                <div
+                                    className="grid grid-cols-3 border-t"
+                                    style={{
+                                        borderColor:
+                                            settings.border_color,
+                                    }}
+                                >
+                                    <span
+                                        className="border-r px-3 py-3 text-[7px] uppercase tracking-[0.2em]"
+                                        style={{
+                                            borderColor:
+                                                settings.border_color,
+                                            color:
+                                                settings.text_color,
+                                        }}
+                                    >
+                                        Artist
+                                    </span>
+                                    <span
+                                        className="border-r px-3 py-3 text-center text-[7px] uppercase tracking-[0.2em]"
+                                        style={{
+                                            borderColor:
+                                                settings.border_color,
+                                            color:
+                                                settings.text_color,
+                                        }}
+                                    >
+                                        {artistLabel}
+                                    </span>
+                                    <span
+                                        className="px-3 py-3 text-right text-[7px] uppercase tracking-[0.2em]"
+                                        style={{
+                                            color:
+                                                settings.accent_color,
+                                        }}
+                                    >
+                                        {profile.location ||
+                                            'Worldwide'}
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                    </section>
-                )}
+                    </div>
+                </section>
 
-            {/* Artist Message */}
-            {settings.show_artist_message && (
-                <section
+                {/* New Release / All Releases */}
+                {settings.show_music &&
+                    releases.length > 0 && (
+                        <section
+                            id="music"
+                            className="musician-poster-section px-4 py-14 sm:px-7 sm:py-20 lg:px-10"
+                            style={{
+                                borderColor:
+                                    settings.border_color,
+                            }}
+                        >
+                            <div className="mx-auto max-w-[1440px]">
+                                <div className="mb-8 flex items-end justify-between gap-5 border-b-2 pb-5"
+                                    style={{
+                                        borderColor:
+                                            settings.text_color,
+                                    }}
+                                >
+                                    <div>
+                                        <p
+                                            className="text-[7px] font-bold uppercase tracking-[0.3em]"
+                                            style={{
+                                                color:
+                                                    settings.text_color,
+                                            }}
+                                        >
+                                            01 / New Release
+                                        </p>
+                                        <h2
+                                            className="musician-section-title mt-3"
+                                            style={{
+                                                color:
+                                                    settings.text_color,
+                                            }}
+                                        >
+                                            Music
+                                        </h2>
+                                    </div>
+                                    <span
+                                        className="text-[7px] font-bold uppercase tracking-[0.24em]"
+                                        style={{
+                                            color:
+                                                settings.accent_color,
+                                        }}
+                                    >
+                                        {releases.length}{' '}
+                                        {releaseCountLabel}
+                                    </span>
+                                </div>
+
+                                <div className="grid gap-7 lg:grid-cols-12">
+                                    <div className="lg:col-span-8">
+                                        <MusicPlayerWidget
+                                            releases={releases}
+                                            activeReleaseId={activeReleaseId}
+                                            onChangeRelease={
+                                                setActiveReleaseId
+                                            }
+                                            artistName={
+                                                profile.display_name
+                                            }
+                                        />
+                                    </div>
+
+                                    <div className="lg:col-span-4">
+                                        <div className="mb-3 flex items-center justify-between">
+                                            <p
+                                                className="text-[7px] font-bold uppercase tracking-[0.28em]"
+                                                style={{
+                                                    color:
+                                                        settings.text_color,
+                                                }}
+                                            >
+                                                All Releases
+                                            </p>
+                                            <span
+                                                className="text-[7px] uppercase tracking-[0.2em]"
+                                                style={{
+                                                    color:
+                                                        settings.muted_text_color,
+                                                }}
+                                            >
+                                                {releases.length}
+                                            </span>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-2">
+                                            {releases.map(
+                                                (
+                                                    release,
+                                                    index,
+                                                ) => (
+                                                    <button
+                                                        key={
+                                                            release.id
+                                                        }
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setActiveReleaseId(
+                                                                release.id,
+                                                            )
+                                                        }
+                                                        className="group border text-left transition duration-300 hover:-translate-y-1"
+                                                        style={{
+                                                            borderColor:
+                                                                release.id ===
+                                                                    activeReleaseId
+                                                                    ? settings.text_color
+                                                                    : settings.border_color,
+                                                            backgroundColor:
+                                                                settings.surface_color,
+                                                            boxShadow:
+                                                                release.id ===
+                                                                    activeReleaseId
+                                                                    ? `6px 6px 0 ${settings.primary_color}`
+                                                                    : undefined,
+                                                        }}
+                                                        aria-label={`Select ${release.title}`}
+                                                    >
+                                                        <div className="aspect-square overflow-hidden">
+                                                            <ReleaseArtwork
+                                                                release={
+                                                                    release
+                                                                }
+                                                            />
+                                                        </div>
+                                                        <div className="border-t p-3"
+                                                            style={{
+                                                                borderColor:
+                                                                    settings.border_color,
+                                                            }}
+                                                        >
+                                                            <p
+                                                                className="truncate text-[8px] font-bold uppercase"
+                                                                style={{
+                                                                    color:
+                                                                        settings.text_color,
+                                                                }}
+                                                            >
+                                                                {
+                                                                    release.title
+                                                                }
+                                                            </p>
+                                                            <p
+                                                                className="mt-1 text-[7px] uppercase tracking-[0.16em]"
+                                                                style={{
+                                                                    color:
+                                                                        settings.muted_text_color,
+                                                                }}
+                                                            >
+                                                                {String(
+                                                                    index +
+                                                                    1,
+                                                                ).padStart(
+                                                                    2,
+                                                                    '0',
+                                                                )}{' '}
+                                                                /{' '}
+                                                                {release.release_type ||
+                                                                    'Release'}
+                                                            </p>
+                                                        </div>
+                                                    </button>
+                                                ),
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                {/* Artist Message */}
+                {settings.show_artist_message && (
+                    <section
                         id="artist-message"
                         className="border-b px-4 py-14 sm:px-7 sm:py-20 lg:px-10"
                         style={{
@@ -4200,345 +4211,282 @@ export default function MusicianTemplate({
                 )}
 
 
-            {/* Work */}
-            {settings.show_work &&
-                visibleProjects.length > 0 && (
-                    <WorkWheelSection
-                        profile={profile}
-                        settings={settings}
-                        projects={visibleProjects}
-                        getProjectUrl={getProjectUrl}
-                    />
-                )}
+                {/* Work */}
+                {settings.show_work &&
+                    visibleProjects.length > 0 && (
+                        <WorkWheelSection
+                            profile={profile}
+                            settings={settings}
+                            projects={visibleProjects}
+                            getProjectUrl={getProjectUrl}
+                        />
+                    )}
 
-            {/* Gallery */}
-            {settings.show_gallery &&
-                galleryImages.length > 0 && (
+                {/* Gallery */}
+                {settings.show_gallery &&
+                    galleryImages.length > 0 && (
+                        <section
+                            id="gallery"
+                            className="musician-poster-section border-b px-4 py-14 sm:px-7 sm:py-20 lg:px-10"
+                            style={{
+                                borderColor:
+                                    settings.border_color,
+                            }}
+                        >
+                            <div className="mx-auto max-w-[1440px]">
+                                <div className="mb-8 flex flex-col gap-4 border-b-2 pb-5 sm:flex-row sm:items-end sm:justify-between"
+                                    style={{
+                                        borderColor:
+                                            settings.text_color,
+                                    }}
+                                >
+                                    <div>
+                                        <p
+                                            className="text-[7px] font-bold uppercase tracking-[0.3em]"
+                                            style={{
+                                                color:
+                                                    settings.accent_color,
+                                            }}
+                                        >
+                                            03 / Archive
+                                        </p>
+                                        <h2
+                                            className="musician-section-title mt-3"
+                                            style={{
+                                                color:
+                                                    settings.text_color,
+                                            }}
+                                        >
+                                            {settings.gallery_label ||
+                                                'Gallery'}
+                                        </h2>
+                                    </div>
+                                    {settings.gallery_description && (
+                                        <p
+                                            className="max-w-md text-xs leading-6"
+                                            style={{
+                                                color:
+                                                    settings.muted_text_color,
+                                            }}
+                                        >
+                                            {
+                                                settings.gallery_description
+                                            }
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div
+                                    className="musician-gallery musician-gallery-poster"
+                                    data-desktop-display={
+                                        desktopGallery.display
+                                    }
+                                    data-tablet-display={
+                                        tabletGallery.display
+                                    }
+                                    data-mobile-display={
+                                        mobileGallery.display
+                                    }
+                                    style={
+                                        {
+                                            '--musician-gallery-desktop-columns':
+                                                desktopGallery.columns,
+                                            '--musician-gallery-tablet-columns':
+                                                tabletGallery.columns,
+                                            '--musician-gallery-mobile-columns':
+                                                mobileGallery.columns,
+                                            '--musician-gallery-desktop-aspect':
+                                                desktopAspect,
+                                            '--musician-gallery-tablet-aspect':
+                                                tabletAspect,
+                                            '--musician-gallery-mobile-aspect':
+                                                mobileAspect,
+                                        } as CSSProperties
+                                    }
+                                >
+                                    {(
+                                        [
+                                            'grid',
+                                            'masonry',
+                                            'editorial',
+                                            'freeform',
+                                        ] as const
+                                    ).map((layout) => (
+                                        <div
+                                            key={layout}
+                                            data-gallery-layout={layout}
+                                        >
+                                            {layout === 'editorial' ? (
+                                                <LiquidGlassEditorialGallery
+                                                    images={galleryImages}
+                                                    showTitle={
+                                                        settings.gallery_show_titles
+                                                    }
+                                                    settings={settings}
+                                                    onOpen={(index) =>
+                                                        setLightboxIndex(index)
+                                                    }
+                                                />
+                                            ) : layout === 'freeform' ? (
+                                                <MusicianFreeformGallery
+                                                    images={galleryImages}
+                                                    showTitle={
+                                                        settings.gallery_show_titles
+                                                    }
+                                                    showCaption={
+                                                        settings.gallery_show_captions
+                                                    }
+                                                    onOpen={(index) =>
+                                                        setLightboxIndex(index)
+                                                    }
+                                                />
+                                            ) : (
+                                                galleryImages.map(
+                                                    (image, index) => (
+                                                        <GalleryCard
+                                                            key={`${layout}-${image.id}`}
+                                                            image={image}
+                                                            index={index}
+                                                            onOpen={() =>
+                                                                setLightboxIndex(
+                                                                    index,
+                                                                )
+                                                            }
+                                                            showTitle={
+                                                                settings.gallery_show_titles
+                                                            }
+                                                            showCaption={
+                                                                settings.gallery_show_captions
+                                                            }
+                                                        />
+                                                    ),
+                                                )
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
+                {/* About */}
+                {settings.show_about && (
                     <section
-                        id="gallery"
-                        className="musician-poster-section border-b px-4 py-14 sm:px-7 sm:py-20 lg:px-10"
+                        id="about"
+                        className="musician-about border-b px-4 py-14 sm:px-7 sm:py-20 lg:px-10"
                         style={{
                             borderColor:
                                 settings.border_color,
                         }}
                     >
                         <div className="mx-auto max-w-[1440px]">
-                            <div className="mb-8 flex flex-col gap-4 border-b-2 pb-5 sm:flex-row sm:items-end sm:justify-between"
+                            <div className="grid border-2 lg:grid-cols-12"
                                 style={{
                                     borderColor:
                                         settings.text_color,
                                 }}
                             >
-                                <div>
-                                    <p
-                                        className="text-[7px] font-bold uppercase tracking-[0.3em]"
-                                        style={{
-                                            color:
-                                                settings.accent_color,
-                                        }}
-                                    >
-                                        03 / Archive
-                                    </p>
-                                    <h2
-                                        className="musician-section-title mt-3"
-                                        style={{
-                                            color:
-                                                settings.text_color,
-                                        }}
-                                    >
-                                        {settings.gallery_label ||
-                                            'Gallery'}
-                                    </h2>
+                                <div className="relative border-b lg:col-span-7 lg:border-b-0 lg:border-r"
+                                    style={{
+                                        borderColor:
+                                            settings.border_color,
+                                    }}
+                                >
+                                    {profileImage ? (
+                                        <div className="musician-about-image relative h-full min-h-[400px] overflow-hidden">
+                                            <AvatarImage
+                                                src={profileImage}
+                                                alt={profile.display_name}
+                                                className="select-none object-cover"
+                                                zoom={Number(profile.avatar_zoom ?? 1)}
+                                                positionX={Number(profile.avatar_position_x ?? 50)}
+                                                positionY={Number(profile.avatar_position_y ?? 50)}
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                                            <span className="absolute bottom-5 left-5 border px-3 py-2 text-[7px] font-bold uppercase tracking-[0.25em] text-white">
+                                                Artist / Portrait
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className="flex min-h-[400px] items-center justify-center"
+                                            style={{
+                                                backgroundColor:
+                                                    settings.surface_color,
+                                            }}
+                                        >
+                                            <span
+                                                className="text-[7px] font-bold uppercase tracking-[0.3em]"
+                                                style={{
+                                                    color:
+                                                        settings.text_color,
+                                                }}
+                                            >
+                                                Artist / Portrait
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
-                                {settings.gallery_description && (
-                                    <p
-                                        className="max-w-md text-xs leading-6"
-                                        style={{
-                                            color:
-                                                settings.muted_text_color,
-                                        }}
-                                    >
-                                        {
-                                            settings.gallery_description
-                                        }
-                                    </p>
-                                )}
-                            </div>
 
-                            <div
-                                className="musician-gallery musician-gallery-poster"
-                                data-desktop-display={
-                                    desktopGallery.display
-                                }
-                                data-tablet-display={
-                                    tabletGallery.display
-                                }
-                                data-mobile-display={
-                                    mobileGallery.display
-                                }
-                                style={
-                                    {
-                                        '--musician-gallery-desktop-columns':
-                                            desktopGallery.columns,
-                                        '--musician-gallery-tablet-columns':
-                                            tabletGallery.columns,
-                                        '--musician-gallery-mobile-columns':
-                                            mobileGallery.columns,
-                                        '--musician-gallery-desktop-aspect':
-                                            desktopAspect,
-                                        '--musician-gallery-tablet-aspect':
-                                            tabletAspect,
-                                        '--musician-gallery-mobile-aspect':
-                                            mobileAspect,
-                                    } as CSSProperties
-                                }
-                            >
-                                {(
-                                    [
-                                        'grid',
-                                        'masonry',
-                                        'editorial',
-                                        'freeform',
-                                    ] as const
-                                ).map((layout) => (
-                                    <div
-                                        key={layout}
-                                        data-gallery-layout={layout}
-                                    >
-                                        {layout === 'editorial' ? (
-                                            <LiquidGlassEditorialGallery
-                                                images={galleryImages}
-                                                showTitle={
-                                                    settings.gallery_show_titles
-                                                }
-                                                settings={settings}
-                                                onOpen={(index) =>
-                                                    setLightboxIndex(index)
-                                                }
-                                            />
-                                        ) : layout === 'freeform' ? (
-                                            <MusicianFreeformGallery
-                                                images={galleryImages}
-                                                showTitle={
-                                                    settings.gallery_show_titles
-                                                }
-                                                showCaption={
-                                                    settings.gallery_show_captions
-                                                }
-                                                onOpen={(index) =>
-                                                    setLightboxIndex(index)
-                                                }
-                                            />
-                                        ) : (
-                                            galleryImages.map(
-                                                (image, index) => (
-                                                    <GalleryCard
-                                                        key={`${layout}-${image.id}`}
-                                                        image={image}
-                                                        index={index}
-                                                        onOpen={() =>
-                                                            setLightboxIndex(
-                                                                index,
-                                                            )
-                                                        }
-                                                        showTitle={
-                                                            settings.gallery_show_titles
-                                                        }
-                                                        showCaption={
-                                                            settings.gallery_show_captions
-                                                        }
-                                                    />
-                                                ),
-                                            )
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-                )}
-
-            {/* About */}
-            {settings.show_about && (
-                <section
-                    id="about"
-                    className="musician-about border-b px-4 py-14 sm:px-7 sm:py-20 lg:px-10"
-                    style={{
-                        borderColor:
-                            settings.border_color,
-                    }}
-                >
-                    <div className="mx-auto max-w-[1440px]">
-                        <div className="grid border-2 lg:grid-cols-12"
-                            style={{
-                                borderColor:
-                                    settings.text_color,
-                            }}
-                        >
-                            <div className="relative border-b lg:col-span-7 lg:border-b-0 lg:border-r"
-                                style={{
-                                    borderColor:
-                                        settings.border_color,
-                                }}
-                            >
-                                {profileImage ? (
-                                    <div className="musician-about-image relative h-full min-h-[400px] overflow-hidden">
-                                        <AvatarImage
-                                            src={profileImage}
-                                            alt={profile.display_name}
-                                            className="select-none object-cover"
-                                            zoom={Number(profile.avatar_zoom ?? 1)}
-                                            positionX={Number(profile.avatar_position_x ?? 50)}
-                                            positionY={Number(profile.avatar_position_y ?? 50)}
-                                        />
-                                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                                        <span className="absolute bottom-5 left-5 border px-3 py-2 text-[7px] font-bold uppercase tracking-[0.25em] text-white">
-                                            Artist / Portrait
-                                        </span>
-                                    </div>
-                                ) : (
-                                    <div
-                                        className="flex min-h-[400px] items-center justify-center"
-                                        style={{
-                                            backgroundColor:
-                                                settings.surface_color,
-                                        }}
-                                    >
-                                        <span
+                                <div className="flex flex-col justify-between p-6 sm:p-9 lg:col-span-5 lg:p-12">
+                                    <div>
+                                        <p
                                             className="text-[7px] font-bold uppercase tracking-[0.3em]"
+                                            style={{
+                                                color:
+                                                    settings.accent_color,
+                                            }}
+                                        >
+                                            04 / About
+                                        </p>
+                                        <h2
+                                            className="mt-4 text-[clamp(3rem,7vw,6.5rem)] font-black uppercase leading-[.76] tracking-[-.07em]"
                                             style={{
                                                 color:
                                                     settings.text_color,
                                             }}
                                         >
-                                            Artist / Portrait
-                                        </span>
+                                            {settings.about_label ||
+                                                'The Artist'}
+                                        </h2>
+
+                                        <p
+                                            className="mt-7 whitespace-pre-line text-sm leading-7"
+                                            style={{
+                                                color:
+                                                    settings.muted_text_color,
+                                            }}
+                                        >
+                                            {profile.about_me ||
+                                                profile.bio ||
+                                                'An independent artist creating music, visuals, and experiences.'}
+                                        </p>
                                     </div>
-                                )}
-                            </div>
 
-                            <div className="flex flex-col justify-between p-6 sm:p-9 lg:col-span-5 lg:p-12">
-                                <div>
-                                    <p
-                                        className="text-[7px] font-bold uppercase tracking-[0.3em]"
-                                        style={{
-                                            color:
-                                                settings.accent_color,
-                                        }}
-                                    >
-                                        04 / About
-                                    </p>
-                                    <h2
-                                        className="mt-4 text-[clamp(3rem,7vw,6.5rem)] font-black uppercase leading-[.76] tracking-[-.07em]"
-                                        style={{
-                                            color:
-                                                settings.text_color,
-                                        }}
-                                    >
-                                        {settings.about_label ||
-                                            'The Artist'}
-                                    </h2>
-
-                                    <p
-                                        className="mt-7 whitespace-pre-line text-sm leading-7"
-                                        style={{
-                                            color:
-                                                settings.muted_text_color,
-                                        }}
-                                    >
-                                        {profile.about_me ||
-                                            profile.bio ||
-                                            'An independent artist creating music, visuals, and experiences.'}
-                                    </p>
-                                </div>
-
-                                <div className="mt-10">
-                                    <div
-                                        className="grid border-y"
-                                        style={{
-                                            borderColor:
-                                                settings.border_color,
-                                        }}
-                                    >
+                                    <div className="mt-10">
                                         <div
-                                            className="grid grid-cols-2 border-b px-3 py-4"
+                                            className="grid border-y"
                                             style={{
                                                 borderColor:
                                                     settings.border_color,
                                             }}
                                         >
-                                            <span
-                                                className="text-[7px] uppercase tracking-[0.2em]"
+                                            <div
+                                                className="grid grid-cols-2 border-b px-3 py-4"
                                                 style={{
-                                                    color:
-                                                        settings.muted_text_color,
+                                                    borderColor:
+                                                        settings.border_color,
                                                 }}
                                             >
-                                                Practice
-                                            </span>
-                                            <span
-                                                className="text-right text-[8px] font-bold uppercase"
-                                                style={{
-                                                    color:
-                                                        settings.text_color,
-                                                }}
-                                            >
-                                                {artistLabel}
-                                            </span>
-                                        </div>
-                                        <div
-                                            className="grid grid-cols-2 border-b px-3 py-4"
-                                            style={{
-                                                borderColor:
-                                                    settings.border_color,
-                                            }}
-                                        >
-                                            <span
-                                                className="text-[7px] uppercase tracking-[0.2em]"
-                                                style={{
-                                                    color:
-                                                        settings.muted_text_color,
-                                                }}
-                                            >
-                                                Location
-                                            </span>
-                                            <span
-                                                className="text-right text-[8px] font-bold uppercase"
-                                                style={{
-                                                    color:
-                                                        settings.text_color,
-                                                }}
-                                            >
-                                                {profile.location ||
-                                                    'Independent'}
-                                            </span>
-                                        </div>
-                                        <div className="grid grid-cols-2 px-3 py-4">
-                                            <span
-                                                className="text-[7px] uppercase tracking-[0.2em]"
-                                                style={{
-                                                    color:
-                                                        settings.muted_text_color,
-                                                }}
-                                            >
-                                                Connect
-                                            </span>
-                                            {profile.website ? (
-                                                <a
-                                                    href={
-                                                        profile.website
-                                                    }
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="text-right text-[8px] font-bold uppercase hover:opacity-60"
+                                                <span
+                                                    className="text-[7px] uppercase tracking-[0.2em]"
                                                     style={{
                                                         color:
-                                                            settings.text_color,
+                                                            settings.muted_text_color,
                                                     }}
                                                 >
-                                                    Website ↗
-                                                </a>
-                                            ) : (
+                                                    Practice
+                                                </span>
                                                 <span
                                                     className="text-right text-[8px] font-bold uppercase"
                                                     style={{
@@ -4546,297 +4494,381 @@ export default function MusicianTemplate({
                                                             settings.text_color,
                                                     }}
                                                 >
-                                                    —
+                                                    {artistLabel}
                                                 </span>
-                                            )}
+                                            </div>
+                                            <div
+                                                className="grid grid-cols-2 border-b px-3 py-4"
+                                                style={{
+                                                    borderColor:
+                                                        settings.border_color,
+                                                }}
+                                            >
+                                                <span
+                                                    className="text-[7px] uppercase tracking-[0.2em]"
+                                                    style={{
+                                                        color:
+                                                            settings.muted_text_color,
+                                                    }}
+                                                >
+                                                    Location
+                                                </span>
+                                                <span
+                                                    className="text-right text-[8px] font-bold uppercase"
+                                                    style={{
+                                                        color:
+                                                            settings.text_color,
+                                                    }}
+                                                >
+                                                    {profile.location ||
+                                                        'Independent'}
+                                                </span>
+                                            </div>
+                                            <div className="grid grid-cols-2 px-3 py-4">
+                                                <span
+                                                    className="text-[7px] uppercase tracking-[0.2em]"
+                                                    style={{
+                                                        color:
+                                                            settings.muted_text_color,
+                                                    }}
+                                                >
+                                                    Connect
+                                                </span>
+                                                {profile.website ? (
+                                                    <a
+                                                        href={
+                                                            profile.website
+                                                        }
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-right text-[8px] font-bold uppercase hover:opacity-60"
+                                                        style={{
+                                                            color:
+                                                                settings.text_color,
+                                                        }}
+                                                    >
+                                                        Website ↗
+                                                    </a>
+                                                ) : (
+                                                    <span
+                                                        className="text-right text-[8px] font-bold uppercase"
+                                                        style={{
+                                                            color:
+                                                                settings.text_color,
+                                                        }}
+                                                    >
+                                                        —
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </section>
-            )}
+                    </section>
+                )}
 
-            {/* Footer */}
-            {settings.show_footer && (
-                <footer
-                    id="footer"
-                    className="relative overflow-hidden border-t px-4 py-10 sm:px-7 sm:py-14 lg:px-10"
-                    style={{
-                        borderColor:
-                            settings.border_color,
-                        backgroundColor:
-                            settings.background_color,
-                    }}
-                >
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                {/* Footer */}
+                {settings.show_footer && (
+                    <footer
+                        id="footer"
+                        className="relative overflow-hidden border-t px-4 py-10 sm:px-7 sm:py-14 lg:px-10"
                         style={{
+                            borderColor:
+                                settings.border_color,
                             backgroundColor:
-                                settings.accent_color,
+                                settings.background_color,
                         }}
-                    />
-
-                    <div className="mx-auto max-w-[1440px]">
-                        <div className="grid gap-0 border"
+                    >
+                        <div className="pointer-events-none absolute inset-x-0 top-0 h-px"
                             style={{
-                                borderColor:
-                                    settings.border_color,
+                                backgroundColor:
+                                    settings.accent_color,
                             }}
-                        >
-                            <div className="grid lg:grid-cols-[1.35fr_.65fr]">
-                                <div
-                                    className="relative overflow-hidden border-b p-6 sm:p-9 lg:border-b-0 lg:border-r lg:p-12"
-                                    style={{
-                                        borderColor:
-                                            settings.border_color,
-                                    }}
-                                >
-                                    <div className="pointer-events-none absolute right-8 top-8 musician-poster-dots opacity-40" />
+                        />
 
-                                    <p
-                                        className="text-[7px] font-bold uppercase tracking-[0.3em]"
-                                        style={{
-                                            color:
-                                                settings.accent_color,
-                                        }}
-                                    >
-                                        {settings.footer_label ||
-                                            'Official Artist Website'}
-                                    </p>
-
-                                    <h2
-                                        className="mt-5 max-w-5xl text-[clamp(3.5rem,10vw,10rem)] font-black uppercase leading-[.7] tracking-[-.09em]"
-                                        style={{
-                                            color:
-                                                settings.text_color,
-                                        }}
-                                    >
-                                        {profile.display_name}
-                                    </h2>
-
-                                    {settings.footer_message && (
-                                        <p
-                                            className="mt-7 max-w-lg text-xs leading-6"
-                                            style={{
-                                                color:
-                                                    settings.muted_text_color,
-                                            }}
-                                        >
-                                            {
-                                                settings.footer_message
-                                            }
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col justify-between p-6 sm:p-9 lg:p-12">
-
-                                    <div className="mt-10">
-                                        <p
-                                            className="text-[7px] uppercase tracking-[0.2em]"
-                                            style={{
-                                                color:
-                                                    settings.muted_text_color,
-                                            }}
-                                        >
-                                            {profile.location ||
-                                                'Worldwide'}
-                                        </p>
-
-                                        <p
-                                            className="mt-2 text-[7px] uppercase tracking-[0.2em]"
-                                            style={{
-                                                color:
-                                                    settings.muted_text_color,
-                                            }}
-                                        >
-                                            {settings.copyright_text ||
-                                                `© ${new Date().getFullYear()} ${profile.display_name}`}
-                                        </p>
-
-                                        {settings.show_powered_by_lira && (
-                                            <a
-                                                href="/"
-                                                className="mt-5 inline-flex items-center gap-3 border px-4 py-3 text-[7px] font-bold uppercase tracking-[0.22em] transition hover:bg-white/10"
-                                                style={{
-                                                    borderColor:
-                                                        settings.border_color,
-                                                    color:
-                                                        settings.text_color,
-                                                }}
-                                            >
-                                                Powered by
-                                                <img
-                                                    src="/images/brand/Lira_logo.png"
-                                                    alt="LIRA"
-                                                    className="h-4 w-auto object-contain"
-                                                />
-                                            </a>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div
-                                className="grid grid-cols-3"
+                        <div className="mx-auto max-w-[1440px]">
+                            <div className="grid gap-0 border"
                                 style={{
-                                    borderTop: `1px solid ${settings.border_color}`,
+                                    borderColor:
+                                        settings.border_color,
                                 }}
                             >
-                                <span
-                                    className="border-r px-3 py-3 text-center text-[7px] font-bold uppercase tracking-[0.2em]"
-                                    style={{
-                                        borderColor:
-                                            settings.border_color,
-                                        color:
-                                            settings.text_color,
-                                    }}
-                                >
-                                    Music
-                                </span>
-                                <span
-                                    className="border-r px-3 py-3 text-center text-[7px] font-bold uppercase tracking-[0.2em]"
-                                    style={{
-                                        borderColor:
-                                            settings.border_color,
-                                        color:
-                                            settings.text_color,
-                                    }}
-                                >
-                                    Visuals
-                                </span>
-                                <span
-                                    className="px-3 py-3 text-center text-[7px] font-bold uppercase tracking-[0.2em]"
-                                    style={{
-                                        color:
-                                            settings.text_color,
-                                    }}
-                                >
-                                    Live
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </footer>
-            )}
+                                <div className="grid lg:grid-cols-[1.35fr_.65fr]">
+                                    <div
+                                        className="relative overflow-hidden border-b p-6 sm:p-9 lg:border-b-0 lg:border-r lg:p-12"
+                                        style={{
+                                            borderColor:
+                                                settings.border_color,
+                                        }}
+                                    >
+                                        <div className="pointer-events-none absolute right-8 top-8 musician-poster-dots opacity-40" />
 
-            {/* Gallery lightbox */}
-            {currentLightboxImage &&
-                settings.gallery_enable_lightbox && (
-                    <div
-                        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl sm:p-8"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-label={
-                            currentLightboxImage.title ||
-                            'Gallery image'
-                        }
-                        onClick={closeLightbox}
-                    >
-                        <button
-                            type="button"
-                            onClick={closeLightbox}
-                            className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-white/20 bg-black/40 text-lg text-white sm:right-8 sm:top-8"
-                            aria-label="Close gallery"
-                        >
-                            ×
-                        </button>
+                                        <p
+                                            className="text-[7px] font-bold uppercase tracking-[0.3em]"
+                                            style={{
+                                                color:
+                                                    settings.accent_color,
+                                            }}
+                                        >
+                                            {settings.footer_label ||
+                                                'Official Artist Website'}
+                                        </p>
 
-                        {galleryImages.length > 1 && (
-                            <>
-                                <button
-                                    type="button"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        showPreviousImage();
-                                    }}
-                                    className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 text-white sm:left-8"
-                                    aria-label="Previous image"
-                                >
-                                    ←
-                                </button>
+                                        <h2
+                                            className="mt-5 max-w-5xl text-[clamp(3.5rem,10vw,10rem)] font-black uppercase leading-[.7] tracking-[-.09em]"
+                                            style={{
+                                                color:
+                                                    settings.text_color,
+                                            }}
+                                        >
+                                            {profile.display_name}
+                                        </h2>
 
-                                <button
-                                    type="button"
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        showNextImage();
-                                    }}
-                                    className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 text-white sm:right-8"
-                                    aria-label="Next image"
-                                >
-                                    →
-                                </button>
-                            </>
-                        )}
-
-                        <div
-                            className="relative max-h-[90vh] max-w-[92vw]"
-                            onClick={(event) =>
-                                event.stopPropagation()
-                            }
-                        >
-                            <img
-                                src={
-                                    getAssetUrl(
-                                        currentLightboxImage.image,
-                                    ) ?? undefined
-                                }
-                                alt={
-                                    currentLightboxImage.alt_text ||
-                                    currentLightboxImage.title ||
-                                    'Gallery image'
-                                }
-                                className="max-h-[82vh] max-w-[94vw] object-contain"
-                            />
-
-                            {(currentLightboxImage.title ||
-                                currentLightboxImage.caption) && (
-                                    <div className="mt-4">
-                                        {currentLightboxImage.title && (
+                                        {settings.footer_message && (
                                             <p
-                                                className="text-sm"
-                                                style={{
-                                                    color:
-                                                        settings.text_color,
-                                                }}
-                                            >
-                                                {
-                                                    currentLightboxImage.title
-                                                }
-                                            </p>
-                                        )}
-
-                                        {currentLightboxImage.caption && (
-                                            <p
-                                                className="mt-1 max-w-2xl text-xs leading-5"
+                                                className="mt-7 max-w-lg text-xs leading-6"
                                                 style={{
                                                     color:
                                                         settings.muted_text_color,
                                                 }}
                                             >
                                                 {
-                                                    currentLightboxImage.caption
+                                                    settings.footer_message
                                                 }
                                             </p>
                                         )}
                                     </div>
-                                )}
 
-                            <span
-                                className="absolute right-0 top-full mt-3 text-[7px] uppercase tracking-[0.25em]"
-                                style={{
-                                    color:
-                                        settings.muted_text_color,
-                                }}
-                            >
-                                {(lightboxIndex ?? 0) + 1} /{' '}
-                                {galleryImages.length}
-                            </span>
+                                    <div className="flex flex-col justify-between p-6 sm:p-9 lg:p-12">
+
+                                        <div className="mt-10">
+                                            <p
+                                                className="text-[7px] uppercase tracking-[0.2em]"
+                                                style={{
+                                                    color:
+                                                        settings.muted_text_color,
+                                                }}
+                                            >
+                                                {profile.location ||
+                                                    'Worldwide'}
+                                            </p>
+
+                                            <p
+                                                className="mt-2 text-[7px] uppercase tracking-[0.2em]"
+                                                style={{
+                                                    color:
+                                                        settings.muted_text_color,
+                                                }}
+                                            >
+                                                {settings.copyright_text ||
+                                                    `© ${new Date().getFullYear()} ${profile.display_name}`}
+                                            </p>
+
+                                            {settings.show_footer_socials !== false &&
+                                                socialLinks.length > 0 && (
+                                                    <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 lg:justify-end">
+                                                        {socialLinks.map((socialLink) => (
+                                                            <a
+                                                                key={socialLink.id}
+                                                                href={socialLink.url}
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                className="text-[7px] font-bold uppercase tracking-[0.18em] transition-opacity hover:opacity-50"
+                                                                style={{
+                                                                    color: settings.text_color,
+                                                                }}
+                                                            >
+                                                                {socialLink.platform.replace('_', ' ')} ↗︎
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                            {settings.show_powered_by_lira && (
+                                                <a
+                                                    href="/"
+                                                    className="mt-5 inline-flex items-center gap-3 border px-4 py-3 text-[7px] font-bold uppercase tracking-[0.22em] transition hover:bg-white/10"
+                                                    style={{
+                                                        borderColor:
+                                                            settings.border_color,
+                                                        color:
+                                                            settings.text_color,
+                                                    }}
+                                                >
+                                                    Powered by
+                                                    <img
+                                                        src="/images/brand/Lira_logo.png"
+                                                        alt="LIRA"
+                                                        className="h-4 w-auto object-contain"
+                                                    />
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div
+                                    className="grid grid-cols-3"
+                                    style={{
+                                        borderTop: `1px solid ${settings.border_color}`,
+                                    }}
+                                >
+                                    <span
+                                        className="border-r px-3 py-3 text-center text-[7px] font-bold uppercase tracking-[0.2em]"
+                                        style={{
+                                            borderColor:
+                                                settings.border_color,
+                                            color:
+                                                settings.text_color,
+                                        }}
+                                    >
+                                        Music
+                                    </span>
+                                    <span
+                                        className="border-r px-3 py-3 text-center text-[7px] font-bold uppercase tracking-[0.2em]"
+                                        style={{
+                                            borderColor:
+                                                settings.border_color,
+                                            color:
+                                                settings.text_color,
+                                        }}
+                                    >
+                                        Visuals
+                                    </span>
+                                    <span
+                                        className="px-3 py-3 text-center text-[7px] font-bold uppercase tracking-[0.2em]"
+                                        style={{
+                                            color:
+                                                settings.text_color,
+                                        }}
+                                    >
+                                        Live
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </footer>
                 )}
-        </main>
+
+                {/* Gallery lightbox */}
+                {currentLightboxImage &&
+                    settings.gallery_enable_lightbox && (
+                        <div
+                            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/95 p-4 backdrop-blur-xl sm:p-8"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label={
+                                currentLightboxImage.title ||
+                                'Gallery image'
+                            }
+                            onClick={closeLightbox}
+                        >
+                            <button
+                                type="button"
+                                onClick={closeLightbox}
+                                className="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center border border-white/20 bg-black/40 text-lg text-white sm:right-8 sm:top-8"
+                                aria-label="Close gallery"
+                            >
+                                ×
+                            </button>
+
+                            {galleryImages.length > 1 && (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            showPreviousImage();
+                                        }}
+                                        className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 text-white sm:left-8"
+                                        aria-label="Previous image"
+                                    >
+                                        ←
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            showNextImage();
+                                        }}
+                                        className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center border border-white/20 bg-black/40 text-white sm:right-8"
+                                        aria-label="Next image"
+                                    >
+                                        →
+                                    </button>
+                                </>
+                            )}
+
+                            <div
+                                className="relative max-h-[90vh] max-w-[92vw]"
+                                onClick={(event) =>
+                                    event.stopPropagation()
+                                }
+                            >
+                                <img
+                                    src={
+                                        getAssetUrl(
+                                            currentLightboxImage.image,
+                                        ) ?? undefined
+                                    }
+                                    alt={
+                                        currentLightboxImage.alt_text ||
+                                        currentLightboxImage.title ||
+                                        'Gallery image'
+                                    }
+                                    className="max-h-[82vh] max-w-[94vw] object-contain"
+                                />
+
+                                {(currentLightboxImage.title ||
+                                    currentLightboxImage.caption) && (
+                                        <div className="mt-4">
+                                            {currentLightboxImage.title && (
+                                                <p
+                                                    className="text-sm"
+                                                    style={{
+                                                        color:
+                                                            settings.text_color,
+                                                    }}
+                                                >
+                                                    {
+                                                        currentLightboxImage.title
+                                                    }
+                                                </p>
+                                            )}
+
+                                            {currentLightboxImage.caption && (
+                                                <p
+                                                    className="mt-1 max-w-2xl text-xs leading-5"
+                                                    style={{
+                                                        color:
+                                                            settings.muted_text_color,
+                                                    }}
+                                                >
+                                                    {
+                                                        currentLightboxImage.caption
+                                                    }
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                <span
+                                    className="absolute right-0 top-full mt-3 text-[7px] uppercase tracking-[0.25em]"
+                                    style={{
+                                        color:
+                                            settings.muted_text_color,
+                                    }}
+                                >
+                                    {(lightboxIndex ?? 0) + 1} /{' '}
+                                    {galleryImages.length}
+                                </span>
+                            </div>
+                        </div>
+                    )}
+            </main>
+        </>
     );
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ImageModerationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -32,7 +33,6 @@ class PortfolioSettingsController extends Controller
 
         abort_unless($settings, 404);
 
-
         $settings->setAttribute(
             'cover_image',
             $profile->cover_image,
@@ -46,8 +46,10 @@ class PortfolioSettingsController extends Controller
         ]);
     }
 
-    public function update(Request $request): RedirectResponse
-    {
+    public function update(
+        Request $request,
+        ImageModerationService $imageModerationService,
+    ): RedirectResponse {
         $profile = $request->user()->artistProfile;
 
         abort_unless($profile, 404);
@@ -320,49 +322,6 @@ class PortfolioSettingsController extends Controller
                 'boolean',
             ],
 
-            /* Gallery Images */
-
-            'gallery_images' => [
-                'nullable',
-                'array',
-            ],
-
-            'gallery_images.*.id' => [
-                'nullable',
-                'integer',
-            ],
-
-            'gallery_images.*.image' => [
-                'nullable',
-                'image',
-                'mimes:jpg,jpeg,png,webp,gif',
-                'max:10240',
-            ],
-
-            'gallery_images.*.title' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'gallery_images.*.caption' => [
-                'nullable',
-                'string',
-                'max:500',
-            ],
-
-            'gallery_images.*.alt_text' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'gallery_images.*.sort_order' => [
-                'required',
-                'integer',
-                'min:0',
-            ],
-
             /* Gallery Responsive */
 
             'gallery_responsive' => [
@@ -503,6 +462,22 @@ class PortfolioSettingsController extends Controller
                 'boolean',
             ],
 
+            'gallery_order' => [
+                'nullable',
+                'array',
+            ],
+
+            'gallery_order.*.id' => [
+                'required',
+                'integer',
+            ],
+
+            'gallery_order.*.sort_order' => [
+                'required',
+                'integer',
+                'min:0',
+            ],
+
             /* Footer */
 
             'show_footer' => [
@@ -587,9 +562,21 @@ class PortfolioSettingsController extends Controller
             ],
         ]);
 
-        /*Cover Image*/
+        /* Cover Image */
 
         if ($request->hasFile('cover_image')) {
+            $moderation = $imageModerationService->check(
+                $request->file('cover_image'),
+            );
+
+            if (!$moderation['allowed']) {
+                return back()
+                    ->withErrors([
+                        'cover_image' => $moderation['message'],
+                    ])
+                    ->withInput();
+            }
+
             $oldCoverImage = $profile->cover_image;
 
             $newCoverImage = $request
@@ -620,6 +607,7 @@ class PortfolioSettingsController extends Controller
         }
 
         /* Portfolio Settings */
+
         $settings = $profile->portfolioSettings;
 
         abort_unless($settings, 404);
@@ -627,6 +615,18 @@ class PortfolioSettingsController extends Controller
         /* Footer Logo */
 
         if ($request->hasFile('footer_logo')) {
+            $moderation = $imageModerationService->check(
+                $request->file('footer_logo'),
+            );
+
+            if (!$moderation['allowed']) {
+                return back()
+                    ->withErrors([
+                        'footer_logo' => $moderation['message'],
+                    ])
+                    ->withInput();
+            }
+
             $oldFooterLogo = $settings->footer_logo;
 
             $newFooterLogo = $request
@@ -660,11 +660,11 @@ class PortfolioSettingsController extends Controller
         );
 
         $navigationItems = $validated['navigation_items'] ?? [];
-        $galleryImages = $validated['gallery_images'] ?? [];
+        $galleryOrder = $validated['gallery_order'] ?? [];
 
         unset(
             $validated['navigation_items'],
-            $validated['gallery_images'],
+            $validated['gallery_order'],
         );
 
         $settings->update($validated);
@@ -721,86 +721,45 @@ class PortfolioSettingsController extends Controller
             )
             ->delete();
 
-        /* Gallery */
+        /* Gallery order */
 
-        $existingGalleryImages = $settings
-            ->galleryImages()
-            ->get()
-            ->keyBy('id');
+        if (!empty($galleryOrder)) {
+            $existingGalleryImages = $settings
+                ->galleryImages()
+                ->get()
+                ->keyBy('id');
 
-        $submittedGalleryImageIds = [];
+            $submittedIds = collect($galleryOrder)
+                ->pluck('id')
+                ->values();
 
-        foreach ($galleryImages as $item) {
-            $galleryImageId = $item['id'] ?? null;
+            abort_unless(
+                $submittedIds->unique()->count() === $submittedIds->count(),
+                422,
+            );
 
-            if ($galleryImageId) {
-                $galleryImage = $existingGalleryImages->get(
-                    $galleryImageId,
-                );
+            abort_unless(
+                $submittedIds->count() === $existingGalleryImages->count(),
+                422,
+            );
 
-                abort_unless($galleryImage, 404);
-            } else {
-                $galleryImage = $settings
-                    ->galleryImages()
-                    ->make();
+            abort_unless(
+                $submittedIds->every(
+                    fn($id) => $existingGalleryImages->has($id),
+                ),
+                422,
+            );
+
+            foreach ($galleryOrder as $item) {
+                $existingGalleryImages
+                    ->get($item['id'])
+                    ->update([
+                        'sort_order' => $item['sort_order'],
+                    ]);
             }
-
-            /* Image */
-
-            if (!empty($item['image'])) {
-                $oldImage = $galleryImage->image;
-
-                $newImage = $item['image']->store(
-                    'artist-gallery',
-                    'public',
-                );
-
-                $galleryImage->image = $newImage;
-
-                if ($oldImage) {
-                    Storage::disk('public')->delete($oldImage);
-                }
-            }
-
-            $galleryImage->fill([
-                'title' => $item['title'] ?? null,
-                'caption' => $item['caption'] ?? null,
-                'alt_text' => $item['alt_text'] ?? null,
-                'sort_order' => $item['sort_order'],
-            ]);
-
-            $settings->galleryImages()->save($galleryImage);
-
-            $submittedGalleryImageIds[] = $galleryImage->id;
         }
 
-        /* Remove deleted gallery images */
-
-        $settings
-            ->galleryImages()
-            ->when(
-                !empty($submittedGalleryImageIds),
-                fn($query) => $query->whereNotIn(
-                    'id',
-                    $submittedGalleryImageIds,
-                ),
-            )
-            ->when(
-                empty($submittedGalleryImageIds),
-                fn($query) => $query,
-            )
-            ->get()
-            ->each(function ($galleryImage) {
-                if ($galleryImage->image) {
-                    Storage::disk('public')->delete(
-                        $galleryImage->image,
-                    );
-                }
-
-                $galleryImage->delete();
-            });
-
-        /*Redirect*/
+        /* Redirect */
 
         return redirect()
             ->route('portfolio.settings.edit')

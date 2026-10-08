@@ -129,6 +129,41 @@ function ProjectsIcon() {
     );
 }
 
+function GalleryIcon() {
+    return (
+        <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            className="h-4 w-4"
+            aria-hidden="true"
+        >
+            <rect
+                x="3.5"
+                y="3.5"
+                width="13"
+                height="13"
+                rx="1.5"
+                stroke="currentColor"
+                strokeWidth="1.2"
+            />
+            <circle
+                cx="7.5"
+                cy="7.5"
+                r="1.2"
+                stroke="currentColor"
+                strokeWidth="1.2"
+            />
+            <path
+                d="M4.5 14L8.5 10.5L11 12.5L13 10.5L15.5 14"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+}
+
 function MusicIcon() {
     return (
         <svg
@@ -297,6 +332,10 @@ export default function Sidebar({
         url === '/dashboard/projects' ||
         url.startsWith('/dashboard/projects/');
 
+    const isGalleryActive =
+        url === '/dashboard/gallery' ||
+        url.startsWith('/dashboard/gallery/');
+
     const isReleasesActive =
         url === '/dashboard/releases' ||
         url.startsWith('/dashboard/releases/');
@@ -310,9 +349,7 @@ export default function Sidebar({
             className={`fixed left-0 top-0 z-50 hidden h-screen shrink-0 flex-col overflow-hidden border-r border-white/[0.07] bg-[#070809]/95 backdrop-blur-2xl transition-[width] duration-300 lg:flex ${collapsed ? 'w-[76px]' : 'w-[250px]'
                 }`}
         >
-            {/* =============================================================
-                LOGO
-            ============================================================= */}
+            {/*LOGO*/}
 
             <div
                 className={`flex h-[76px] shrink-0 items-center border-b border-white/[0.07] transition-all duration-300 ${collapsed
@@ -332,9 +369,7 @@ export default function Sidebar({
                 </Link>
             </div>
 
-            {/* =============================================================
-                NAVIGATION
-            ============================================================= */}
+            {/* NAVIGATION  */}
 
             <div
                 className={`flex min-h-0 flex-1 flex-col px-3 py-8 ${collapsed
@@ -470,9 +505,41 @@ export default function Sidebar({
                                 )}
                             </Link>
 
-                            {/* =================================================
-                                MUSIC
-                            ================================================= */}
+                            {/* GALLERY */}
+
+                            <Link
+                                href="/dashboard/gallery"
+                                title={
+                                    collapsed
+                                        ? 'Gallery'
+                                        : undefined
+                                }
+                                className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
+                                    ? 'justify-center'
+                                    : 'justify-between px-4'
+                                    } ${isGalleryActive
+                                        ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                        : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                    }`}
+                            >
+                                <span className="flex items-center gap-3">
+                                    <GalleryIcon />
+
+                                    {!collapsed && (
+                                        <span>Gallery</span>
+                                    )}
+                                </span>
+
+                                {!collapsed && isGalleryActive && (
+                                    <ActiveIndicator />
+                                )}
+
+                                {collapsed && isGalleryActive && (
+                                    <CollapsedActiveIndicator />
+                                )}
+                            </Link>
+
+                            {/* MUSIC */}
 
                             <Link
                                 href="/dashboard/releases"
@@ -564,6 +631,35 @@ export default function Sidebar({
 
                                     {!collapsed && (
                                         <span>Projects</span>
+                                    )}
+                                </span>
+
+                                {!collapsed && (
+                                    <span className="flex items-center gap-1.5 text-[8px] uppercase tracking-[0.15em]">
+                                        <LockIcon />
+                                        Locked
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* GALLERY LOCKED */}
+
+                            <div
+                                title={
+                                    collapsed
+                                        ? 'Gallery — Locked'
+                                        : undefined
+                                }
+                                className={`flex cursor-not-allowed items-center rounded-xl px-3 py-3 text-sm text-zinc-700 ${collapsed
+                                    ? 'justify-center'
+                                    : 'justify-between px-4'
+                                    }`}
+                            >
+                                <span className="flex items-center gap-3">
+                                    <GalleryIcon />
+
+                                    {!collapsed && (
+                                        <span>Gallery</span>
                                     )}
                                 </span>
 

@@ -15,6 +15,7 @@ class PublicPortfolioController extends Controller
     ): Response {
         $profile = ArtistProfile::query()
             ->with([
+                'socialLinks',
                 'portfolioSettings.navigationItems',
                 'portfolioSettings.galleryImages',
 

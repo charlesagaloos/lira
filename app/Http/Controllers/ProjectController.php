@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ImageModerationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -53,8 +54,10 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
-    {
+    public function store(
+        Request $request,
+        ImageModerationService $imageModerationService,
+    ): RedirectResponse {
         $profile = $request->user()->artistProfile;
 
         abort_unless($profile, 404);
@@ -86,8 +89,6 @@ class ProjectController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:15360',
             ],
-
-            // Image positioning
             'thumbnail_position_x' => [
                 'required',
                 'numeric',
@@ -118,6 +119,18 @@ class ProjectController extends Controller
         $thumbnail = null;
 
         if ($request->hasFile('image')) {
+            $moderation = $imageModerationService->check(
+                $request->file('image'),
+            );
+
+            if (!$moderation['allowed']) {
+                return back()
+                    ->withErrors([
+                        'image' => $moderation['message'],
+                    ])
+                    ->withInput();
+            }
+
             $thumbnail = $request->file('image')->store(
                 'projects',
                 'public'
@@ -155,8 +168,11 @@ class ProjectController extends Controller
             ->with('success', 'Project created successfully.');
     }
 
-    public function update(Request $request, int $project): RedirectResponse
-    {
+    public function update(
+        Request $request,
+        int $project,
+        ImageModerationService $imageModerationService,
+    ): RedirectResponse {
         $profile = $request->user()->artistProfile;
 
         abort_unless($profile, 404);
@@ -197,13 +213,11 @@ class ProjectController extends Controller
                 'numeric',
                 'between:0,100',
             ],
-
             'thumbnail_position_y' => [
                 'required',
                 'numeric',
                 'between:0,100',
             ],
-
             'thumbnail_zoom' => [
                 'required',
                 'integer',
@@ -214,7 +228,6 @@ class ProjectController extends Controller
                 'numeric',
                 'between:-100,100',
             ],
-
             'thumbnail_offset_y' => [
                 'required',
                 'numeric',
@@ -222,12 +235,25 @@ class ProjectController extends Controller
             ],
         ]);
 
-
-
         if ($request->hasFile('image')) {
+            $moderation = $imageModerationService->check(
+                $request->file('image'),
+            );
+
+            if (!$moderation['allowed']) {
+                return back()
+                    ->withErrors([
+                        'image' => $moderation['message'],
+                    ])
+                    ->withInput();
+            }
+
             $oldThumbnail = $project->thumbnail;
 
-            $thumbnail = $request->file('image')->store('projects', 'public');
+            $thumbnail = $request->file('image')->store(
+                'projects',
+                'public'
+            );
 
             $validated['thumbnail'] = $thumbnail;
 
@@ -244,6 +270,7 @@ class ProjectController extends Controller
             ->route('projects.index', $project->id)
             ->with('success', 'Project updated successfully.');
     }
+
     public function destroy(Request $request, int $project): RedirectResponse
     {
         $profile = $request->user()->artistProfile;

@@ -2,6 +2,7 @@ import type { FormDataConvertible } from '@inertiajs/core';
 
 import {
     ChangeEvent,
+    DragEvent,
     FormEvent,
     PointerEvent,
     useEffect,
@@ -25,8 +26,6 @@ import {
 
 const SETTINGS_UI_ACCENT = '#7de7ff';
 
-const MAX_GALLERY_IMAGE_BYTES = 10 * 1024 * 1024;
-const MAX_GALLERY_REQUEST_BYTES = 50 * 1024 * 1024;
 
 interface Settings {
     /* Template */
@@ -182,8 +181,6 @@ interface GalleryImage {
     caption: string;
     alt_text: string;
     sort_order: number;
-    file?: File | null;
-    preview?: string | null;
 }
 
 interface Profile {
@@ -769,36 +766,36 @@ function DefaultWireframe({ accentColor }: { accentColor: string }) {
 
 function EditorialWireframe({ accentColor }: { accentColor: string }) {
     return (
-        <div className="overflow-hidden bg-[#f0eee8] text-[#171717]">
-            <div className="flex items-center justify-between border-b border-black/10 px-4 py-3">
+        <div className="overflow-hidden bg-[#08090b] text-white">
+            <div className="flex items-center justify-between border-b border-white px-4 py-3">
                 <span className="text-[8px] uppercase tracking-[0.35em]">ARTIST NAME</span>
-                <div className="flex gap-5 text-[6px] uppercase tracking-[0.18em] text-black/60"><span>About</span><span>Projects</span><span>Galleries</span></div>
-                <span className="text-[6px] uppercase tracking-[0.18em] text-black/50">Explore ↗</span>
+                <div className="flex gap-5 text-[6px] uppercase tracking-[0.18em] text-white"><span>About</span><span>Projects</span><span>Galleries</span></div>
+                <span className="text-[6px] uppercase tracking-[0.18em] text-white">Explore ↗</span>
             </div>
 
             <div className="grid grid-cols-[0.9fr_1.1fr] gap-5 px-5 py-6">
                 <div className="flex flex-col justify-center">
                     <WireLabel light>Musician • Manila, PH</WireLabel>
                     <div className="mt-4 text-[42px] font-light uppercase leading-[0.82] tracking-[-0.06em]">ARTIST<br />NAME</div>
-                    <p className="mt-5 max-w-[85%] text-[7px] leading-4 text-black/55">R&B Artist based in the Philippines. Creating music, visuals, and stories that connect.</p>
-                    <div className="mt-5 flex gap-5 text-[5px] uppercase tracking-[0.18em] text-black/60"><span>Spotify</span><span>YouTube</span><span>Instagram</span></div>
+                    <p className="mt-5 max-w-[85%] text-[7px] leading-4 text-white">R&B Artist based in the Philippines. Creating music, visuals, and stories that connect.</p>
+                    <div className="mt-5 flex gap-5 text-[5px] uppercase tracking-[0.18em] text-white"><span>Spotify</span><span>YouTube</span><span>Instagram</span></div>
                 </div>
 
                 <WireImage className="aspect-[1.38/1]" label="" accentColor={accentColor} light />
             </div>
 
-            <div className="border-t border-black/10 px-5 py-5">
+            <div className="border-t border-white px-5 py-5">
                 <div className="flex items-end justify-between">
                     <div>
                         <WireLabel light>Featured</WireLabel>
                         <div className="mt-2 text-[31px] font-light uppercase leading-none tracking-[-0.05em]">SELECTED WORK</div>
                     </div>
-                    <span className="text-[5px] uppercase tracking-[0.18em] text-black/50">View all ↗</span>
+                    <span className="text-[5px] uppercase tracking-[0.18em] text-white">View all ↗</span>
                 </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-3">
                     <WireImage className="col-span-2 aspect-[1.7/1]" label="FEATURED" accentColor={accentColor} light />
-                    <div className="flex flex-col justify-end border-l border-black/10 pl-3">
+                    <div className="flex flex-col justify-end border-l border-white pl-3">
                         <WireText width="w-full" strong />
                         <WireText width="w-4/5" strong />
                         <WireText width="w-2/3" />
@@ -1206,8 +1203,6 @@ export default function Settings({
             caption: image.caption ?? '',
             alt_text: image.alt_text ?? '',
             sort_order: image.sort_order ?? 0,
-            file: null,
-            preview: null,
         })),
     );
 
@@ -1246,6 +1241,9 @@ export default function Settings({
     const [footerLogo, setFooterLogo] = useState<File | null>(
         null,
     );
+
+    const [footerLogoError, setFooterLogoError] =
+        useState<string | null>(null);
 
     const [footerLogoPreview, setFooterLogoPreview] =
         useState<string | null>(
@@ -1399,36 +1397,6 @@ export default function Settings({
     const [validationErrors, setValidationErrors] = useState<
         Record<string, string>
     >({});
-
-    const [galleryUploadError, setGalleryUploadError] =
-        useState<string | null>(null);
-
-    const galleryUploadErrorRef =
-        useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        if (!galleryUploadError) {
-            return;
-        }
-
-        window.requestAnimationFrame(() => {
-            const errorElement =
-                galleryUploadErrorRef.current;
-
-            if (!errorElement) {
-                return;
-            }
-
-            errorElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-            });
-
-            errorElement.focus({
-                preventScroll: true,
-            });
-        });
-    }, [galleryUploadError]);
 
     const [activeSection, setActiveSection] =
         useState('foundation');
@@ -1876,13 +1844,13 @@ export default function Settings({
         },
         {
             name: 'Gallery',
-            primary: '#171717',
+            primary: '#f2f0eb',
             background: '#f2f0eb',
             text: '#222222',
             accent: '#111111',
             hover: '#000000',
             surface: '#ffffff',
-            mutedText: '#77736d',
+            mutedText: '#000000',
             border: '#171717',
             cardBackground: '#ffffff',
             cardText: '#555555',
@@ -2112,130 +2080,68 @@ export default function Settings({
         }
     }
 
-    function addGalleryImage() {
-        setGalleryUploadError(null);
+    const [draggingGalleryIndex, setDraggingGalleryIndex] =
+        useState<number | null>(null);
 
-        setGalleryImages((current) => [
-            ...current,
-            {
-                id: null,
-                image: null,
-                title: '',
-                caption: '',
-                alt_text: '',
-                sort_order: current.length,
-                file: null,
-                preview: null,
-            },
-        ]);
-    }
-
-    function updateGalleryImage(
-        index: number,
-        updates: Partial<GalleryImage>,
+    function reorderGalleryImages(
+        fromIndex: number,
+        toIndex: number,
     ) {
-        setGalleryImages((current) =>
-            current.map((image, imageIndex) =>
-                imageIndex === index
-                    ? {
-                        ...image,
-                        ...updates,
-                    }
-                    : image,
-            ),
-        );
-    }
+        if (
+            fromIndex === toIndex ||
+            fromIndex < 0 ||
+            toIndex < 0 ||
+            fromIndex >= galleryImages.length ||
+            toIndex >= galleryImages.length
+        ) {
+            return;
+        }
 
-    function removeGalleryImage(index: number) {
-        setGalleryUploadError(null);
 
-        setGalleryImages((current) => {
-            const image = current[index];
-
-            if (image?.preview?.startsWith('blob:')) {
-                URL.revokeObjectURL(image.preview);
-            }
-
-            return current
-                .filter(
-                    (_, imageIndex) =>
-                        imageIndex !== index,
-                )
-                .map((item, imageIndex) => ({
-                    ...item,
-                    sort_order: imageIndex,
-                }));
-        });
-    }
-
-    function moveGalleryImage(
-        index: number,
-        direction: 'up' | 'down',
-    ) {
         setGalleryImages((current) => {
             const next = [...current];
+            const [moved] = next.splice(fromIndex, 1);
 
-            const targetIndex =
-                direction === 'up'
-                    ? index - 1
-                    : index + 1;
+            next.splice(toIndex, 0, moved);
 
-            if (
-                targetIndex < 0 ||
-                targetIndex >= next.length
-            ) {
-                return current;
-            }
-
-            [
-                next[index],
-                next[targetIndex],
-            ] = [
-                    next[targetIndex],
-                    next[index],
-                ];
-
-            return next.map((image, imageIndex) => ({
+            return next.map((image, index) => ({
                 ...image,
-                sort_order: imageIndex,
+                sort_order: index,
             }));
         });
     }
 
-    function handleGalleryImageChange(
-        index: number,
-        file: File | null,
+    function handleGalleryDragStart(index: number) {
+        setDraggingGalleryIndex(index);
+    }
+
+    function handleGalleryDragOver(
+        event: DragEvent<HTMLDivElement>,
     ) {
-        if (!file) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'move';
+    }
+
+    function handleGalleryDrop(
+        event: DragEvent<HTMLDivElement>,
+        targetIndex: number,
+    ) {
+        event.preventDefault();
+
+        if (draggingGalleryIndex === null) {
             return;
         }
 
-        if (file.size > MAX_GALLERY_IMAGE_BYTES) {
-            setValidationErrors((current) => ({
-                ...current,
-                [`gallery_images.${index}.image`]:
-                    'This image is too large. Gallery images must be 10 MB or smaller.',
-            }));
+        reorderGalleryImages(
+            draggingGalleryIndex,
+            targetIndex,
+        );
 
-            return;
-        }
+        setDraggingGalleryIndex(null);
+    }
 
-        setGalleryUploadError(null);
-
-        setValidationErrors((current) => {
-            const next = { ...current };
-
-            delete next[`gallery_images.${index}.image`];
-
-            return next;
-        });
-
-        const preview = URL.createObjectURL(file);
-
-        updateGalleryImage(index, {
-            file,
-            preview,
-        });
+    function handleGalleryDragEnd() {
+        setDraggingGalleryIndex(null);
     }
 
     /* Settings Navigation */
@@ -2277,50 +2183,63 @@ export default function Settings({
         },
     ] as const;
 
+    function focusFirstError(
+        errors: Record<string, string>,
+    ) {
+        const errorKeys = Object.keys(errors);
+
+        if (errorKeys.length === 0) {
+            return;
+        }
+
+        const firstError = errorKeys[0];
+
+        let section:
+            | 'hero'
+            | 'content'
+            | 'site'
+            | null = null;
+
+        let selector: string | null = null;
+
+        if (firstError === 'cover_image') {
+            section = 'hero';
+            selector = '#cover_image';
+        } else if (firstError === 'footer_logo') {
+            section = 'site';
+            selector = '#footer_logo';
+        }
+
+        if (!selector || !section) {
+            return;
+        }
+
+        setActiveSection(section);
+
+        window.setTimeout(() => {
+            const element = document.querySelector<
+                HTMLInputElement
+            >(selector);
+
+            if (!element) {
+                return;
+            }
+
+            element.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+
+            element.focus({
+                preventScroll: true,
+            });
+        }, 50);
+    }
+
     /* Submit */
 
     function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
-        setGalleryUploadError(null);
-
-        const newGalleryFiles = galleryImages
-            .map((image) => image.file)
-            .filter((file): file is File => Boolean(file));
-
-        const oversizedGalleryImage =
-            newGalleryFiles.find(
-                (file) => file.size > MAX_GALLERY_IMAGE_BYTES,
-            );
-
-        if (oversizedGalleryImage) {
-            setGalleryUploadError(
-                'One or more gallery images are larger than 10 MB. Please replace them before saving.',
-            );
-            setSaving(false);
-            return;
-        }
-
-        const totalGalleryUploadBytes =
-            newGalleryFiles.reduce(
-                (total, file) => total + file.size,
-                0,
-            );
-
-        if (
-            totalGalleryUploadBytes >
-            MAX_GALLERY_REQUEST_BYTES
-        ) {
-            const totalMegabytes =
-                totalGalleryUploadBytes /
-                (1024 * 1024);
-
-            setGalleryUploadError(
-                `The gallery upload is too large. Your new gallery images total ${totalMegabytes.toFixed(1)} MB, but a single save request can contain up to 50 MB of images. Remove or replace some images, then save again.`,
-            );
-            setSaving(false);
-            return;
-        }
 
         setSaving(true);
 
@@ -2435,13 +2354,9 @@ export default function Settings({
                 gallery_enable_lightbox:
                     galleryEnableLightbox,
 
-                gallery_images: galleryImages.map(
+                gallery_order: galleryImages.map(
                     (image, index) => ({
                         id: image.id,
-                        image: image.file ?? null,
-                        title: image.title || null,
-                        caption: image.caption || null,
-                        alt_text: image.alt_text || null,
                         sort_order: index,
                     }),
                 ),
@@ -2478,9 +2393,18 @@ export default function Settings({
                 preserveScroll: true,
 
                 onError: (errors) => {
-                    setValidationErrors(
-                        errors as Record<string, string>,
+                    const serverErrors =
+                        errors as Record<string, string>;
+
+                    setValidationErrors(serverErrors);
+                    setCoverImageError(
+                        serverErrors.cover_image ?? null,
                     );
+                    setFooterLogoError(
+                        serverErrors.footer_logo ?? null,
+                    );
+
+                    focusFirstError(serverErrors);
                 },
 
                 onFinish: () => {
@@ -3807,48 +3731,28 @@ export default function Settings({
                                             </div>
                                         </div>
 
-                                        {/* Gallery Images */}
+                                        {/* Gallery Order */}
 
                                         <div className="border-t border-white/[0.06] pt-6">
                                             <div className="sticky top-20 z-20 -mx-2 flex flex-col gap-3 rounded-2xl border border-white/[0.07] bg-[#0a0b0d]/90 p-3 shadow-[0_16px_40px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
                                                 <div>
                                                     <div className="flex items-center gap-2">
                                                         <p className="text-sm font-medium text-zinc-200">
-                                                            Gallery Images
+                                                            Gallery Order
                                                         </p>
 
                                                         <span className="rounded-full border border-white/[0.08] bg-white/[0.035] px-2 py-0.5 text-[8px] uppercase tracking-[0.14em] text-zinc-500">
-                                                            {galleryImages.length} {galleryImages.length === 1 ? 'image' : 'images'}
+                                                            {galleryImages.length}{' '}
+                                                            {galleryImages.length === 1 ? 'image' : 'images'}
                                                         </span>
                                                     </div>
 
                                                     <p className="mt-1 text-xs leading-5 text-zinc-600">
-                                                        Upload, edit, and arrange your gallery images without losing your place.
+                                                        Drag and drop the images to set the order used on your public portfolio. Click Save Portfolio to save the new order.
                                                     </p>
                                                 </div>
 
-                                                <button
-                                                    type="button"
-                                                    onClick={addGalleryImage}
-                                                    className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-300 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
-                                                >
-                                                    Add Image
-                                                </button>
                                             </div>
-
-                                            {galleryUploadError && (
-                                                <div
-                                                    ref={galleryUploadErrorRef}
-                                                    tabIndex={-1}
-                                                    role="alert"
-                                                    aria-live="assertive"
-                                                    className="mt-4 rounded-2xl border border-red-400/20 bg-red-400/[0.06] px-4 py-3 outline-none focus:ring-2 focus:ring-red-400/30"
-                                                >
-                                                    <p className="text-xs leading-5 text-red-200">
-                                                        {galleryUploadError}
-                                                    </p>
-                                                </div>
-                                            )}
 
                                             {galleryImages.length === 0 ? (
                                                 <div className="mt-4 rounded-2xl border border-dashed border-white/[0.08] bg-black/20 px-5 py-10 text-center">
@@ -3856,324 +3760,64 @@ export default function Settings({
                                                         No gallery images yet.
                                                     </p>
 
-                                                    <p className="mt-1 text-xs text-zinc-600">
-                                                        Add your first image to start building your
-                                                        gallery.
+                                                    <p className="mt-1 text-xs leading-5 text-zinc-600">
+                                                        Add images from the Gallery page first.
                                                     </p>
+
+                                                    <Link href="/dashboard/gallery/create" className="mt-4 inline-flex rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-300 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white">
+                                                        Add Image
+                                                    </Link>
                                                 </div>
                                             ) : (
-                                                <div className="mt-4 grid gap-4 lg:grid-cols-2">
+                                                <div className="mt-4 space-y-3">
                                                     {galleryImages.map((image, index) => {
-                                                        const imagePreview =
-                                                            image.preview ??
-                                                            getImageUrl(image.image);
+                                                        const imagePreview = getImageUrl(image.image);
+                                                        const isDragging = draggingGalleryIndex === index;
 
                                                         return (
                                                             <div
-                                                                key={
-                                                                    image.id ??
-                                                                    `gallery-${index}`
-                                                                }
-                                                                className="h-full rounded-2xl border border-white/[0.07] bg-black/20 p-4"
+                                                                key={image.id ?? `gallery-${index}`}
+                                                                draggable
+                                                                onDragStart={() => handleGalleryDragStart(index)}
+                                                                onDragOver={handleGalleryDragOver}
+                                                                onDrop={(event) => handleGalleryDrop(event, index)}
+                                                                onDragEnd={handleGalleryDragEnd}
+                                                                className={`flex cursor-grab items-center gap-4 rounded-2xl border bg-black/20 p-3 transition active:cursor-grabbing sm:p-4 ${isDragging ? 'border-white/20 opacity-40' : 'border-white/[0.07] hover:border-white/[0.12]'}`}
                                                             >
-                                                                <div className="flex flex-col gap-5">
-                                                                    {/* Header */}
+                                                                <div className="flex h-10 w-8 shrink-0 items-center justify-center text-zinc-600" aria-hidden="true">
+                                                                    <span className="text-lg leading-none">⋮⋮</span>
+                                                                </div>
 
-                                                                    <div className="flex items-start justify-between gap-4">
-                                                                        <div>
-                                                                            <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-600">
-                                                                                Image{' '}
-                                                                                {String(
-                                                                                    index + 1,
-                                                                                ).padStart(
-                                                                                    2,
-                                                                                    '0',
-                                                                                )}
-                                                                            </p>
-
-                                                                            <p className="mt-1 text-sm font-medium text-zinc-200">
-                                                                                {image.title ||
-                                                                                    'Untitled Image'}
-                                                                            </p>
+                                                                <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-white/[0.08] bg-black/40 sm:h-20 sm:w-20">
+                                                                    {imagePreview ? (
+                                                                        <img src={imagePreview} alt={image.alt_text || ''} className="h-full w-full object-cover" />
+                                                                    ) : (
+                                                                        <div className="flex h-full items-center justify-center text-[8px] uppercase tracking-[0.12em] text-zinc-700">
+                                                                            No image
                                                                         </div>
+                                                                    )}
+                                                                </div>
 
-                                                                        <div className="flex items-center gap-1">
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() =>
-                                                                                    moveGalleryImage(
-                                                                                        index,
-                                                                                        'up',
-                                                                                    )
-                                                                                }
-                                                                                disabled={
-                                                                                    index ===
-                                                                                    0
-                                                                                }
-                                                                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] text-zinc-500 transition hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-                                                                                aria-label="Move image up"
-                                                                            >
-                                                                                ↑
-                                                                            </button>
+                                                                <div className="min-w-0 flex-1">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-[9px] uppercase tracking-[0.16em] text-zinc-600">
+                                                                            {String(index + 1).padStart(2, '0')}
+                                                                        </span>
 
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() =>
-                                                                                    moveGalleryImage(
-                                                                                        index,
-                                                                                        'down',
-                                                                                    )
-                                                                                }
-                                                                                disabled={
-                                                                                    index ===
-                                                                                    galleryImages.length -
-                                                                                    1
-                                                                                }
-                                                                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] text-zinc-500 transition hover:border-white/20 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-                                                                                aria-label="Move image down"
-                                                                            >
-                                                                                ↓
-                                                                            </button>
-
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() =>
-                                                                                    removeGalleryImage(
-                                                                                        index,
-                                                                                    )
-                                                                                }
-                                                                                className="flex h-8 w-8 items-center justify-center rounded-lg border border-red-400/10 text-red-300/60 transition hover:border-red-400/25 hover:bg-red-500/5 hover:text-red-300"
-                                                                                aria-label="Remove gallery image"
-                                                                            >
-                                                                                ×
-                                                                            </button>
-                                                                        </div>
+                                                                        <p className="truncate text-sm font-medium text-zinc-200">
+                                                                            {image.title || 'Untitled Image'}
+                                                                        </p>
                                                                     </div>
 
-                                                                    {/* Image */}
+                                                                    {image.caption && (
+                                                                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-zinc-600">
+                                                                            {image.caption}
+                                                                        </p>
+                                                                    )}
 
-                                                                    <div className="grid gap-5 lg:grid-cols-[220px_1fr]">
-                                                                        <div className="space-y-3">
-                                                                            <div className="relative aspect-square overflow-hidden rounded-xl border border-white/[0.08] bg-black/40">
-                                                                                {imagePreview ? (
-                                                                                    <img
-                                                                                        src={
-                                                                                            imagePreview
-                                                                                        }
-                                                                                        alt={
-                                                                                            image.alt_text ||
-                                                                                            ''
-                                                                                        }
-                                                                                        className="h-full w-full object-cover"
-                                                                                    />
-                                                                                ) : (
-                                                                                    <div className="flex h-full items-center justify-center px-5 text-center">
-                                                                                        <div>
-                                                                                            <p className="text-[9px] uppercase tracking-[0.18em] text-zinc-600">
-                                                                                                No image
-                                                                                            </p>
-
-                                                                                            <p className="mt-2 text-xs leading-5 text-zinc-700">
-                                                                                                Choose an image
-                                                                                                below.
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                )}
-                                                                            </div>
-
-                                                                            <label
-                                                                                className="flex cursor-pointer items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3 text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-400 transition hover:border-white/20 hover:bg-white/[0.05] hover:text-white"
-                                                                            >
-                                                                                {imagePreview
-                                                                                    ? 'Change Image'
-                                                                                    : 'Choose Image'}
-
-                                                                                <input
-                                                                                    type="file"
-                                                                                    accept="image/jpeg,image/png,image/webp,image/gif"
-                                                                                    onChange={(
-                                                                                        event,
-                                                                                    ) => {
-                                                                                        handleGalleryImageChange(
-                                                                                            index,
-                                                                                            event
-                                                                                                .target
-                                                                                                .files?.[0] ??
-                                                                                            null,
-                                                                                        );
-
-                                                                                        event.target.value =
-                                                                                            '';
-                                                                                    }}
-                                                                                    className="sr-only"
-                                                                                />
-                                                                            </label>
-
-                                                                            <p className="text-center text-[10px] leading-4 text-zinc-700">
-                                                                                JPG, PNG, WEBP, or GIF ·
-                                                                                Maximum 10 MB
-                                                                            </p>
-
-                                                                            {validationErrors[
-                                                                                `gallery_images.${index}.image`
-                                                                            ] && (
-                                                                                <p className="mt-2 text-center text-xs leading-5 text-red-300">
-                                                                                    {validationErrors[
-                                                                                        `gallery_images.${index}.image`
-                                                                                    ]}
-                                                                                </p>
-                                                                            )}
-                                                                        </div>
-
-                                                                        {/* Metadata */}
-
-                                                                        <div className="space-y-4">
-                                                                            <div>
-                                                                                <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
-                                                                                    Title
-                                                                                </label>
-
-                                                                                <input
-                                                                                    type="text"
-                                                                                    value={
-                                                                                        image.title
-                                                                                    }
-                                                                                    onChange={(
-                                                                                        event,
-                                                                                    ) =>
-                                                                                        updateGalleryImage(
-                                                                                            index,
-                                                                                            {
-                                                                                                title: event
-                                                                                                    .target
-                                                                                                    .value,
-                                                                                            },
-                                                                                        )
-                                                                                    }
-                                                                                    placeholder="Untitled"
-                                                                                    maxLength={
-                                                                                        255
-                                                                                    }
-                                                                                    className="h-12 w-full rounded-xl border border-white/[0.08] bg-black/30 px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20 focus:bg-white/[0.035]"
-                                                                                />
-                                                                            </div>
-
-                                                                            <div>
-                                                                                <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
-                                                                                    Caption
-                                                                                </label>
-
-                                                                                <textarea
-                                                                                    value={
-                                                                                        image.caption
-                                                                                    }
-                                                                                    onChange={(
-                                                                                        event,
-                                                                                    ) => {
-                                                                                        updateGalleryImage(
-                                                                                            index,
-                                                                                            {
-                                                                                                caption:
-                                                                                                    event
-                                                                                                        .target
-                                                                                                        .value,
-                                                                                            },
-                                                                                        );
-
-                                                                                        setValidationErrors(
-                                                                                            (current) => {
-                                                                                                const next = {
-                                                                                                    ...current,
-                                                                                                };
-
-                                                                                                delete next[
-                                                                                                    `gallery_images.${index}.caption`
-                                                                                                ];
-
-                                                                                                return next;
-                                                                                            },
-                                                                                        );
-                                                                                    }}
-                                                                                    placeholder="A short description of this image."
-                                                                                    rows={3}
-                                                                                    className={`w-full resize-none rounded-xl border bg-black/30 px-4 py-3 text-sm text-zinc-300 outline-none transition focus:bg-white/[0.035] ${validationErrors[
-                                                                                            `gallery_images.${index}.caption`
-                                                                                        ]
-                                                                                            ? 'border-red-400/50 focus:border-red-400/70'
-                                                                                            : 'border-white/[0.08] focus:border-white/20'
-                                                                                        }`}
-                                                                                />
-
-                                                                                <div className="mt-2 flex items-start justify-between gap-3">
-                                                                                    {validationErrors[
-                                                                                        `gallery_images.${index}.caption`
-                                                                                    ] ? (
-                                                                                        <p className="text-xs leading-5 text-red-300">
-                                                                                            {
-                                                                                                validationErrors[
-                                                                                                    `gallery_images.${index}.caption`
-                                                                                                ].replace(
-                                                                                                    /^The gallery_images\.\d+\.caption field /,
-                                                                                                    'The field ',
-                                                                                                )
-                                                                                            }
-                                                                                        </p>
-                                                                                    ) : (
-                                                                                        <p className="text-[10px] leading-4 text-zinc-600">
-                                                                                            Maximum 500 characters.
-                                                                                        </p>
-                                                                                    )}
-
-                                                                                    <span
-                                                                                        className={`shrink-0 text-[10px] ${image.caption.length > 500
-                                                                                                ? 'text-red-300'
-                                                                                                : 'text-zinc-600'
-                                                                                            }`}
-                                                                                    >
-                                                                                        {image.caption.length}/500
-                                                                                    </span>
-                                                                                </div>
-                                                                            </div>
-
-                                                                            <div>
-                                                                                <label className="mb-2 block text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-400">
-                                                                                    Alt Text
-                                                                                </label>
-
-                                                                                <input
-                                                                                    type="text"
-                                                                                    value={
-                                                                                        image.alt_text
-                                                                                    }
-                                                                                    onChange={(
-                                                                                        event,
-                                                                                    ) =>
-                                                                                        updateGalleryImage(
-                                                                                            index,
-                                                                                            {
-                                                                                                alt_text:
-                                                                                                    event
-                                                                                                        .target
-                                                                                                        .value,
-                                                                                            },
-                                                                                        )
-                                                                                    }
-                                                                                    placeholder="Describe the image for accessibility"
-                                                                                    maxLength={
-                                                                                        255
-                                                                                    }
-                                                                                    className="h-12 w-full rounded-xl border border-white/[0.08] bg-black/30 px-4 text-sm text-zinc-300 outline-none transition focus:border-white/20 focus:bg-white/[0.035]"
-                                                                                />
-
-                                                                                <p className="mt-2 text-xs leading-5 text-zinc-600">
-                                                                                    Recommended for
-                                                                                    accessibility and
-                                                                                    search engines.
-                                                                                </p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
+                                                                    <p className="mt-2 text-[9px] uppercase tracking-[0.14em] text-zinc-700">
+                                                                        Drag to reorder
+                                                                    </p>
                                                                 </div>
                                                             </div>
                                                         );
@@ -4186,7 +3830,7 @@ export default function Settings({
                             </GlassSection>
                         )}
 
-                        {/* Music */}
+{/* Music */}
 
                         {activeSection === 'media' && (
                             <GlassSection
@@ -4877,12 +4521,14 @@ export default function Settings({
                                         </label>
 
                                         <input
-                                            type="file"
+                                            id="footer_logo"
+                                                                            type="file"
                                             accept="image/jpeg,image/png,image/webp"
                                             onChange={(event) => {
                                                 const file = event.target.files?.[0] ?? null;
 
-                                                setFooterLogo(file);
+                                                setFooterLogoError(null);
+                                                                                        setFooterLogo(file);
                                                 setRemoveFooterLogo(false);
 
                                                 if (file) {
@@ -4919,6 +4565,12 @@ export default function Settings({
                                         <p className="mt-2 text-xs text-white/40">
                                             Optional. Upload a logo to display in the footer.
                                         </p>
+
+                                        {footerLogoError && (
+                                            <p className="mt-2 text-xs leading-5 text-red-400">
+                                                {footerLogoError}
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div>
