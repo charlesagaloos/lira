@@ -2,8 +2,10 @@ import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
 interface User {
+    id: number;
     name: string;
     email: string;
+    is_admin: boolean;
 }
 
 interface Profile {
@@ -431,11 +433,10 @@ export default function Header({
 
     return (
         <header
-            className={`fixed right-0 top-0 z-40 w-full border-b border-white/[0.07] bg-[#050607]/90 backdrop-blur-xl transition-[left] duration-300 lg:w-auto ${
-                sidebarCollapsed
+            className={`fixed right-0 top-0 z-40 w-full border-b border-white/[0.07] bg-[#050607]/90 backdrop-blur-xl transition-[left] duration-300 lg:w-auto ${sidebarCollapsed
                     ? 'lg:left-[76px]'
                     : 'lg:left-[250px]'
-            }`}
+                }`}
         >
             {/* =============================================================
                 HEADER BAR
@@ -798,6 +799,27 @@ export default function Header({
                     </div>
 
                     {/* Settings */}
+
+                    {/* Admin Dashboard */}
+                    {auth.user.is_admin && (
+                        <Link
+                            href="/dashboard/admin"
+                            onClick={closeMobileMenu}
+                            className={`mb-1 flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${url.startsWith('/dashboard/admin')
+                                    ? 'border-white/[0.10] bg-white/[0.055] text-white'
+                                    : 'border-transparent text-zinc-400 hover:bg-white/[0.035] hover:text-zinc-200'
+                                }`}
+                        >
+                            <span className="text-sm">Admin Dashboard</span>
+
+                            {url.startsWith('/dashboard/admin') ? (
+                                <ActiveIndicator />
+                            ) : (
+                                <ArrowIcon />
+                            )}
+                        </Link>
+                    )}
+
 
                     <div className="flex min-h-[48px] items-center justify-between rounded-xl px-4 text-zinc-700">
                         <span className="text-sm">

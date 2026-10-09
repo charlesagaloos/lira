@@ -11,9 +11,15 @@ interface Profile {
     display_name: string;
     verification_status: string;
 }
+interface User {
+    is_admin: boolean;
+}
 
 interface PageProps {
     profile: Profile | null;
+    auth: {
+        user: User;
+    };
 }
 
 interface SidebarProps {
@@ -261,6 +267,31 @@ function SettingsIcon() {
     );
 }
 
+function AdminIcon() {
+    return (
+        <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            className="h-4 w-4"
+            aria-hidden="true"
+        >
+            <path
+                d="M10 2.75L16 5V9.5C16 13.25 13.65 16.25 10 17.25C6.35 16.25 4 13.25 4 9.5V5L10 2.75Z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M7.25 10L9 11.75L12.75 8"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+}
+
 /*
 |--------------------------------------------------------------------------
 | ACTIVE INDICATOR
@@ -301,8 +332,9 @@ export default function Sidebar({
     collapsed,
     onToggle,
 }: SidebarProps) {
-    const { profile } = usePage().props as unknown as PageProps;
+    const { profile, auth } = usePage().props as unknown as PageProps;
     const { url } = usePage();
+    const isAdmin = Boolean(auth?.user?.is_admin);
 
     /*
     |--------------------------------------------------------------------------
@@ -753,6 +785,40 @@ export default function Sidebar({
                 )}
 
                 <nav className="mt-4">
+                    {isAdmin && (
+                        <Link
+                            href="/dashboard/admin"
+                            title={collapsed ? 'Admin Dashboard' : undefined}
+                            className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
+                                    ? 'justify-center'
+                                    : 'justify-between px-4'
+                                } ${url === '/dashboard/admin' ||
+                                    url.startsWith('/dashboard/admin/')
+                                    ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                    : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                }`}
+                        >
+                            <span className="flex items-center gap-3">
+                                <AdminIcon />
+
+                                {!collapsed && (
+                                    <span>Admin Dashboard</span>
+                                )}
+                            </span>
+
+                            {!collapsed &&
+                                (url === '/dashboard/admin' ||
+                                    url.startsWith('/dashboard/admin/')) && (
+                                    <ActiveIndicator />
+                                )}
+
+                            {collapsed &&
+                                (url === '/dashboard/admin' ||
+                                    url.startsWith('/dashboard/admin/')) && (
+                                    <CollapsedActiveIndicator />
+                                )}
+                        </Link>
+                    )}
                     <div
                         title={
                             collapsed

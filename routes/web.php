@@ -12,6 +12,7 @@ use App\Http\Controllers\PublicProjectController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PortfolioSettingsController;
 use App\Http\Controllers\ReleaseController;
+use App\Http\Controllers\Admin\ArtistController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,26 @@ Route::post('/dashboard/admin/verifications/{profile}/verify', [ArtistVerificati
 Route::post('/dashboard/admin/verifications/{profile}/reject', [ArtistVerificationController::class, 'reject'])
     ->middleware(['auth', 'verified', 'admin'])
     ->name('admin.verifications.reject');
+
+Route::get('/dashboard/admin/artists', [ArtistController::class, 'index'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('admin.artists.index');
+
+Route::get('/dashboard/admin/artists/{profile}', [ArtistController::class, 'show'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('admin.artists.show');
+
+Route::get('/dashboard/admin/artists/{profile}/edit', [ArtistController::class, 'edit'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('admin.artists.edit');
+
+Route::put('/dashboard/admin/artists/{user}', [ArtistController::class, 'update'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('admin.artists.update');
+
+Route::delete('/dashboard/admin/artists/{user}', [ArtistController::class, 'destroy'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('admin.artists.destroy');
 
 Route::post('/dashboard/portfolio/publish', [PortfolioController::class, 'publish'])
     ->middleware(['auth', 'verified', 'verified.artist'])

@@ -76,6 +76,7 @@ type AvatarImageProps = {
     zoom?: number;
     positionX?: number;
     positionY?: number;
+    onError?: () => void;
 };
 
 export default function AvatarImage({
@@ -85,6 +86,7 @@ export default function AvatarImage({
     zoom = 1,
     positionX = 50,
     positionY = 50,
+    onError,
 }: AvatarImageProps) {
     const imageRef = useRef<HTMLImageElement | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -151,6 +153,7 @@ export default function AvatarImage({
                 ref={imageRef}
                 src={src}
                 alt={alt}
+                onError={onError}
                 className={className}
                 draggable={false}
                 style={{
