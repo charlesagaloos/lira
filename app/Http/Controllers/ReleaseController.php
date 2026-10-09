@@ -41,9 +41,25 @@ class ReleaseController extends Controller
 
     public function create(Request $request): Response
     {
-        abort_unless($request->user()->artistProfile, 404);
+        $profile = $request->user()->artistProfile;
+        abort_unless($profile, 404);
+        $settings = $profile->portfolioSettings;
 
-        return Inertia::render('Releases/Create');
+        abort_unless($settings, 404);
+
+        return Inertia::render('Releases/Create', [
+            'profile' => $profile->only([
+                'id',
+                'username',
+                'avatar',
+                'avatar_zoom',
+                'avatar_position_x',
+                'avatar_position_y',
+                'display_name',
+                'verification_status',
+                'is_published',
+            ]),
+        ]);
     }
 
     public function store(
@@ -146,9 +162,28 @@ class ReleaseController extends Controller
 
     public function edit(Request $request, Release $release): Response
     {
+        $profile = auth()->user()->artistProfile;
+
+        abort_unless($profile, 404);
+
+        $settings = $profile->portfolioSettings;
+
+        abort_unless($settings, 404);
+
         $this->ensureOwnership($request, $release);
 
         return Inertia::render('Releases/Edit', [
+            'profile' => $profile->only([
+                'id',
+                'username',
+                'avatar',
+                'avatar_zoom',
+                'avatar_position_x',
+                'avatar_position_y',
+                'display_name',
+                'verification_status',
+                'is_published',
+            ]),
             'release' => $release,
         ]);
     }

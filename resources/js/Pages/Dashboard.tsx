@@ -1,4 +1,4 @@
-import { Link } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import DashboardLayout from '../Components/Dashboard/d_layout';
@@ -26,6 +26,7 @@ interface Profile {
     avatar_position_x: number;
     avatar_position_y: number;
     verification_status: string;
+    rejection_reason: string | null;
     is_published: boolean;
     portfolio_views_count: number;
 }
@@ -304,11 +305,7 @@ export default function Dashboard({ profile, projects }: Props) {
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PROFILE STATUS
-    |--------------------------------------------------------------------------
-    */
+    /* PROFILE STATUS */
 
     const verificationStatus =
         profile.verification_status.toLowerCase();
@@ -317,11 +314,45 @@ export default function Dashboard({ profile, projects }: Props) {
     const isRejected = verificationStatus === 'rejected';
     const avatarUrl = getImageUrl(profile.avatar);
 
-    /*
-    |--------------------------------------------------------------------------
-    | EXISTING ARTIST
-    |--------------------------------------------------------------------------
-    */
+    const [isResubmitting, setIsResubmitting] = useState(false);
+
+    const resubmitForVerification = () => {
+        if (!isRejected || isResubmitting) return;
+
+        setIsResubmitting(true);
+
+        router.post('/dashboard/profile/resubmit', {}, {
+            preserveScroll: true,
+            onFinish: () => {
+                setIsResubmitting(false);
+            },
+        });
+    };
+
+    const [isPublishing, setIsPublishing] = useState(false);
+
+    const page = usePage();
+
+    const flash = page.props.flash as
+        | { success?: string; error?: string }
+        | undefined;
+
+    const publishPortfolio = () => {
+        if (!isVerified || profile.is_published || isPublishing) {
+            return;
+        }
+
+        setIsPublishing(true);
+
+        router.post('/dashboard/portfolio/publish', {}, {
+            preserveScroll: true,
+            onFinish: () => {
+                setIsPublishing(false);
+            },
+        });
+    };
+
+    /* EXISTING ARTIST */
 
     return (
         <DashboardLayout>
@@ -428,10 +459,7 @@ export default function Dashboard({ profile, projects }: Props) {
                     </div>
                 </GlassPanel>
 
-                {/* =========================================================
-                    VERIFICATION STATUS
-                ========================================================== */}
-
+                {/* VERIFICATION STATUS */}
                 {!isVerified && (
                     <GlassPanel className="mt-5">
                         <div className="relative p-6 sm:p-8">
@@ -442,42 +470,68 @@ export default function Dashboard({ profile, projects }: Props) {
                                     }`}
                             />
 
-                            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                                <div>
+                            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                                <div className="min-w-0 flex-1">
                                     <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">
                                         Artist Verification
                                     </p>
 
-                                    <h2 className="mt-3 text-lg font-medium">
+                                    <h2 className="mt-3 text-lg font-medium text-white">
                                         {isRejected
                                             ? 'Your profile needs attention.'
                                             : 'Your artist profile is under review.'}
                                     </h2>
 
-                                    <p className="mt-2 max-w-2xl text-xs leading-5 text-zinc-600">
+                                    <p className="mt-2 max-w-2xl text-xs leading-5 text-zinc-500">
                                         {isRejected
-                                            ? 'Review your profile information and update anything that may be required before requesting verification again.'
-                                            : 'Once your artist profile has been reviewed and verified, your portfolio tools will become available.'}
+                                            ? 'Review the feedback below, make any necessary corrections, and resubmit your profile for another review.'
+                                            : 'Your artist profile is awaiting review. You will be able to access your portfolio tools once your identity is verified.'}
                                     </p>
+
+                                    {isRejected && (
+                                        <div className="mt-5 rounded-xl border border-rose-400/15 bg-rose-400/[0.04] p-4">
+                                            <p className="text-[9px] uppercase tracking-[0.2em] text-rose-300">
+                                                Feedback from LIRA
+                                            </p>
+
+                                            <p className="mt-3 whitespace-pre-line break-words text-sm leading-6 text-zinc-300">
+                                                {profile.rejection_reason?.trim() ||
+                                                    'No specific reason was provided. Please review your artist profile before resubmitting.'}
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
 
-                                <Link
-                                    href="/dashboard/profile"
-                                    className="inline-flex shrink-0 items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-xs text-zinc-400 transition hover:border-white/20 hover:text-white"
-                                >
-                                    {isRejected
-                                        ? 'Review Profile'
-                                        : 'View Profile'}
-                                    <ArrowRight />
-                                </Link>
+                                <div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col">
+                                    <Link
+                                        href="/dashboard/profile/edit"
+                                        className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-xs text-zinc-300 transition hover:border-white/20 hover:text-white"
+                                    >
+                                        {isRejected ? 'Edit Profile' : 'View Profile'}
+                                        <ArrowRight />
+                                    </Link>
+
+                                    {isRejected && (
+                                        <button
+                                            type="button"
+                                            onClick={resubmitForVerification}
+                                            disabled={isResubmitting}
+                                            className="inline-flex items-center justify-center gap-2 rounded-full border border-[#35dfff]/25 bg-[#35dfff]/[0.08] px-5 py-2.5 text-xs font-medium text-[#8ceeff] transition hover:bg-[#35dfff]/[0.14] disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {isResubmitting
+                                                ? 'Resubmitting...'
+                                                : 'Resubmit for Verification'}
+                                            <ArrowRight />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </GlassPanel>
                 )}
 
-                {/* =========================================================
-                    STATS
-                ========================================================= */}
+
+                {/* STATS */}
 
                 <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
 
@@ -1181,14 +1235,11 @@ export default function Dashboard({ profile, projects }: Props) {
                     </div>
                 </div>
 
-                {/* =========================================================
-                    PORTFOLIO ACTION
-                ========================================================== */}
 
+                {/* PORTFOLIO ACTION */}
                 {isVerified && (
                     <GlassPanel className="mt-14">
                         <div className="relative overflow-hidden p-8 sm:p-10">
-                            {/* Chrome reflection */}
                             <div className="pointer-events-none absolute right-0 top-0 h-px w-[55%] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent)]" />
 
                             <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
@@ -1197,28 +1248,69 @@ export default function Dashboard({ profile, projects }: Props) {
                                         Your Space
                                     </p>
 
-                                    <h2 className="mt-3 text-2xl font-light tracking-[-0.04em]">
-                                        Shape your portfolio.
+                                    <h2 className="mt-3 text-2xl font-light tracking-[-0.04em] text-white">
+                                        {profile.is_published
+                                            ? 'Your portfolio is live.'
+                                            : 'Ready to share your world?'}
                                     </h2>
 
                                     <p className="mt-3 max-w-xl text-xs leading-5 text-zinc-600">
-                                        Customize the visual identity of your
-                                        portfolio and make it feel
-                                        unmistakably yours.
+                                        {profile.is_published
+                                            ? 'Your creative portfolio is publicly accessible. Visit it to see how your work appears to visitors.'
+                                            : 'When you publish, visitors will be able to access your portfolio using your public artist URL.'}
                                     </p>
+
+                                    {flash?.success && (
+                                        <p role="status" className="mt-4 text-xs text-emerald-300">
+                                            {flash.success}
+                                        </p>
+                                    )}
+
+                                    {flash?.error && (
+                                        <p role="alert" className="mt-4 text-xs text-rose-300">
+                                            {flash.error}
+                                        </p>
+                                    )}
                                 </div>
 
-                                <Link
-                                    href="/dashboard/portfolio/settings"
-                                    className="inline-flex shrink-0 items-center gap-3 rounded-full border border-white/10 px-6 py-3 text-xs text-zinc-400 transition hover:border-white/20 hover:text-white"
-                                >
-                                    Customize Portfolio
-                                    <ArrowRight />
-                                </Link>
+                                <div className="flex shrink-0 flex-wrap gap-3">
+                                    <Link
+                                        href="/dashboard/portfolio/settings"
+                                        className="inline-flex items-center gap-3 rounded-full border border-white/10 px-6 py-3 text-xs text-zinc-400 transition hover:border-white/20 hover:text-white"
+                                    >
+                                        Customize Portfolio
+                                        <ArrowRight />
+                                    </Link>
+
+                                    {profile.is_published ? (
+                                        <Link
+                                            href={`/@${profile.username}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-3 rounded-full bg-white px-6 py-3 text-xs font-medium text-[#08090b] transition hover:bg-zinc-200"
+                                        >
+                                            View Live Portfolio
+                                            <ArrowUpRight />
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={publishPortfolio}
+                                            disabled={isPublishing}
+                                            className="inline-flex items-center gap-3 rounded-full bg-white px-6 py-3 text-xs font-medium text-[#08090b] transition hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-50"
+                                        >
+                                            {isPublishing
+                                                ? 'Publishing...'
+                                                : 'Publish Portfolio'}
+                                            <ArrowUpRight />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </GlassPanel>
                 )}
+
             </div>
         </DashboardLayout>
     );

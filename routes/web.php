@@ -43,6 +43,10 @@ Route::put('/dashboard/profile', [ArtistProfileController::class, 'update'])
     ->middleware(['auth', 'verified'])
     ->name('profile.update');
 
+Route::post('/dashboard/profile/resubmit', [ArtistProfileController::class, 'resubmit'])
+    ->middleware('auth')
+    ->name('profile.resubmit');
+
 Route::get('/dashboard/admin', [AdminDashboardController::class, 'index'])
     ->middleware(['auth', 'verified', 'admin'])
     ->name('admin.dashboard');

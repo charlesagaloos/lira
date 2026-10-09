@@ -26,13 +26,44 @@ class GalleryController extends Controller
             ->get();
 
         return Inertia::render('Gallery/index', [
+            'profile' => $profile->only([
+                'id',
+                'username',
+                'avatar',
+                'avatar_zoom',
+                'avatar_position_x',
+                'avatar_position_y',
+                'display_name',
+                'verification_status',
+                'is_published',
+            ]),
             'galleryImages' => $galleryImages,
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Gallery/Create');
+        $profile = auth()->user()->artistProfile;
+
+        abort_unless($profile, 404);
+
+        $settings = $profile->portfolioSettings;
+
+        abort_unless($settings, 404);
+
+        return Inertia::render('Gallery/Create', [
+            'profile' => $profile->only([
+                'id',
+                'username',
+                'avatar',
+                'avatar_zoom',
+                'avatar_position_x',
+                'avatar_position_y',
+                'display_name',
+                'verification_status',
+                'is_published',
+            ]),
+        ]);
     }
 
     public function store(Request $request, ImageModerationService $imageModerationService)
@@ -110,9 +141,28 @@ class GalleryController extends Controller
 
     public function edit(PortfolioGalleryImage $galleryImage)
     {
+        $profile = auth()->user()->artistProfile;
+
+        abort_unless($profile, 404);
+
+        $settings = $profile->portfolioSettings;
+
+        abort_unless($settings, 404);
+
         $this->authorizeGalleryImage($galleryImage);
 
         return Inertia::render('Gallery/Edit', [
+            'profile' => $profile->only([
+                'id',
+                'username',
+                'avatar',
+                'avatar_zoom',
+                'avatar_position_x',
+                'avatar_position_y',
+                'display_name',
+                'verification_status',
+                'is_published',
+            ]),
             'galleryImage' => $galleryImage,
         ]);
     }

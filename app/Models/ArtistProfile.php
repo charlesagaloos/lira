@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'apple_music_artist_url',
     'verification_status',
     'verified_at',
+    'rejection_reason',
 ])]
 class ArtistProfile extends Model
 {

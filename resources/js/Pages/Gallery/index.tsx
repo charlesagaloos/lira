@@ -179,10 +179,7 @@ function GalleryCard({
     );
 }
 
-export default function Index({
-    galleryImages: initialGalleryImages,
-    flash,
-}: Props) {
+export default function Index({ galleryImages: initialGalleryImages, flash }: Props) {
     const galleryImages = [...initialGalleryImages].sort(
         (a, b) => a.sort_order - b.sort_order,
     );

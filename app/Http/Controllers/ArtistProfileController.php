@@ -311,4 +311,28 @@ class ArtistProfileController extends Controller
             ->route('profile.edit')
             ->with('success', 'Artist profile updated successfully.');
     }
+
+    public function resubmit(Request $request): RedirectResponse
+    {
+        $profile = $request->user()
+            ->artistProfile()
+            ->firstOrFail();
+
+        if ($profile->verification_status !== VerificationStatus::Rejected) {
+            return back()->withErrors([
+                'verification' => 'Only rejected profiles can be resubmitted.',
+            ]);
+        }
+
+        $profile->update([
+            'verification_status' => VerificationStatus::Pending,
+            'verified_at' => null,
+            'rejection_reason' => null,
+        ]);
+
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Your profile has been resubmitted for verification.');
+    }
+
 }
