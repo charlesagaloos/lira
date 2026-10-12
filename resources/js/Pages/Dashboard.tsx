@@ -41,11 +41,20 @@ interface Project {
     is_visible: boolean;
 }
 
+interface Onboarding {
+    profile_complete: boolean;
+    has_avatar: boolean;
+    has_showcased_work: boolean;
+    portfolio_customized: boolean;
+    portfolio_published: boolean;
+    verification_status: string;
+}
 interface Props {
     profile: Profile | null;
     projects: Project[];
+    projectCount: number;
+    onboarding: Onboarding | null;
 }
-
 
 function ChromeButton({
     href,
@@ -91,6 +100,173 @@ function GlassPanel({
         </div>
     );
 }
+
+
+function OnboardingChecklist({
+    onboarding,
+    isVerified,
+    isRejected,
+}: {
+    onboarding: Onboarding;
+    isVerified: boolean;
+    isRejected: boolean;
+}) {
+    const tasks = [
+        {
+            title: 'Complete your artist profile',
+            description: 'Add your artist name, bio, and creative identity.',
+            complete: onboarding.profile_complete,
+            href: '/dashboard/profile/edit',
+            available: true,
+        },
+        {
+            title: 'Upload a profile picture',
+            description: 'Give your artist profile a recognizable face.',
+            complete: onboarding.has_avatar,
+            href: '/dashboard/profile/edit',
+            available: true,
+        },
+        {
+            title: 'Showcase your first work',
+            description: 'Add a creative project or a music release.',
+            complete: onboarding.has_showcased_work,
+            href: '/dashboard/projects/create',
+            available: isVerified,
+        },
+        {
+            title: 'Customize your portfolio',
+            description: 'Personalize the design and content of your space.',
+            complete: onboarding.portfolio_customized,
+            href: '/dashboard/portfolio/settings',
+            available: isVerified,
+        },
+        {
+            title: 'Publish your portfolio',
+            description: 'Make your creative space accessible to visitors.',
+            complete: onboarding.portfolio_published,
+            href: '/dashboard/portfolio/settings',
+            available: isVerified,
+        },
+    ];
+
+    const completedCount = tasks.filter((task) => task.complete).length;
+    const progress = Math.round((completedCount / tasks.length) * 100);
+
+    return (
+        <GlassPanel className="mt-6">
+            <div className="p-6 sm:p-8">
+                <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+                    <div>
+                        <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">
+                            Getting Started
+                        </p>
+
+                        <h2 className="mt-3 text-2xl font-light tracking-[-0.04em] text-white">
+                            Build your creative space.
+                        </h2>
+
+                        <p className="mt-2 max-w-xl text-xs leading-5 text-zinc-500">
+                            Follow these steps to bring your artist portfolio
+                            to life. You can work through them at your own pace.
+                        </p>
+                    </div>
+
+                    <div className="sm:text-right">
+                        <p className="text-sm text-white">
+                            {completedCount} of {tasks.length} completed
+                        </p>
+
+                        <p className="mt-1 text-[10px] text-zinc-600">
+                            {progress}% complete
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    className="mt-5 h-1 overflow-hidden rounded-full bg-white/[0.06]"
+                    role="progressbar"
+                    aria-label="Portfolio setup progress"
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={progress}
+                >
+                    <div
+                        className="h-full rounded-full bg-[linear-gradient(90deg,#35dfff,#a855f7,#f08bd7)] transition-all duration-500"
+                        style={{ width: `${progress}%` }}
+                    />
+                </div>
+
+                <div className="mt-6 divide-y divide-white/[0.06]">
+                    {tasks.map((task, index) => {
+                        const locked = !task.complete && !task.available;
+
+                        return (
+                            <div
+                                key={task.title}
+                                className="flex items-center gap-4 py-4 first:pt-0 last:pb-0"
+                            >
+                                <div
+                                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border ${task.complete
+                                        ? 'border-[#35dfff]/25 bg-[#35dfff]/[0.08] text-[#72e9ff]'
+                                        : locked
+                                            ? 'border-white/[0.06] text-zinc-700'
+                                            : 'border-white/[0.12] text-zinc-400'
+                                        }`}
+                                >
+                                    {task.complete ? (
+                                        <CheckIcon />
+                                    ) : locked ? (
+                                        <LockIcon />
+                                    ) : (
+                                        <span className="text-xs">
+                                            {String(index + 1).padStart(2, '0')}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="min-w-0 flex-1">
+                                    <p
+                                        className={`text-sm ${task.complete
+                                            ? 'text-zinc-400'
+                                            : 'text-white'
+                                            }`}
+                                    >
+                                        {task.title}
+                                    </p>
+
+                                    <p className="mt-1 text-[10px] leading-5 text-zinc-600">
+                                        {locked
+                                            ? isRejected
+                                                ? 'Available after your profile is approved again.'
+                                                : 'Available after artist verification.'
+                                            : task.description}
+                                    </p>
+                                </div>
+
+                                {!task.complete && task.available && (
+                                    <Link
+                                        href={task.href}
+                                        className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/[0.09] px-3 py-2 text-[10px] text-zinc-400 transition hover:border-white/20 hover:text-white"
+                                    >
+                                        Start
+                                        <ArrowRight className="h-3 w-3" />
+                                    </Link>
+                                )}
+
+                                {task.complete && (
+                                    <span className="shrink-0 text-[9px] uppercase tracking-[0.15em] text-[#72e9ff]/70">
+                                        Done
+                                    </span>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </GlassPanel>
+    );
+}
+
 
 function getImageUrl(path: string | null): string | null {
     if (!path) {
@@ -201,18 +377,21 @@ function DashboardAvatar({
     );
 }
 
-/*
-|--------------------------------------------------------------------------
-| Dashboard
-|--------------------------------------------------------------------------
-*/
+/*Dashboard */
 
-export default function Dashboard({ profile, projects }: Props) {
-    /*
-    |--------------------------------------------------------------------------
-    | NEW USER
-    |--------------------------------------------------------------------------
-    */
+export default function Dashboard({ profile, projects, projectCount, onboarding }: Props) {
+    /* NEW USER */
+
+
+    const [isResubmitting, setIsResubmitting] = useState(false);
+    const [isPublishing, setIsPublishing] = useState(false);
+
+    const page = usePage();
+
+    const flash = page.props.flash as
+        | { success?: string; error?: string }
+        | undefined;
+
 
     if (!profile) {
         return (
@@ -314,8 +493,6 @@ export default function Dashboard({ profile, projects }: Props) {
     const isRejected = verificationStatus === 'rejected';
     const avatarUrl = getImageUrl(profile.avatar);
 
-    const [isResubmitting, setIsResubmitting] = useState(false);
-
     const resubmitForVerification = () => {
         if (!isRejected || isResubmitting) return;
 
@@ -328,14 +505,6 @@ export default function Dashboard({ profile, projects }: Props) {
             },
         });
     };
-
-    const [isPublishing, setIsPublishing] = useState(false);
-
-    const page = usePage();
-
-    const flash = page.props.flash as
-        | { success?: string; error?: string }
-        | undefined;
 
     const publishPortfolio = () => {
         if (!isVerified || profile.is_published || isPublishing) {
@@ -530,6 +699,14 @@ export default function Dashboard({ profile, projects }: Props) {
                     </GlassPanel>
                 )}
 
+                {/* ONBOARDING CHECKLIST */}
+                {onboarding && (
+                    <OnboardingChecklist
+                        onboarding={onboarding}
+                        isVerified={isVerified}
+                        isRejected={isRejected}
+                    />
+                )}
 
                 {/* STATS */}
 
@@ -545,7 +722,7 @@ export default function Dashboard({ profile, projects }: Props) {
                             <div className="mt-5 flex items-end justify-between gap-4">
                                 <div>
                                     <span className="text-4xl font-light tracking-[-0.05em]">
-                                        {projects.length}
+                                        {projectCount.toLocaleString()}
                                     </span>
 
                                     <p className="mt-2 max-w-[180px] text-[10px] leading-4 text-zinc-600">
@@ -724,7 +901,7 @@ export default function Dashboard({ profile, projects }: Props) {
                                 ) : (
                                     <div className="relative mt-10">
                                         <p className="text-sm text-zinc-500">
-                                            Your portfolio will be visible once verified.
+                                            Your portfolio will be visible once published.
                                         </p>
                                     </div>
                                 )}
@@ -1135,48 +1312,23 @@ export default function Dashboard({ profile, projects }: Props) {
                                             </div>
                                         )}
 
-                                        {/* Public Portfolio */}
-
-                                        {isVerified ? (
-                                            <Link
-                                                href={`/@${profile.username}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="group flex items-center gap-4 rounded-2xl p-3 transition hover:bg-white/[0.035]"
-                                            >
-                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.035] text-zinc-400 transition group-hover:border-white/[0.12] group-hover:text-white">
-                                                    <GlobeIcon className="h-5 w-5" />
-                                                </div>
-
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-medium text-white">
-                                                        View Public Portfolio
-                                                    </p>
-
-                                                    <p className="mt-0.5 text-[10px] text-zinc-600">
-                                                        See how it looks to the world
-                                                    </p>
-                                                </div>
-
-                                                <ArrowUpRight className="h-4 w-4 shrink-0 text-zinc-600 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white" />
-                                            </Link>
-                                        ) : (
-                                            <div className="flex items-center gap-4 rounded-2xl p-3 opacity-40">
-                                                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.025] text-zinc-600">
-                                                    <LockIcon className="h-4 w-4" />
-                                                </div>
-
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-sm font-medium text-zinc-500">
-                                                        View Public Portfolio
-                                                    </p>
-
-                                                    <p className="mt-0.5 text-[10px] text-zinc-700">
-                                                        Available after verification
-                                                    </p>
-                                                </div>
+                                        {/* View Artist Profile */}
+                                        <Link href="/dashboard/profile" className="group flex items-center gap-4 rounded-2xl p-3 transition hover:bg-white/[0.035]">
+                                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.035] text-zinc-400 transition group-hover:border-white/[0.12] group-hover:text-white">
+                                                <UserIcon className="h-5 w-5" />
                                             </div>
-                                        )}
+
+                                            <div className="min-w-0 flex-1">
+                                                <p className="text-sm font-medium text-white">
+                                                    View Artist Profile
+                                                </p>
+
+                                                <p className="mt-0.5 text-[10px] text-zinc-600">
+                                                    Review your artist identity and profile details
+                                                </p>
+                                            </div>
+                                            <ArrowRight className="h-4 w-4 shrink-0 text-zinc-600 transition group-hover:translate-x-1 group-hover:text-white" />
+                                        </Link>
                                     </div>
                                 </div>
                             </GlassPanel>

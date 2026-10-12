@@ -145,15 +145,39 @@ class ReleaseController extends Controller
                     ->withInput();
             }
 
-            $validated['artwork'] = $request
+            $artworkPath = $request
                 ->file('artwork')
                 ->store('release-artwork', 'public');
+
+            if (!$artworkPath) {
+                return back()
+                    ->withErrors([
+                        'artwork' => 'Unable to store the artwork. Please try again.',
+                    ])
+                    ->withInput();
+            }
+
+            $validated['artwork'] = $artworkPath;
+
         }
 
         $validated['position'] =
             ($profile->releases()->max('position') ?? 0) + 1;
 
-        $profile->releases()->create($validated);
+        try {
+            $profile->releases()->create($validated);
+        } catch (\Throwable $exception) {
+            if (!empty($validated['artwork'])) {
+                try {
+                    Storage::disk('public')->delete($validated['artwork']);
+                } catch (\Throwable $cleanupException) {
+                    report($cleanupException);
+                }
+            }
+
+            throw $exception;
+        }
+
 
         return redirect()
             ->route('releases.index')
@@ -187,6 +211,7 @@ class ReleaseController extends Controller
             'release' => $release,
         ]);
     }
+
 
     public function update(
         Request $request,
@@ -257,6 +282,9 @@ class ReleaseController extends Controller
             ],
         ]);
 
+        $oldArtwork = null;
+        $newArtwork = null;
+
         if ($request->hasFile('artwork')) {
             $moderation = $imageModerationService->check(
                 $request->file('artwork'),
@@ -272,33 +300,63 @@ class ReleaseController extends Controller
 
             $oldArtwork = $release->artwork;
 
-            $validated['artwork'] = $request
-                ->file('artwork')
-                ->store('release-artwork', 'public');
+            $newArtwork = $request->file('artwork')->store(
+                'release-artwork',
+                'public',
+            );
 
-            if ($oldArtwork) {
-                Storage::disk('public')->delete($oldArtwork);
+            if (!$newArtwork) {
+                return back()
+                    ->withErrors([
+                        'artwork' => 'Unable to store the replacement artwork. Your existing artwork has been preserved.',
+                    ])
+                    ->withInput();
             }
+
+            $validated['artwork'] = $newArtwork;
+
         } else {
             unset($validated['artwork']);
         }
 
-        $release->update($validated);
+        try {
+            $release->update($validated);
+        } catch (\Throwable $exception) {
+            if ($newArtwork) {
+                try {
+                    Storage::disk('public')->delete($newArtwork);
+                } catch (\Throwable $cleanupException) {
+                    report($cleanupException);
+                }
+            }
+
+            throw $exception;
+        }
+
+        if (
+            $oldArtwork &&
+            $oldArtwork !== $release->artwork
+        ) {
+            Storage::disk('public')->delete($oldArtwork);
+        }
 
         return redirect()
             ->route('releases.index')
             ->with('success', 'Release updated successfully.');
     }
 
+
     public function destroy(Request $request, Release $release): RedirectResponse
     {
         $this->ensureOwnership($request, $release);
 
-        if ($release->artwork) {
-            Storage::disk('public')->delete($release->artwork);
-        }
+        $artwork = $release->artwork;
 
         $release->delete();
+
+        if ($artwork) {
+            Storage::disk('public')->delete($artwork);
+        }
 
         return redirect()
             ->route('releases.index')
@@ -320,10 +378,11 @@ class ReleaseController extends Controller
 
     private function ensureOwnership(Request $request, Release $release): void
     {
+        $profile = $request->user()->artistProfile;
+
         abort_unless(
-            $release->artist_profile_id ===
-            $request->user()->artistProfile?->id,
-            403
+            $profile && (int) $release->artist_profile_id === (int) $profile->id,
+            404,
         );
     }
 }

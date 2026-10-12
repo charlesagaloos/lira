@@ -8,7 +8,7 @@ LIRA is an open-source portfolio platform designed for local and independent art
 
 Instead of relying entirely on social media profiles, artists can build a dedicated portfolio that brings their work, identity, links, and contact information together in one place.
 
-## ✨ Vision
+## Vision
 
 LIRA aims to give independent artists a simple and customizable way to build their presence on the web.
 
@@ -25,7 +25,7 @@ Artists should be able to:
 - Publish a shareable public portfolio
 - Share their portfolio through social media
 
-## 🚀 Project Status
+## Project Status
 
 **Early Development**
 
@@ -33,7 +33,7 @@ LIRA is currently under active development. The initial focus is building the co
 
 Features and architecture may change as the project evolves.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Current
 
@@ -50,7 +50,7 @@ Features and architecture may change as the project evolves.
 - **Inertia.js** — Server-driven SPA architecture
 - **Tailwind CSS** — UI styling
 
-## 📋 Planned Features
+## Planned Features
 
 ### Artist Profile
 - Artist name
@@ -98,7 +98,7 @@ Features and architecture may change as the project evolves.
 - Digital products
 - Marketplace functionality
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```text
 lira/

@@ -3819,7 +3819,7 @@ export default function MusicianTemplate({
                                         className="block text-[7px] uppercase tracking-[0.2em]"
                                         style={{
                                             color:
-                                                settings.muted_text_color,
+                                                settings.text_color,
                                         }}
                                     >
                                         Releases
@@ -3845,7 +3845,7 @@ export default function MusicianTemplate({
                                         className="block text-[7px] uppercase tracking-[0.2em]"
                                         style={{
                                             color:
-                                                settings.muted_text_color,
+                                                settings.text_color,
                                         }}
                                     >
                                         Work
@@ -3865,7 +3865,7 @@ export default function MusicianTemplate({
                                         className="block text-[7px] uppercase tracking-[0.2em]"
                                         style={{
                                             color:
-                                                settings.muted_text_color,
+                                                settings.text_color,
                                         }}
                                     >
                                         Base

@@ -133,8 +133,16 @@ class ProjectController extends Controller
 
             $thumbnail = $request->file('image')->store(
                 'projects',
-                'public'
+                'public',
             );
+
+            if (!$thumbnail) {
+                return back()
+                    ->withErrors([
+                        'image' => 'Unable to store the uploaded image. Please try again.',
+                    ])
+                    ->withInput();
+            }
         }
 
         unset($validated['image']);
@@ -155,13 +163,25 @@ class ProjectController extends Controller
 
         $position = ($profile->projects()->max('position') ?? 0) + 1;
 
-        $profile->projects()->create([
-            ...$validated,
-            'thumbnail' => $thumbnail,
-            'slug' => $slug,
-            'position' => $position,
-            'is_visible' => true,
-        ]);
+        try {
+            $profile->projects()->create([
+                ...$validated,
+                'thumbnail' => $thumbnail,
+                'slug' => $slug,
+                'position' => $position,
+                'is_visible' => true,
+            ]);
+        } catch (\Throwable $exception) {
+            if ($thumbnail) {
+                try {
+                    Storage::disk('public')->delete($thumbnail);
+                } catch (\Throwable $cleanupException) {
+                    report($cleanupException);
+                }
+            }
+
+            throw $exception;
+        }
 
         return redirect()
             ->route('projects.index')
@@ -235,6 +255,9 @@ class ProjectController extends Controller
             ],
         ]);
 
+        $oldThumbnail = null;
+        $newThumbnail = null;
+
         if ($request->hasFile('image')) {
             $moderation = $imageModerationService->check(
                 $request->file('image'),
@@ -250,24 +273,47 @@ class ProjectController extends Controller
 
             $oldThumbnail = $project->thumbnail;
 
-            $thumbnail = $request->file('image')->store(
+            $newThumbnail = $request->file('image')->store(
                 'projects',
-                'public'
+                'public',
             );
 
-            $validated['thumbnail'] = $thumbnail;
-
-            if ($oldThumbnail) {
-                Storage::disk('public')->delete($oldThumbnail);
+            if (!$newThumbnail) {
+                return back()
+                    ->withErrors([
+                        'image' => 'Unable to store the replacement image. Your existing thumbnail has been preserved.',
+                    ])
+                    ->withInput();
             }
+
+            $validated['thumbnail'] = $newThumbnail;
         }
 
         unset($validated['image']);
 
-        $project->update($validated);
+        try {
+            $project->update($validated);
+        } catch (\Throwable $exception) {
+            if ($newThumbnail) {
+                try {
+                    Storage::disk('public')->delete($newThumbnail);
+                } catch (\Throwable $cleanupException) {
+                    report($cleanupException);
+                }
+            }
+
+            throw $exception;
+        }
+
+        if (
+            $oldThumbnail &&
+            $oldThumbnail !== $project->thumbnail
+        ) {
+            Storage::disk('public')->delete($oldThumbnail);
+        }
 
         return redirect()
-            ->route('projects.index', $project->id)
+            ->route('projects.index')
             ->with('success', 'Project updated successfully.');
     }
 
@@ -281,12 +327,19 @@ class ProjectController extends Controller
             ->where('id', $project)
             ->firstOrFail();
 
+        $thumbnail = $project->thumbnail;
+
         $project->delete();
+
+        if ($thumbnail) {
+            Storage::disk('public')->delete($thumbnail);
+        }
 
         return redirect()
             ->route('projects.index')
             ->with('success', 'Project deleted successfully.');
     }
+
 
     public function toggleVisibility(Request $request, int $project): RedirectResponse
     {

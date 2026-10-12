@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Services\ImageModerationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
+use Throwable;
 
 class PortfolioSettingsController extends Controller
 {
@@ -22,7 +25,6 @@ class PortfolioSettingsController extends Controller
                 'projects' => fn($query) => $query
                     ->where('is_visible', true)
                     ->orderBy('position'),
-
                 'releases' => fn($query) => $query
                     ->where('is_visible', true)
                     ->orderBy('position'),
@@ -54,11 +56,7 @@ class PortfolioSettingsController extends Controller
 
         abort_unless($profile, 404);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Validation
-        |--------------------------------------------------------------------------
-        */
+        /* Validate Input */
 
         $validated = $request->validate([
             'template' => [
@@ -78,116 +76,99 @@ class PortfolioSettingsController extends Controller
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'background_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'text_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'accent_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'hover_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'surface_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'muted_text_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'border_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'card_background_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'card_text_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'card_accent_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'card_primary_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
-
             'card_hover_color' => [
                 'required',
                 'string',
                 'regex:/^#[0-9A-Fa-f]{6}$/',
             ],
 
+            /* Cover Image */
+
             'cover_image' => [
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,gif',
-                // 'dimensions:min_width=2660,min_height=1140',
                 'max:5120',
             ],
-
             'remove_cover_image' => [
                 'nullable',
                 'boolean',
             ],
-
             'cover_image_position_x' => [
                 'required',
                 'numeric',
                 'between:0,100',
             ],
-
             'cover_image_position_y' => [
                 'required',
                 'numeric',
                 'between:0,100',
             ],
-
             'cover_image_zoom' => [
                 'required',
                 'numeric',
                 'between:1,2',
             ],
-
             'cover_image_offset_x' => [
                 'required',
                 'numeric',
                 'between:-50,50',
             ],
-
             'cover_image_offset_y' => [
                 'required',
                 'numeric',
@@ -196,74 +177,34 @@ class PortfolioSettingsController extends Controller
 
             /* Hero */
 
-            'show_hero' => [
-                'required',
-                'boolean',
-            ],
-
-            'hero_label' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'hero_statement' => [
-                'nullable',
-                'string',
-                'max:500',
-            ],
+            'show_hero' => ['required', 'boolean'],
+            'hero_label' => ['nullable', 'string', 'max:100'],
+            'hero_statement' => ['nullable', 'string', 'max:500'],
 
             /* Work */
 
-            'show_work' => [
-                'required',
-                'boolean',
-            ],
-
-            'work_label' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'work_description' => [
-                'nullable',
-                'string',
-                'max:500',
-            ],
+            'show_work' => ['required', 'boolean'],
+            'work_label' => ['nullable', 'string', 'max:100'],
+            'work_description' => ['nullable', 'string', 'max:500'],
 
             /* About */
 
-            'show_about' => [
-                'required',
-                'boolean',
-            ],
-
-            'about_label' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
+            'show_about' => ['required', 'boolean'],
+            'about_label' => ['nullable', 'string', 'max:100'],
 
             /* Artist Message */
 
-            'show_artist_message' => [
-                'required',
-                'boolean',
-            ],
-
+            'show_artist_message' => ['required', 'boolean'],
             'artist_message_label' => [
                 'nullable',
                 'string',
                 'max:100',
             ],
-
             'artist_message' => [
                 'nullable',
                 'string',
                 'max:2000',
             ],
-
             'canvas_background_text' => [
                 'nullable',
                 'string',
@@ -272,126 +213,81 @@ class PortfolioSettingsController extends Controller
 
             /* Gallery */
 
-            'show_gallery' => [
-                'required',
-                'boolean',
-            ],
-
-            'gallery_label' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
+            'show_gallery' => ['required', 'boolean'],
+            'gallery_label' => ['nullable', 'string', 'max:100'],
             'gallery_description' => [
                 'nullable',
                 'string',
                 'max:500',
             ],
-
             'gallery_display' => [
                 'required',
                 'string',
                 'in:grid,masonry,editorial,freeform',
             ],
-
             'gallery_columns' => [
                 'required',
                 'integer',
                 'between:2,5',
             ],
-
             'gallery_image_aspect' => [
                 'required',
                 'string',
                 'in:original,square,portrait,landscape',
             ],
+            'gallery_show_captions' => ['required', 'boolean'],
+            'gallery_show_titles' => ['required', 'boolean'],
+            'gallery_enable_lightbox' => ['required', 'boolean'],
 
-            'gallery_show_captions' => [
-                'required',
-                'boolean',
-            ],
+            /* Responsive Gallery */
 
-            'gallery_show_titles' => [
-                'required',
-                'boolean',
-            ],
+            'gallery_responsive' => ['required', 'array'],
 
-            'gallery_enable_lightbox' => [
-                'required',
-                'boolean',
-            ],
-
-            /* Gallery Responsive */
-
-            'gallery_responsive' => [
-                'required',
-                'array',
-            ],
-
-            'gallery_responsive.desktop' => [
-                'required',
-                'array',
-            ],
-
+            'gallery_responsive.desktop' => ['required', 'array'],
             'gallery_responsive.desktop.display' => [
                 'required',
                 'string',
                 'in:grid,masonry,editorial,freeform',
             ],
-
             'gallery_responsive.desktop.columns' => [
                 'required',
                 'integer',
                 'between:2,5',
             ],
-
             'gallery_responsive.desktop.image_aspect' => [
                 'required',
                 'string',
                 'in:original,square,portrait,landscape',
             ],
 
-            'gallery_responsive.tablet' => [
-                'required',
-                'array',
-            ],
-
+            'gallery_responsive.tablet' => ['required', 'array'],
             'gallery_responsive.tablet.display' => [
                 'required',
                 'string',
                 'in:grid,masonry,editorial,freeform',
             ],
-
             'gallery_responsive.tablet.columns' => [
                 'required',
                 'integer',
                 'between:2,4',
             ],
-
             'gallery_responsive.tablet.image_aspect' => [
                 'required',
                 'string',
                 'in:original,square,portrait,landscape',
             ],
 
-            'gallery_responsive.mobile' => [
-                'required',
-                'array',
-            ],
-
+            'gallery_responsive.mobile' => ['required', 'array'],
             'gallery_responsive.mobile.display' => [
                 'required',
                 'string',
                 'in:grid,masonry,editorial,freeform',
             ],
-
             'gallery_responsive.mobile.columns' => [
                 'required',
                 'integer',
                 'between:1,2',
             ],
-
             'gallery_responsive.mobile.image_aspect' => [
                 'required',
                 'string',
@@ -400,35 +296,18 @@ class PortfolioSettingsController extends Controller
 
             /* Music */
 
-            'music_label' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
+            'music_label' => ['nullable', 'string', 'max:100'],
 
             /* Navigation */
 
-            'show_navigation' => [
-                'required',
-                'boolean',
-            ],
-
-            'navigation_items' => [
-                'nullable',
-                'array',
-            ],
-
-            'navigation_items.*.id' => [
-                'nullable',
-                'integer',
-            ],
-
+            'show_navigation' => ['required', 'boolean'],
+            'navigation_items' => ['nullable', 'array'],
+            'navigation_items.*.id' => ['nullable', 'integer'],
             'navigation_items.*.label' => [
                 'required',
                 'string',
                 'max:100',
             ],
-
             'navigation_items.*.destination' => [
                 'required',
                 'string',
@@ -444,34 +323,29 @@ class PortfolioSettingsController extends Controller
                     'external',
                 ]),
             ],
-
             'navigation_items.*.url' => [
                 'nullable',
                 'url',
                 'max:2048',
             ],
-
             'navigation_items.*.sort_order' => [
                 'required',
                 'integer',
                 'min:0',
             ],
-
             'navigation_items.*.is_visible' => [
                 'required',
                 'boolean',
             ],
 
-            'gallery_order' => [
-                'nullable',
-                'array',
-            ],
+            /* Gallery Ordering */
 
+            'gallery_order' => ['nullable', 'array'],
             'gallery_order.*.id' => [
                 'required',
                 'integer',
+                'distinct',
             ],
-
             'gallery_order.*.sort_order' => [
                 'required',
                 'integer',
@@ -480,27 +354,10 @@ class PortfolioSettingsController extends Controller
 
             /* Footer */
 
-            'show_footer' => [
-                'required',
-                'boolean',
-            ],
-
-            'footer_label' => [
-                'nullable',
-                'string',
-                'max:100',
-            ],
-
-            'footer_message' => [
-                'nullable',
-                'string',
-                'max:500',
-            ],
-
-            'show_footer_socials' => [
-                'required',
-                'boolean',
-            ],
+            'show_footer' => ['required', 'boolean'],
+            'footer_label' => ['nullable', 'string', 'max:100'],
+            'footer_message' => ['nullable', 'string', 'max:500'],
+            'show_footer_socials' => ['required', 'boolean'],
 
             'footer_logo' => [
                 'nullable',
@@ -508,61 +365,144 @@ class PortfolioSettingsController extends Controller
                 'mimes:jpg,jpeg,png,webp',
                 'max:2048',
             ],
-
-            'remove_footer_logo' => [
-                'nullable',
-                'boolean',
-            ],
+            'remove_footer_logo' => ['nullable', 'boolean'],
 
             'copyright_text' => [
                 'nullable',
                 'string',
                 'max:255',
             ],
+            'show_powered_by_lira' => ['required', 'boolean'],
 
-            'show_powered_by_lira' => [
-                'required',
-                'boolean',
-            ],
+            /* Music Display */
 
-            'show_music' => [
-                'required',
-                'boolean',
-            ],
-
+            'show_music' => ['required', 'boolean'],
             'music_release_display' => [
                 'required',
                 'string',
                 'in:latest,all',
             ],
-
             'music_release_limit' => [
                 'required',
                 'integer',
                 'between:1,24',
             ],
-
             'featured_release_id' => [
                 'nullable',
                 'integer',
                 Rule::exists('releases', 'id')
                     ->where(
                         fn($query) => $query
-                            ->where(
-                                'artist_profile_id',
-                                $profile->id,
-                            )
+                            ->where('artist_profile_id', $profile->id)
                             ->where('is_visible', true),
                     ),
             ],
-
-            'show_music_links' => [
-                'required',
-                'boolean',
-            ],
+            'show_music_links' => ['required', 'boolean'],
         ]);
 
-        /* Cover Image */
+        $settings = $profile->portfolioSettings;
+
+        abort_unless($settings, 404);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Prepare Input
+        |--------------------------------------------------------------------------
+        */
+
+        $hasNavigationItems = array_key_exists('navigation_items', $validated);
+        $navigationItems = $validated['navigation_items'] ?? [];
+
+        $hasGalleryOrder = isset($validated['gallery_order'])
+            && is_array($validated['gallery_order']);
+
+        $galleryOrder = $hasGalleryOrder
+            ? $validated['gallery_order']
+            : [];
+
+        $removeCoverImage = $request->boolean('remove_cover_image');
+        $removeFooterLogo = $request->boolean('remove_footer_logo');
+
+        /* Validate Navigation URLs */
+
+        foreach ($navigationItems as $index => $item) {
+            $destination = $item['destination'];
+            $url = $item['url'] ?? null;
+
+            if ($destination === 'external') {
+                $parts = is_string($url) && $url !== ''
+                    ? parse_url($url)
+                    : false;
+
+                $scheme = is_array($parts)
+                    ? strtolower($parts['scheme'] ?? '')
+                    : '';
+
+                if (
+                    !$url ||
+                    !is_array($parts) ||
+                    !in_array($scheme, ['http', 'https'], true) ||
+                    empty($parts['host'])
+                ) {
+                    return back()
+                        ->withErrors([
+                            "navigation_items.{$index}.url" =>
+                                'External navigation items require a valid HTTP or HTTPS URL.',
+                        ])
+                        ->withInput();
+                }
+            } elseif ($url !== null && $url !== '') {
+                return back()
+                    ->withErrors([
+                        "navigation_items.{$index}.url" =>
+                            'Only external navigation items may have a URL.',
+                    ])
+                    ->withInput();
+            }
+        }
+
+        /* Pre-validate Ownership Before File Storage */
+
+        $existingNavigationItems = $settings
+            ->navigationItems()
+            ->get()
+            ->keyBy('id');
+
+        foreach ($navigationItems as $item) {
+            $navigationItemId = $item['id'] ?? null;
+
+            if (
+                $navigationItemId !== null &&
+                !$existingNavigationItems->has($navigationItemId)
+            ) {
+                abort(404);
+            }
+        }
+
+        $existingGalleryImages = $settings
+            ->galleryImages()
+            ->get()
+            ->keyBy('id');
+
+        if ($hasGalleryOrder) {
+            $submittedIds = collect($galleryOrder)
+                ->pluck('id')
+                ->values();
+
+            abort_unless(
+                $submittedIds->count() === $existingGalleryImages->count(),
+                422,
+            );
+
+            abort_unless(
+                $submittedIds->every(
+                    fn($id) => $existingGalleryImages->has($id),
+                ),
+                422,
+            );
+        }
+
+        /* Moderate Both Images Before Storing Either */
 
         if ($request->hasFile('cover_image')) {
             $moderation = $imageModerationService->check(
@@ -576,43 +516,7 @@ class PortfolioSettingsController extends Controller
                     ])
                     ->withInput();
             }
-
-            $oldCoverImage = $profile->cover_image;
-
-            $newCoverImage = $request
-                ->file('cover_image')
-                ->store('artist-covers', 'public');
-
-            $profile->cover_image = $newCoverImage;
-            $profile->save();
-
-            /* Delete previous image */
-
-            if ($oldCoverImage) {
-                Storage::disk('public')->delete(
-                    $oldCoverImage,
-                );
-            }
-        } elseif ($request->boolean('remove_cover_image')) {
-            /* Remove existing image */
-
-            if ($profile->cover_image) {
-                Storage::disk('public')->delete(
-                    $profile->cover_image,
-                );
-            }
-
-            $profile->cover_image = null;
-            $profile->save();
         }
-
-        /* Portfolio Settings */
-
-        $settings = $profile->portfolioSettings;
-
-        abort_unless($settings, 404);
-
-        /* Footer Logo */
 
         if ($request->hasFile('footer_logo')) {
             $moderation = $imageModerationService->check(
@@ -626,140 +530,244 @@ class PortfolioSettingsController extends Controller
                     ])
                     ->withInput();
             }
-
-            $oldFooterLogo = $settings->footer_logo;
-
-            $newFooterLogo = $request
-                ->file('footer_logo')
-                ->store('artist-footer-logos', 'public');
-
-            $settings->footer_logo = $newFooterLogo;
-            $settings->save();
-
-            if ($oldFooterLogo) {
-                Storage::disk('public')->delete(
-                    $oldFooterLogo,
-                );
-            }
-        } elseif ($request->boolean('remove_footer_logo')) {
-            if ($settings->footer_logo) {
-                Storage::disk('public')->delete(
-                    $settings->footer_logo,
-                );
-            }
-
-            $settings->footer_logo = null;
-            $settings->save();
         }
+
+        /* Prepare Settings Data */
+
+        $oldCoverImage = $profile->cover_image;
+        $oldFooterLogo = $settings->footer_logo;
 
         unset(
             $validated['cover_image'],
             $validated['remove_cover_image'],
             $validated['footer_logo'],
             $validated['remove_footer_logo'],
-        );
-
-        $navigationItems = $validated['navigation_items'] ?? [];
-        $galleryOrder = $validated['gallery_order'] ?? [];
-
-        unset(
             $validated['navigation_items'],
             $validated['gallery_order'],
         );
 
-        $settings->update($validated);
+        $newCoverImage = null;
+        $newFooterLogo = null;
 
-        /* Navigation */
+        /* Store Files and Update Database Transactionally */
 
-        $existingNavigationItems = $settings
-            ->navigationItems()
-            ->get()
-            ->keyBy('id');
+        try {
+            if ($request->hasFile('cover_image')) {
+                $newCoverImage = $request->file('cover_image')
+                    ->store('portfolio/covers', 'public');
 
-        $submittedNavigationItemIds = [];
+                if (!$newCoverImage) {
+                    throw new RuntimeException(
+                        'The cover image could not be stored.',
+                    );
+                }
+            }
 
-        foreach ($navigationItems as $item) {
-            $navigationItemId = $item['id'] ?? null;
+            if ($request->hasFile('footer_logo')) {
+                $newFooterLogo = $request->file('footer_logo')
+                    ->store('portfolio/footer-logos', 'public');
 
-            if ($navigationItemId) {
-                $navigationItem = $existingNavigationItems->get(
-                    $navigationItemId,
-                );
+                if (!$newFooterLogo) {
+                    throw new RuntimeException(
+                        'The footer logo could not be stored.',
+                    );
+                }
+            }
 
-                abort_unless($navigationItem, 404);
-            } else {
-                $navigationItem = $settings
+            DB::transaction(function () use ($profile, $settings, $validated, $navigationItems, $hasNavigationItems, $galleryOrder, $hasGalleryOrder, $newCoverImage, $newFooterLogo, $removeCoverImage, $removeFooterLogo, ): void {
+                /*
+                 * Re-check ownership inside the transaction before
+                 * performing any database writes.
+                 */
+
+                $currentNavigationItems = $settings
                     ->navigationItems()
-                    ->make();
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id');
+
+                foreach ($navigationItems as $item) {
+                    $navigationItemId = $item['id'] ?? null;
+
+                    if (
+                        $navigationItemId !== null &&
+                        !$currentNavigationItems->has($navigationItemId)
+                    ) {
+                        abort(404);
+                    }
+                }
+
+                $currentGalleryImages = $settings
+                    ->galleryImages()
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id');
+
+                if ($hasGalleryOrder) {
+                    $submittedIds = collect($galleryOrder)
+                        ->pluck('id')
+                        ->values();
+
+                    abort_unless(
+                        $submittedIds->count()
+                        === $currentGalleryImages->count(),
+                        422,
+                    );
+
+                    abort_unless(
+                        $submittedIds->every(
+                            fn($id) => $currentGalleryImages->has($id),
+                        ),
+                        422,
+                    );
+                }
+
+                /*
+                 * Apply image changes.
+                 * A newly uploaded image takes precedence over removal.
+                 */
+
+                if ($newCoverImage !== null) {
+                    $profile->cover_image = $newCoverImage;
+                } elseif ($removeCoverImage) {
+                    $profile->cover_image = null;
+                }
+
+                if ($newFooterLogo !== null) {
+                    $settings->footer_logo = $newFooterLogo;
+                } elseif ($removeFooterLogo) {
+                    $settings->footer_logo = null;
+                }
+
+                /*
+                 * Save profile and settings.
+                 */
+
+                $settings->fill($validated);
+
+                $profile->save();
+                $settings->save();
+
+                /*
+                 * Update or create navigation items.
+                 */
+
+                if ($hasNavigationItems) {
+
+                    $submittedNavigationItemIds = [];
+
+                    foreach ($navigationItems as $item) {
+                        $navigationItemId = $item['id'] ?? null;
+
+                        if ($navigationItemId !== null) {
+                            $navigationItem = $currentNavigationItems->get(
+                                $navigationItemId,
+                            );
+
+                            abort_unless($navigationItem, 404);
+                        } else {
+                            $navigationItem = $settings
+                                ->navigationItems()
+                                ->make();
+                        }
+
+                        $navigationItem->fill([
+                            'label' => $item['label'],
+                            'destination' => $item['destination'],
+                            'url' => $item['url'] ?? null,
+                            'sort_order' => $item['sort_order'],
+                            'is_visible' => $item['is_visible'],
+                        ]);
+
+                        $settings->navigationItems()->save($navigationItem);
+
+                        $submittedNavigationItemIds[] = $navigationItem->id;
+                    }
+
+                    /*
+                     * Delete navigation items omitted from the submission.
+                     */
+
+                    $settings
+                        ->navigationItems()
+                        ->when(
+                            !empty($submittedNavigationItemIds),
+                            fn($query) => $query->whereNotIn(
+                                'id',
+                                $submittedNavigationItemIds,
+                            ),
+                        )
+                        ->when(
+                            empty($submittedNavigationItemIds),
+                            fn($query) => $query,
+                        )
+                        ->delete();
+                }
+
+                /*
+                 * Apply gallery order after ownership validation.
+                 */
+
+                if ($hasGalleryOrder) {
+                    foreach ($galleryOrder as $item) {
+                        $image = $currentGalleryImages->get($item['id']);
+
+                        abort_unless($image, 422);
+
+                        $image->update([
+                            'sort_order' => $item['sort_order'],
+                        ]);
+                    }
+                }
+            });
+        } catch (Throwable $exception) {
+            /*
+             * The database transaction has failed or rolled back.
+             * Remove newly stored files without masking the original
+             * exception if file cleanup itself fails.
+             */
+
+            foreach ([$newCoverImage, $newFooterLogo] as $newFile) {
+                if (!$newFile) {
+                    continue;
+                }
+
+                try {
+                    Storage::disk('public')->delete($newFile);
+                } catch (Throwable $cleanupException) {
+                    report($cleanupException);
+                }
             }
 
-            $navigationItem->fill([
-                'label' => $item['label'],
-                'destination' => $item['destination'],
-                'url' => $item['url'] ?? null,
-                'sort_order' => $item['sort_order'],
-                'is_visible' => $item['is_visible'],
-            ]);
-
-            $settings->navigationItems()->save($navigationItem);
-
-            $submittedNavigationItemIds[] = $navigationItem->id;
+            throw $exception;
         }
 
-        $settings
-            ->navigationItems()
-            ->when(
-                !empty($submittedNavigationItemIds),
-                fn($query) => $query->whereNotIn(
-                    'id',
-                    $submittedNavigationItemIds,
-                ),
-            )
-            ->when(
-                empty($submittedNavigationItemIds),
-                fn($query) => $query,
-            )
-            ->delete();
+        /* Delete Old Images After Successful Database Commit */
 
-        /* Gallery order */
+        $currentCoverImage = $profile->cover_image;
+        $currentFooterLogo = $settings->footer_logo;
 
-        if (!empty($galleryOrder)) {
-            $existingGalleryImages = $settings
-                ->galleryImages()
-                ->get()
-                ->keyBy('id');
-
-            $submittedIds = collect($galleryOrder)
-                ->pluck('id')
-                ->values();
-
-            abort_unless(
-                $submittedIds->unique()->count() === $submittedIds->count(),
-                422,
-            );
-
-            abort_unless(
-                $submittedIds->count() === $existingGalleryImages->count(),
-                422,
-            );
-
-            abort_unless(
-                $submittedIds->every(
-                    fn($id) => $existingGalleryImages->has($id),
-                ),
-                422,
-            );
-
-            foreach ($galleryOrder as $item) {
-                $existingGalleryImages
-                    ->get($item['id'])
-                    ->update([
-                        'sort_order' => $item['sort_order'],
-                    ]);
+        if (
+            $oldCoverImage &&
+            $oldCoverImage !== $currentCoverImage
+        ) {
+            try {
+                Storage::disk('public')->delete($oldCoverImage);
+            } catch (Throwable $exception) {
+                report($exception);
             }
         }
 
-        /* Redirect */
+        if (
+            $oldFooterLogo &&
+            $oldFooterLogo !== $currentFooterLogo
+        ) {
+            try {
+                Storage::disk('public')->delete($oldFooterLogo);
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
 
         return redirect()
             ->route('portfolio.settings.edit')

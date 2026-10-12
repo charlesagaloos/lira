@@ -14,8 +14,43 @@ class DashboardController extends Controller
 
         $profile = $user->artistProfile;
 
+        $onboarding = null;
+
         if ($profile) {
-            $profile->loadCount('portfolioViews');
+            $profile->loadCount([
+                'portfolioViews',
+                'projects',
+                'releases',
+            ]);
+
+            $settings = $profile->portfolioSettings;
+
+            $hasCompleteProfile = filled($profile->display_name)
+                && filled($profile->username)
+                && filled($profile->bio)
+                && filled($profile->artist_type);
+
+            $hasAvatar = filled($profile->avatar);
+
+            $hasShowcasedWork = $profile->projects_count > 0
+                || $profile->releases_count > 0;
+
+            $hasCustomizedPortfolio = false;
+
+            if ($settings) {
+                $hasCustomizedPortfolio =
+                    $settings->template !== 'default'
+                    || filled($profile->cover_image);
+            }
+
+            $onboarding = [
+                'profile_complete' => $hasCompleteProfile,
+                'has_avatar' => $hasAvatar,
+                'has_showcased_work' => $hasShowcasedWork,
+                'portfolio_customized' => $hasCustomizedPortfolio,
+                'portfolio_published' => (bool) $profile->is_published,
+                'verification_status' => $profile->verification_status,
+            ];
         }
 
         return Inertia::render('Dashboard', [
@@ -25,6 +60,8 @@ class DashboardController extends Controller
                     ->limit(3)
                     ->get()
                 : collect(),
+            'projectCount' => $profile?->projects_count ?? 0,
+            'onboarding' => $onboarding,
         ]);
     }
 }

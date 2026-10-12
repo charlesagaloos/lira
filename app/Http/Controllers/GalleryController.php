@@ -112,24 +112,43 @@ class GalleryController extends Controller
                 ->withInput();
         }
 
+
         $imagePath = $validated['image']->store(
             'artist-gallery',
             'public',
         );
 
-        $nextSortOrder = $settings
-            ->galleryImages()
-            ->max('sort_order');
+        if (!$imagePath) {
+            return back()
+                ->withErrors([
+                    'image' => 'Unable to store the uploaded image. Please try again.',
+                ])
+                ->withInput();
+        }
 
-        $settings->galleryImages()->create([
-            'image' => $imagePath,
-            'title' => $validated['title'] ?? null,
-            'caption' => $validated['caption'] ?? null,
-            'alt_text' => $validated['alt_text'] ?? null,
-            'sort_order' => is_null($nextSortOrder)
-                ? 0
-                : $nextSortOrder + 1,
-        ]);
+        try {
+            $nextSortOrder = $settings
+                ->galleryImages()
+                ->max('sort_order');
+
+            $settings->galleryImages()->create([
+                'image' => $imagePath,
+                'title' => $validated['title'] ?? null,
+                'caption' => $validated['caption'] ?? null,
+                'alt_text' => $validated['alt_text'] ?? null,
+                'sort_order' => is_null($nextSortOrder)
+                    ? 0
+                    : $nextSortOrder + 1,
+            ]);
+        } catch (\Throwable $exception) {
+            try {
+                Storage::disk('public')->delete($imagePath);
+            } catch (\Throwable $cleanupException) {
+                report($cleanupException);
+            }
+
+            throw $exception;
+        }
 
         return redirect()
             ->route('gallery.index')
@@ -167,6 +186,7 @@ class GalleryController extends Controller
         ]);
     }
 
+
     public function update(
         Request $request,
         PortfolioGalleryImage $galleryImage,
@@ -198,6 +218,9 @@ class GalleryController extends Controller
             ],
         ]);
 
+        $oldImage = null;
+        $newImage = null;
+
         if (!empty($validated['image'])) {
             $moderation = $imageModerationService->check(
                 $validated['image'],
@@ -218,12 +241,19 @@ class GalleryController extends Controller
                 'public',
             );
 
+            if (!$newImage) {
+                return back()
+                    ->withErrors([
+                        'image' => 'Unable to store the replacement image. Your existing image has been preserved.',
+                    ])
+                    ->withInput();
+            }
+
             $galleryImage->image = $newImage;
 
-            if ($oldImage) {
-                Storage::disk('public')->delete($oldImage);
-            }
         }
+
+        unset($validated['image']);
 
         $galleryImage->fill([
             'title' => $validated['title'] ?? null,
@@ -231,7 +261,26 @@ class GalleryController extends Controller
             'alt_text' => $validated['alt_text'] ?? null,
         ]);
 
-        $galleryImage->save();
+        try {
+            $galleryImage->save();
+        } catch (\Throwable $exception) {
+            if ($newImage) {
+                try {
+                    Storage::disk('public')->delete($newImage);
+                } catch (\Throwable $cleanupException) {
+                    report($cleanupException);
+                }
+            }
+
+            throw $exception;
+        }
+
+        if (
+            $oldImage &&
+            $oldImage !== $galleryImage->image
+        ) {
+            Storage::disk('public')->delete($oldImage);
+        }
 
         return redirect()
             ->route('gallery.index')
@@ -246,13 +295,13 @@ class GalleryController extends Controller
     ) {
         $this->authorizeGalleryImage($galleryImage);
 
-        if ($galleryImage->image) {
-            Storage::disk('public')->delete(
-                $galleryImage->image,
-            );
-        }
+        $image = $galleryImage->image;
 
         $galleryImage->delete();
+
+        if ($image) {
+            Storage::disk('public')->delete($image);
+        }
 
         return redirect()
             ->route('gallery.index')

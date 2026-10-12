@@ -42,10 +42,15 @@ class ArtistProfileController extends Controller
         ]);
     }
 
-    public function store(
-        Request $request,
-        ImageModerationService $imageModerationService,
-    ): RedirectResponse {
+    public function store(Request $request, ImageModerationService $imageModerationService): RedirectResponse
+    {
+
+        abort_if(
+            $request->user()->artistProfile()->exists(),
+            409,
+            'You already have an artist profile.',
+        );
+
         $validated = $request->validate([
             'avatar' => [
                 'nullable',
@@ -173,11 +178,10 @@ class ArtistProfileController extends Controller
             ->with('success', 'Artist profile created successfully.');
     }
 
-    public function update(
-        Request $request,
-        ImageModerationService $imageModerationService,
-    ): RedirectResponse {
-        $profile = $request->user()->artistProfile;
+    public function update(Request $request, ImageModerationService $imageModerationService): RedirectResponse
+    {
+
+        $profile = $request->user()->artistProfile()->firstOrFail();
 
         $validated = $request->validate([
             'avatar' => [
@@ -281,9 +285,6 @@ class ArtistProfileController extends Controller
                 ->file('avatar')
                 ->store('artist-avatars', 'public');
 
-            if ($oldAvatar) {
-                Storage::disk('public')->delete($oldAvatar);
-            }
         } else {
             unset($validated['avatar']);
         }
@@ -306,6 +307,11 @@ class ArtistProfileController extends Controller
                 ]);
             }
         });
+
+        if (isset($oldAvatar) && $oldAvatar && $oldAvatar !== $profile->avatar)
+        {
+            Storage::disk('public')->delete($oldAvatar);
+        }
 
         return redirect()
             ->route('profile.edit')
