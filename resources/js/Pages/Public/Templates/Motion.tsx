@@ -801,10 +801,6 @@ export default function MotionTemplate({
                         box-shadow 350ms ease;
                 }
 
-                .motion-marquee {
-                    animation: motion-marquee 22s linear infinite;
-                }
-
                 .motion-reveal {
                     animation: motion-reveal 900ms cubic-bezier(.2,.75,.2,1) both;
                 }
@@ -898,11 +894,6 @@ export default function MotionTemplate({
                 .motion-project-row:hover .motion-arrow {
                     background: var(--motion-text, #fff);
                     color: var(--motion-bg, #050607);
-                }
-
-                @keyframes motion-marquee {
-                    from { transform: translateX(0); }
-                    to { transform: translateX(-50%); }
                 }
 
                 @keyframes motion-reveal {
@@ -1475,7 +1466,6 @@ export default function MotionTemplate({
                 }
 
                 @media (prefers-reduced-motion: reduce) {
-                    .motion-marquee,
                     .motion-reveal,
                     .motion-hero-image,
                     .motion-hero-copy {
@@ -1784,44 +1774,6 @@ export default function MotionTemplate({
                             </div>
                         </div>
                     </section>
-                )}
-
-                {/* Moving statement */}
-                {settings.show_hero && heroStatement && (
-                    <div
-                        className="overflow-hidden border-b py-4"
-                        style={{
-                            borderColor: settings.border_color,
-                        }}
-                    >
-                        <div className="motion-marquee flex w-max">
-                            {[0, 1].map((copy) => (
-                                <div
-                                    key={copy}
-                                    className="flex shrink-0 items-center"
-                                >
-                                    <span
-                                        className="px-5 text-[8px] uppercase tracking-[0.28em] sm:px-8"
-                                        style={{
-                                            color:
-                                                settings.muted_text_color,
-                                        }}
-                                    >
-                                        {heroStatement}
-                                    </span>
-                                    <span
-                                        className="px-5 text-[8px] sm:px-8"
-                                        style={{
-                                            color:
-                                                settings.accent_color,
-                                        }}
-                                    >
-                                        ●
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 )}
 
                 {/* Work */}
