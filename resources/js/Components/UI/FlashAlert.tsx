@@ -4,6 +4,7 @@ import { router } from '@inertiajs/react';
 interface FlashProps {
     success?: string | null;
     error?: string | null;
+    status?: string | null;
 }
 
 interface InertiaPageProps {
@@ -126,6 +127,36 @@ export default function FlashAlert() {
                 showAlert(flash.error, 'error');
                 return;
             }
+
+            if (flash?.status) {
+                const status = flash.status.toLowerCase();
+
+                if (status === 'passwords.reset') {
+                    showAlert(
+                        'Your password has been reset successfully.',
+                        'success',
+                    );
+                    return;
+                }
+
+                if (
+                    status === 'passwords.sent' ||
+                    status === 'passwords.throttled' ||
+                    status.includes('sent') ||
+                    status.includes('emailed')
+                ) {
+                    showAlert(
+                        status === 'passwords.throttled'
+                            ? 'Please wait a moment before requesting another reset link.'
+                            : 'If an account exists for this email, a password reset link has been sent.',
+                        'success',
+                    );
+                    return;
+                }
+
+                showAlert(flash.status, 'success');
+            }
+
         });
 
         return () => {
@@ -153,16 +184,16 @@ export default function FlashAlert() {
         >
             <div
                 className={`pointer-events-auto relative overflow-hidden rounded-2xl border backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.45),inset_0_1px_0_rgba(255,255,255,0.06)] ${isSuccess
-                        ? 'border-[#7de7ff]/20 bg-[#071014]/90'
-                        : 'border-red-400/20 bg-[#14090a]/90'
+                    ? 'border-[#7de7ff]/20 bg-[#071014]/90'
+                    : 'border-red-400/20 bg-[#14090a]/90'
                     }`}
             >
                 {/* Top chrome line */}
 
                 <div
                     className={`absolute inset-x-0 top-0 h-px ${isSuccess
-                            ? 'bg-[linear-gradient(90deg,transparent,#7de7ff,transparent)]'
-                            : 'bg-[linear-gradient(90deg,transparent,#f87171,transparent)]'
+                        ? 'bg-[linear-gradient(90deg,transparent,#7de7ff,transparent)]'
+                        : 'bg-[linear-gradient(90deg,transparent,#f87171,transparent)]'
                         }`}
                 />
 
@@ -170,8 +201,8 @@ export default function FlashAlert() {
 
                 <div
                     className={`pointer-events-none absolute -right-10 -top-10 h-24 w-24 rounded-full blur-3xl ${isSuccess
-                            ? 'bg-[#7de7ff]/[0.08]'
-                            : 'bg-red-400/[0.08]'
+                        ? 'bg-[#7de7ff]/[0.08]'
+                        : 'bg-red-400/[0.08]'
                         }`}
                 />
 
@@ -180,8 +211,8 @@ export default function FlashAlert() {
 
                     <div
                         className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${isSuccess
-                                ? 'border-[#7de7ff]/15 bg-[#7de7ff]/[0.05] text-[#7de7ff]'
-                                : 'border-red-400/15 bg-red-400/[0.05] text-red-400'
+                            ? 'border-[#7de7ff]/15 bg-[#7de7ff]/[0.05] text-[#7de7ff]'
+                            : 'border-red-400/15 bg-red-400/[0.05] text-red-400'
                             }`}
                     >
                         {isSuccess ? <CheckIcon /> : <ErrorIcon />}
@@ -192,8 +223,8 @@ export default function FlashAlert() {
                     <div className="min-w-0 flex-1">
                         <p
                             className={`text-[8px] uppercase tracking-[0.25em] ${isSuccess
-                                    ? 'text-[#7de7ff]/70'
-                                    : 'text-red-400/70'
+                                ? 'text-[#7de7ff]/70'
+                                : 'text-red-400/70'
                                 }`}
                         >
                             {isSuccess ? 'Success' : 'Error'}
@@ -220,8 +251,8 @@ export default function FlashAlert() {
 
                 <div
                     className={`h-px ${isSuccess
-                            ? 'bg-[#7de7ff]/30'
-                            : 'bg-red-400/30'
+                        ? 'bg-[#7de7ff]/30'
+                        : 'bg-red-400/30'
                         }`}
                     style={{
                         animation: 'flash-progress 4s linear forwards',

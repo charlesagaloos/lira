@@ -246,6 +246,7 @@ function GoogleIcon() {
 export default function Login() {
     const page = usePage();
 
+
     const errors = (
         page.props as unknown as {
             errors: {

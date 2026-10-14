@@ -215,19 +215,20 @@ class ArtistController extends Controller
         }
 
 
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->is_admin = $validated['is_admin'];
+        DB::transaction(function () use ($user, $profile, $validated): void {
+            $user->name = $validated['name'];
+            $user->email = $validated['email'];
+            $user->is_admin = $validated['is_admin'];
 
-        if (!empty($validated['password'])) {
-            $user->password = Hash::make($validated['password']);
-        }
+            if (!empty($validated['password'])) {
+                $user->password = Hash::make($validated['password']);
+            }
 
-        $user->save();
+            $user->save();
 
-
-        $profile->verification_status = $validated['verification_status'];
-        $profile->save();
+            $profile->verification_status = $validated['verification_status'];
+            $profile->save();
+        });
 
         return redirect()
             ->route('admin.artists.edit', ['profile' => $profile->id])

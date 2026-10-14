@@ -14,6 +14,7 @@ use App\Http\Controllers\PortfolioSettingsController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\Admin\ArtistController;
 use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\SecurityController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])
@@ -22,6 +23,14 @@ Route::get('/', [HomeController::class, 'index'])
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+Route::get('/dashboard/security', [SecurityController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('security.show');
+
+Route::put('/dashboard/security/password', [SecurityController::class, 'updatePassword'])
+    ->middleware(['auth', 'verified', 'throttle:5,1'])
+    ->name('security.password.update');
 
 Route::get('/dashboard/profile/create', [ArtistProfileController::class, 'create'])
     ->middleware(['auth', 'verified'])

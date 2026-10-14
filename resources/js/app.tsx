@@ -1,5 +1,6 @@
 import { createInertiaApp } from '@inertiajs/react';
 import { createRoot } from 'react-dom/client';
+import FlashAlert from './Components/UI/FlashAlert';
 
 createInertiaApp({
     resolve: (name) => {
@@ -11,10 +12,16 @@ createInertiaApp({
             default: React.ComponentType;
         };
     },
-
+    
     setup({ el, App, props }) {
-        createRoot(el).render(<App {...props} />);
+        createRoot(el).render(
+            <>
+                <App {...props} />
+                <FlashAlert />
+            </>,
+        );
     },
+
 
     title: (title) => (title ? `${title} — LIRA` : 'LIRA'),
 });

@@ -309,6 +309,25 @@ function ProfileAvatar({
     );
 }
 
+function ChevronDownIcon({ open }: { open: boolean }) {
+    return (
+        <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            className={`h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''
+                }`}
+            aria-hidden="true"
+        >
+            <path
+                d="M5.5 7.5L10 12L14.5 7.5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+}
 /*
 |--------------------------------------------------------------------------
 | Header
@@ -328,6 +347,10 @@ export default function Header({
     const [mobileMenuOpen, setMobileMenuOpen] =
         useState(false);
 
+    const [accountSettingsOpen, setAccountSettingsOpen] = useState(
+        url.startsWith('/dashboard/profile') ||
+        url.startsWith('/dashboard/security'),
+    );
     /*
     |--------------------------------------------------------------------------
     | Verification
@@ -345,10 +368,10 @@ export default function Header({
 
     const getPageTitle = (): string => {
         if (
-            url === '/dashboard' ||
-            url === '/dashboard/'
+            url === '/dashboard/security' ||
+            url.startsWith('/dashboard/security/')
         ) {
-            return 'Overview';
+            return 'Security';
         }
 
         if (
@@ -421,6 +444,10 @@ export default function Header({
         url === '/dashboard/portfolio' ||
         url.startsWith('/dashboard/portfolio/');
 
+    const isGalleryActive =
+        url === '/dashboard/gallery' ||
+        url.startsWith('/dashboard/gallery/');
+
     /*
     |--------------------------------------------------------------------------
     | Close Menu After Navigation
@@ -434,8 +461,8 @@ export default function Header({
     return (
         <header
             className={`fixed right-0 top-0 z-40 w-full border-b border-white/[0.07] bg-[#050607]/90 backdrop-blur-xl transition-[left] duration-300 lg:w-auto ${sidebarCollapsed
-                    ? 'lg:left-[76px]'
-                    : 'lg:left-[250px]'
+                ? 'lg:left-[76px]'
+                : 'lg:left-[250px]'
                 }`}
         >
             {/* =============================================================
@@ -806,8 +833,8 @@ export default function Header({
                             href="/dashboard/admin"
                             onClick={closeMobileMenu}
                             className={`mb-1 flex min-h-[48px] items-center justify-between rounded-xl border px-4 transition duration-200 ${url.startsWith('/dashboard/admin')
-                                    ? 'border-white/[0.10] bg-white/[0.055] text-white'
-                                    : 'border-transparent text-zinc-400 hover:bg-white/[0.035] hover:text-zinc-200'
+                                ? 'border-white/[0.10] bg-white/[0.055] text-white'
+                                : 'border-transparent text-zinc-400 hover:bg-white/[0.035] hover:text-zinc-200'
                                 }`}
                         >
                             <span className="text-sm">Admin Dashboard</span>
@@ -820,15 +847,88 @@ export default function Header({
                         </Link>
                     )}
 
+                    {/* ACCOUNT SETTINGS */}
 
-                    <div className="flex min-h-[48px] items-center justify-between rounded-xl px-4 text-zinc-700">
-                        <span className="text-sm">
-                            Settings
-                        </span>
+                    <div className="space-y-1">
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setAccountSettingsOpen((open) => !open)
+                            }
+                            aria-expanded={accountSettingsOpen}
+                            className={`flex min-h-[48px] w-full items-center justify-between rounded-xl border px-4 text-sm transition duration-200 ${url.startsWith('/dashboard/profile') ||
+                                    url.startsWith('/dashboard/security') ||
+                                    accountSettingsOpen
+                                    ? 'border-white/[0.10] bg-white/[0.055] text-white'
+                                    : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
+                                }`}
+                        >
+                            <span className="flex items-center gap-3">
+                                <span>Account Settings</span>
+                            </span>
 
-                        <span className="text-[8px] uppercase tracking-[0.15em] text-zinc-800">
-                            Soon
-                        </span>
+                            <ChevronDownIcon open={accountSettingsOpen} />
+                        </button>
+
+                        {accountSettingsOpen && (
+                            <div className="ml-4 space-y-1 border-l border-white/[0.08] pl-3">
+                                {/* PROFILE */}
+
+                                <Link
+                                    href={
+                                        profile
+                                            ? '/dashboard/profile'
+                                            : '/dashboard/profile/create'
+                                    }
+                                    onClick={closeMobileMenu}
+                                    className={`flex min-h-[44px] items-center justify-between rounded-lg px-3 py-2.5 text-sm transition ${isProfileActive
+                                            ? 'bg-white/[0.06] text-white'
+                                            : 'text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                        }`}
+                                >
+                                    <span>Profile</span>
+
+                                    {isProfileActive && <ActiveIndicator />}
+                                </Link>
+
+                                {/* SECURITY */}
+
+                                <Link
+                                    href="/dashboard/security"
+                                    onClick={closeMobileMenu}
+                                    className={`flex min-h-[44px] items-center justify-between rounded-lg px-3 py-2.5 text-sm transition ${url.startsWith('/dashboard/security')
+                                            ? 'bg-white/[0.06] text-white'
+                                            : 'text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                        }`}
+                                >
+                                    <span>Security</span>
+
+                                    {url.startsWith('/dashboard/security') && (
+                                        <ActiveIndicator />
+                                    )}
+                                </Link>
+
+                                {/* BILLING & PLANS */}
+
+                                <div className="flex min-h-[44px] cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-sm text-zinc-700">
+                                    <span>Billing &amp; Plans</span>
+
+                                    <span className="text-[8px] uppercase tracking-[0.15em]">
+                                        Soon
+                                    </span>
+                                </div>
+
+                                {/* SETTINGS */}
+
+                                <div className="flex min-h-[44px] cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-sm text-zinc-700">
+                                    <span>Settings</span>
+
+                                    <span className="text-[8px] uppercase tracking-[0.15em]">
+                                        Soon
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* =====================================================

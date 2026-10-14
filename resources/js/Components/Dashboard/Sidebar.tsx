@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 import {
     ArrowLeft,
@@ -267,6 +268,47 @@ function SettingsIcon() {
     );
 }
 
+function SecurityIcon() {
+    return (
+        <svg viewBox="0 0 20 20" fill="none"
+            className="h-4 w-4" aria-hidden="true">
+            <path
+                d="M10 2.75L16 5V9.5C16 13.25 13.65 16.25 10 17.25C6.35 16.25 4 13.25 4 9.5V5L10 2.75Z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M7.25 10L9 11.75L12.75 8"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+}
+
+function ChevronDownIcon({ open }: { open: boolean }) {
+    return (
+        <svg
+            viewBox="0 0 20 20"
+            fill="none"
+            className={`h-4 w-4 transition-transform duration-200 ${open ? 'rotate-180' : ''
+                }`}
+            aria-hidden="true"
+        >
+            <path
+                d="M5.5 7.5L10 12L14.5 7.5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
+    );
+}
+
 function AdminIcon() {
     return (
         <svg
@@ -335,6 +377,18 @@ export default function Sidebar({
     const { profile, auth } = usePage().props as unknown as PageProps;
     const { url } = usePage();
     const isAdmin = Boolean(auth?.user?.is_admin);
+    const isAccountSettingsActive =
+        url.startsWith('/dashboard/profile') ||
+        url.startsWith('/dashboard/security');
+
+    const [accountSettingsOpen, setAccountSettingsOpen] =
+        useState(isAccountSettingsActive);
+
+    useEffect(() => {
+        if (isAccountSettingsActive) {
+            setAccountSettingsOpen(true);
+        }
+    }, [isAccountSettingsActive]);
 
     /*
     |--------------------------------------------------------------------------
@@ -359,6 +413,8 @@ export default function Sidebar({
         url === '/dashboard/profile/' ||
         url.startsWith('/dashboard/profile/create') ||
         url.startsWith('/dashboard/profile/edit');
+
+    const isSecurityActive = url.startsWith('/dashboard/security');
 
     const isProjectsActive =
         url === '/dashboard/projects' ||
@@ -449,48 +505,6 @@ export default function Sidebar({
                         )}
 
                         {collapsed && isOverviewActive && (
-                            <CollapsedActiveIndicator />
-                        )}
-                    </Link>
-
-                    {/* =====================================================
-                        PROFILE
-                    ====================================================== */}
-
-                    <Link
-                        href={
-                            profile
-                                ? '/dashboard/profile'
-                                : '/dashboard/profile/create'
-                        }
-                        title={collapsed ? 'Profile' : undefined}
-                        className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
-                            ? 'justify-center'
-                            : 'justify-between px-4'
-                            } ${isProfileActive
-                                ? 'border border-white/[0.08] bg-white/[0.045] text-white'
-                                : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
-                            }`}
-                    >
-                        <span className="flex items-center gap-3">
-                            <ProfileIcon />
-
-                            {!collapsed && (
-                                <span>Profile</span>
-                            )}
-                        </span>
-
-                        {!collapsed && isProfileActive && (
-                            <ActiveIndicator />
-                        )}
-
-                        {!collapsed && !profile && (
-                            <span className="text-[8px] uppercase tracking-[0.15em] text-zinc-700">
-                                Setup
-                            </span>
-                        )}
-
-                        {collapsed && isProfileActive && (
                             <CollapsedActiveIndicator />
                         )}
                     </Link>
@@ -790,8 +804,8 @@ export default function Sidebar({
                             href="/dashboard/admin"
                             title={collapsed ? 'Admin Dashboard' : undefined}
                             className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
-                                    ? 'justify-center'
-                                    : 'justify-between px-4'
+                                ? 'justify-center'
+                                : 'justify-between px-4'
                                 } ${url === '/dashboard/admin' ||
                                     url.startsWith('/dashboard/admin/')
                                     ? 'border border-white/[0.08] bg-white/[0.045] text-white'
@@ -819,29 +833,106 @@ export default function Sidebar({
                                 )}
                         </Link>
                     )}
-                    <div
-                        title={
-                            collapsed
-                                ? 'Settings — Soon'
-                                : undefined
-                        }
-                        className={`flex cursor-not-allowed items-center rounded-xl px-3 py-3 text-sm text-zinc-700 ${collapsed
-                            ? 'justify-center'
-                            : 'justify-between px-4'
-                            }`}
-                    >
-                        <span className="flex items-center gap-3">
-                            <SettingsIcon />
+                    {/* ACCOUNT SETTINGS */}
+
+                    <div className="space-y-1">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (collapsed) {
+                                    onToggle();
+                                    setAccountSettingsOpen(true);
+                                    return;
+                                }
+
+                                setAccountSettingsOpen((open) => !open);
+                            }}
+                            aria-expanded={accountSettingsOpen}
+                            className={`group relative flex w-full items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
+                                ? 'justify-center'
+                                : 'justify-between px-4'
+                                } ${isAccountSettingsActive || accountSettingsOpen
+                                    ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                    : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                }`}
+                            title={collapsed ? 'Account Settings' : undefined}
+                        >
+                            <span className="flex items-center gap-3">
+                                <SettingsIcon />
+
+                                {!collapsed && <span>Account Settings</span>}
+                            </span>
 
                             {!collapsed && (
-                                <span>Settings</span>
+                                <ChevronDownIcon open={accountSettingsOpen} />
                             )}
-                        </span>
 
-                        {!collapsed && (
-                            <span className="text-[8px] uppercase tracking-[0.15em] text-zinc-800">
-                                Soon
-                            </span>
+                            {collapsed && isAccountSettingsActive && (
+                                <CollapsedActiveIndicator />
+                            )}
+                        </button>
+
+                        {!collapsed && accountSettingsOpen && (
+                            <div className="ml-4 space-y-1 border-l border-white/[0.08] pl-3">
+                                {/* PROFILE */}
+
+                                <Link
+                                    href={
+                                        profile
+                                            ? '/dashboard/profile'
+                                            : '/dashboard/profile/create'
+                                    }
+                                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${isProfileActive
+                                        ? 'bg-white/[0.06] text-white'
+                                        : 'text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                        }`}
+                                >
+                                    <ProfileIcon />
+                                    <span>Profile</span>
+                                    {isProfileActive && (
+                                        <span className="ml-auto">
+                                            <ActiveIndicator />
+                                        </span>
+                                    )}
+                                </Link>
+
+                                {/* SECURITY */}
+
+                                <Link
+                                    href="/dashboard/security"
+                                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${isSecurityActive
+                                            ? 'bg-white/[0.06] text-white'
+                                            : 'text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                        }`}
+                                >
+                                    <SecurityIcon />
+                                    <span>Security</span>
+
+                                    {isSecurityActive && (
+                                        <span className="ml-auto">
+                                            <ActiveIndicator />
+                                        </span>
+                                    )}
+                                </Link>
+
+                                {/* BILLING & PLANS */}
+
+                                <div className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-zinc-700">
+                                    <span className="flex-1">Billing & Plans</span>
+                                    <span className="text-[8px] uppercase tracking-[0.15em]">
+                                        Soon
+                                    </span>
+                                </div>
+
+                                {/* SETTINGS */}
+
+                                <div className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-zinc-700">
+                                    <span className="flex-1">Settings</span>
+                                    <span className="text-[8px] uppercase tracking-[0.15em]">
+                                        Soon
+                                    </span>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </nav>
