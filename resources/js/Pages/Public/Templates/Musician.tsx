@@ -2385,25 +2385,26 @@ export default function MusicianTemplate({
                 }
 
                 /* Desktop gallery display */
-                .musician-gallery[data-desktop-display="grid"]
-                [data-gallery-layout="grid"] {
-                    display: grid !important;
-                }
+                @media (min-width: 1024px) {
+                    .musician-gallery[data-desktop-display="grid"]
+                    [data-gallery-layout="grid"] {
+                        display: grid !important;
+                    }
 
-                .musician-gallery[data-desktop-display="masonry"]
-                [data-gallery-layout="masonry"] {
-                    display: block !important;
-                }
+                    .musician-gallery[data-desktop-display="masonry"]
+                    [data-gallery-layout="masonry"] {
+                        display: block !important;
+                    }
 
-                .musician-gallery[data-desktop-display="editorial"]
-                [data-gallery-layout="editorial"] {
-                    display: block !important;
-                }
+                    .musician-gallery[data-desktop-display="editorial"]
+                    [data-gallery-layout="editorial"] {
+                        display: block !important;
+                    }
 
-
-                .musician-gallery[data-desktop-display="freeform"]
-                [data-gallery-layout="freeform"] {
-                    display: block !important;
+                    .musician-gallery[data-desktop-display="freeform"]
+                    [data-gallery-layout="freeform"] {
+                        display: block !important;
+                    }
                 }
 
                 .musician-freeform-scroll-scene {

@@ -2667,10 +2667,10 @@ export default function Settings({
 
                                                             {portfolioTemplate.type ===
                                                                 'premium' && (
-                                                                <span className="text-[8px] uppercase tracking-[0.15em] text-[#f0a7e5]">
-                                                                    Premium
-                                                                </span>
-                                                            )}
+                                                                    <span className="text-[8px] uppercase tracking-[0.15em] text-[#f0a7e5]">
+                                                                        Premium
+                                                                    </span>
+                                                                )}
                                                         </div>
 
                                                         <p className="mt-1 text-xs leading-5 text-zinc-600">
@@ -3518,13 +3518,20 @@ export default function Settings({
                                                         Masonry
                                                     </option>
 
-                                                    <option value="editorial">
-                                                        Editorial
-                                                    </option>
+                                                    {!(
+                                                        galleryDevice === 'mobile' &&
+                                                        ['default', 'editorial'].includes(template)
+                                                    ) && (
+                                                            <>
+                                                                <option value="editorial">
+                                                                    Editorial
+                                                                </option>
 
-                                                    <option value="freeform">
-                                                        Freeform
-                                                    </option>
+                                                                <option value="freeform">
+                                                                    Freeform
+                                                                </option>
+                                                            </>
+                                                        )}
                                                 </select>
                                             </div>
 
@@ -3830,7 +3837,7 @@ export default function Settings({
                             </GlassSection>
                         )}
 
-{/* Music */}
+                        {/* Music */}
 
                         {activeSection === 'media' && (
                             <GlassSection
@@ -4522,13 +4529,13 @@ export default function Settings({
 
                                         <input
                                             id="footer_logo"
-                                                                            type="file"
+                                            type="file"
                                             accept="image/jpeg,image/png,image/webp"
                                             onChange={(event) => {
                                                 const file = event.target.files?.[0] ?? null;
 
                                                 setFooterLogoError(null);
-                                                                                        setFooterLogo(file);
+                                                setFooterLogo(file);
                                                 setRemoveFooterLogo(false);
 
                                                 if (file) {
