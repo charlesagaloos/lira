@@ -23,8 +23,16 @@ class GoogleAuthController extends Controller
 
     public function callback()
     {
-        $googleUser = Socialite::driver('google')
-            ->user();
+        $googleUser = Socialite::driver('google')->user();
+
+        $email = $googleUser->getEmail();
+        $emailVerified = $googleUser->getRaw()['email_verified'] ?? false;
+
+        if (! is_string($email) || trim($email) === '' || $emailVerified !== true) {
+            return redirect()->route('login')->withErrors([
+                'email' => 'Google sign-in requires a verified Google email address.',
+            ]);
+        }
 
         $socialAccount = SocialAccount::query()
             ->where('provider', 'google')
@@ -38,7 +46,7 @@ class GoogleAuthController extends Controller
         }
 
         $user = User::query()
-            ->where('email', $googleUser->getEmail())
+            ->where('email', $email)
             ->first();
 
         if ($user) {
@@ -49,10 +57,10 @@ class GoogleAuthController extends Controller
                 ]);
         }
 
-        DB::transaction(function () use ($googleUser, &$user) {
+        DB::transaction(function () use ($googleUser, $email, &$user) {
             $user = User::create([
                 'name' => $googleUser->getName() ?: $googleUser->getEmail(),
-                'email' => $googleUser->getEmail(),
+                'email' => $email,
                 'password' => Str::random(40),
                 'email_verified_at' => now(),
             ]);

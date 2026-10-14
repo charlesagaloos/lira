@@ -156,22 +156,30 @@ class ArtistProfileController extends Controller
         $validated['avatar_position_x'] = $validated['avatar_position_x'] ?? 50;
         $validated['avatar_position_y'] = $validated['avatar_position_y'] ?? 50;
 
-        DB::transaction(function () use ($request, $validated, $socialLinks, &$profile) {
-            $profile = $request->user()->artistProfile()->create([
-                ...$validated,
-                'verification_status' => VerificationStatus::Pending,
-            ]);
-
-            foreach ($socialLinks as $position => $socialLink) {
-                $profile->socialLinks()->create([
-                    'platform' => $socialLink['platform'],
-                    'url' => $socialLink['url'],
-                    'position' => $position,
+        try {
+            DB::transaction(function () use ($request, $validated, $socialLinks, &$profile) {
+                $profile = $request->user()->artistProfile()->create([
+                    ...$validated,
+                    'verification_status' => VerificationStatus::Pending,
                 ]);
+
+                foreach ($socialLinks as $position => $socialLink) {
+                    $profile->socialLinks()->create([
+                        'platform' => $socialLink['platform'],
+                        'url' => $socialLink['url'],
+                        'position' => $position,
+                    ]);
+                }
+
+                $profile->portfolioSettings()->create();
+            });
+        } catch (\Throwable $exception) {
+            if (isset($validated['avatar'])) {
+                Storage::disk('public')->delete($validated['avatar']);
             }
 
-            $profile->portfolioSettings()->create();
-        });
+            throw $exception;
+        }
 
         return redirect()
             ->route('dashboard')
@@ -293,23 +301,32 @@ class ArtistProfileController extends Controller
         $validated['avatar_position_x'] = $validated['avatar_position_x'] ?? $profile->avatar_position_x ?? 50;
         $validated['avatar_position_y'] = $validated['avatar_position_y'] ?? $profile->avatar_position_y ?? 50;
 
-        DB::transaction(function () use ($profile, $validated, $socialLinks) {
-            $profile->update($validated);
 
-            $profile->socialLinks()->delete();
+        try {
+            DB::transaction(function () use ($profile, $validated, $socialLinks) {
+                $profile->update($validated);
 
-            foreach ($socialLinks as $position => $socialLink) {
-                $profile->socialLinks()->create([
-                    'platform' => $socialLink['platform'],
-                    'url' => $socialLink['url'],
-                    'position' => $position,
-                    'is_visible' => true,
-                ]);
+                $profile->socialLinks()->delete();
+
+                foreach ($socialLinks as $position => $socialLink) {
+                    $profile->socialLinks()->create([
+                        'platform' => $socialLink['platform'],
+                        'url' => $socialLink['url'],
+                        'position' => $position,
+                        'is_visible' => true,
+                    ]);
+                }
+            });
+        } catch (\Throwable $exception) {
+            if (isset($validated['avatar'])) {
+                Storage::disk('public')->delete($validated['avatar']);
             }
-        });
 
-        if (isset($oldAvatar) && $oldAvatar && $oldAvatar !== $profile->avatar)
-        {
+            throw $exception;
+        }
+
+
+        if (isset($oldAvatar) && $oldAvatar && $oldAvatar !== $profile->avatar) {
             Storage::disk('public')->delete($oldAvatar);
         }
 
