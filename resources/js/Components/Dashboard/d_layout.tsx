@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { usePage } from '@inertiajs/react';
 
 import Sidebar from './Sidebar';
 import DashboardHeader from './Header';
@@ -12,6 +13,9 @@ interface DashboardLayoutProps {
 const SIDEBAR_STORAGE_KEY = 'lira-sidebar-collapsed';
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
+    const { artistDashboardTheme } = usePage<{
+        artistDashboardTheme: 'dark' | 'light';
+    }>().props;
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     useEffect(() => {
@@ -35,7 +39,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
 
     return (
-        <main className="min-h-screen bg-[#050607] text-white">
+        <main
+            className="artist-dashboard min-h-screen bg-[#050607] text-white"
+            data-dashboard-theme={artistDashboardTheme}
+        >
 
             {/* =============================================================
                 APPLICATION SHELL
@@ -79,13 +86,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
 
                         {/* Base background */}
-                        <div className="absolute inset-0 bg-[#050607]" />
+                        <div className="artist-dashboard-backdrop-base absolute inset-0 bg-[#050607]" />
 
                         {/* Subtle chrome atmosphere */}
-                        <div className="absolute inset-0 bg-[linear-gradient(135deg,#050607_0%,#080a0c_45%,#050607_100%)]" />
+                        <div className="artist-dashboard-backdrop-atmosphere absolute inset-0 bg-[linear-gradient(135deg,#050607_0%,#080a0c_45%,#050607_100%)]" />
 
                         {/* Top chrome reflection */}
-                        <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)]" />
+                        <div className="artist-dashboard-backdrop-reflection absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)]" />
 
                         {/* Stable sparkle field */}
                         <ChromeSparkles />

@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, SlidersHorizontal } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -19,6 +19,7 @@ interface User {
 
 interface PageProps {
     profile: Profile | null;
+    artistDashboardTheme: 'dark' | 'light';
     auth: {
         user: User;
     };
@@ -326,12 +327,19 @@ export default function Sidebar({
     collapsed,
     onToggle,
 }: SidebarProps) {
-    const { profile, auth } = usePage().props as unknown as PageProps;
+    const { profile, auth, artistDashboardTheme } =
+        usePage().props as unknown as PageProps;
     const { url } = usePage();
     const isAdmin = Boolean(auth?.user?.is_admin);
+    const logoSrc = artistDashboardTheme === 'light'
+        ? '/images/brand/Lira_logo_black.png'
+        : '/images/brand/Lira_logo.png';
+    const isAdminDashboardActive =
+        url === '/dashboard/admin' || url.startsWith('/dashboard/admin/');
     const isAccountSettingsActive =
         url.startsWith('/dashboard/profile') ||
-        url.startsWith('/dashboard/security');
+        url.startsWith('/dashboard/security') ||
+        url.startsWith('/dashboard/settings');
 
     const [accountSettingsOpen, setAccountSettingsOpen] =
         useState(isAccountSettingsActive);
@@ -367,6 +375,7 @@ export default function Sidebar({
         url.startsWith('/dashboard/profile/edit');
 
     const isSecurityActive = url.startsWith('/dashboard/security');
+    const isSettingsActive = url.startsWith('/dashboard/settings');
 
     const isProjectsActive =
         url === '/dashboard/projects' ||
@@ -399,7 +408,7 @@ export default function Sidebar({
             >
                 <Link href="/dashboard" aria-label="LIRA home" className="group">
                     <img
-                        src="/images/brand/Lira_logo.png"
+                        src={logoSrc}
                         alt="LIRA"
                         className={`h-auto object-contain opacity-95 transition-all duration-300 group-hover:brightness-125 ${collapsed
                             ? 'w-[38px]'
@@ -436,6 +445,7 @@ export default function Sidebar({
                     <Link
                         href="/dashboard"
                         title={collapsed ? 'Overview' : undefined}
+                        aria-current={isOverviewActive ? 'page' : undefined}
                         className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
                             ? 'justify-center'
                             : 'justify-between px-4'
@@ -452,7 +462,7 @@ export default function Sidebar({
                             />
 
                             {!collapsed && (
-                                <span>Overview</span>
+                                <span className="artist-sidebar-tab-label">Overview</span>
                             )}
                         </span>
 
@@ -477,6 +487,7 @@ export default function Sidebar({
 
                             <Link
                                 href="/dashboard/projects"
+                                aria-current={isProjectsActive ? 'page' : undefined}
                                 title={
                                     collapsed
                                         ? 'Projects'
@@ -494,7 +505,7 @@ export default function Sidebar({
                                     <ProjectsIcon />
 
                                     {!collapsed && (
-                                        <span>Projects</span>
+                                        <span className="artist-sidebar-tab-label">Projects</span>
                                     )}
                                 </span>
 
@@ -511,6 +522,7 @@ export default function Sidebar({
 
                             <Link
                                 href="/dashboard/gallery"
+                                aria-current={isGalleryActive ? 'page' : undefined}
                                 title={
                                     collapsed
                                         ? 'Gallery'
@@ -528,7 +540,7 @@ export default function Sidebar({
                                     <GalleryIcon />
 
                                     {!collapsed && (
-                                        <span>Gallery</span>
+                                        <span className="artist-sidebar-tab-label">Gallery</span>
                                     )}
                                 </span>
 
@@ -545,6 +557,7 @@ export default function Sidebar({
 
                             <Link
                                 href="/dashboard/releases"
+                                aria-current={isReleasesActive ? 'page' : undefined}
                                 title={
                                     collapsed
                                         ? 'Music'
@@ -562,7 +575,7 @@ export default function Sidebar({
                                     <MusicIcon />
 
                                     {!collapsed && (
-                                        <span>Music</span>
+                                        <span className="artist-sidebar-tab-label">Music</span>
                                     )}
                                 </span>
 
@@ -581,6 +594,7 @@ export default function Sidebar({
 
                             <Link
                                 href="/dashboard/portfolio/settings"
+                                aria-current={isPortfolioActive ? 'page' : undefined}
                                 title={
                                     collapsed
                                         ? 'Portfolio'
@@ -598,7 +612,7 @@ export default function Sidebar({
                                     <PortfolioIcon />
 
                                     {!collapsed && (
-                                        <span>Portfolio</span>
+                                        <span className="artist-sidebar-tab-label">Portfolio</span>
                                     )}
                                 </span>
 
@@ -759,12 +773,11 @@ export default function Sidebar({
                         <Link
                             href="/dashboard/admin"
                             title={collapsed ? 'Admin Dashboard' : undefined}
+                            aria-current={isAdminDashboardActive ? 'page' : undefined}
                             className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
                                 ? 'justify-center'
                                 : 'justify-between px-4'
-                                } ${url === '/dashboard' || url === '/dashboard/' ||
-                                    url === '/dashboard/admin' ||
-                                    url.startsWith('/dashboard/admin/')
+                                } ${isAdminDashboardActive
                                     ? `border border-white/[0.08] bg-white/[0.045] text-white ${activeIconColor}`
                                     : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                                 }`}
@@ -777,17 +790,13 @@ export default function Sidebar({
                                 )}
                             </span>
 
-                            {!collapsed &&
-                                (url === '/dashboard/admin' ||
-                                    url.startsWith('/dashboard/admin/')) && (
-                                    <ActiveIndicator />
-                                )}
+                            {!collapsed && isAdminDashboardActive && (
+                                <ActiveIndicator />
+                            )}
 
-                            {collapsed &&
-                                (url === '/dashboard/admin' ||
-                                    url.startsWith('/dashboard/admin/')) && (
-                                    <CollapsedActiveIndicator />
-                                )}
+                            {collapsed && isAdminDashboardActive && (
+                                <CollapsedActiveIndicator />
+                            )}
                         </Link>
                     )}
                     {/* ACCOUNT SETTINGS */}
@@ -883,12 +892,25 @@ export default function Sidebar({
 
                                 {/* SETTINGS */}
 
-                                <div className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-zinc-700">
-                                    <span className="flex-1">Settings</span>
-                                    <span className="text-[8px] uppercase tracking-[0.15em]">
-                                        Soon
-                                    </span>
-                                </div>
+                                <Link
+                                    href="/dashboard/settings"
+                                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${isSettingsActive
+                                        ? `bg-white/[0.06] text-white ${activeIconColor}`
+                                        : 'text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                        }`}
+                                >
+                                    <SlidersHorizontal
+                                        className="h-4 w-4"
+                                        strokeWidth={1.5}
+                                        aria-hidden="true"
+                                    />
+                                    <span>Settings</span>
+                                    {isSettingsActive && (
+                                        <span className="ml-auto">
+                                            <ActiveIndicator />
+                                        </span>
+                                    )}
+                                </Link>
                             </div>
                         )}
                     </div>
@@ -902,9 +924,12 @@ export default function Sidebar({
             {!collapsed && (
                 <div className="shrink-0 border-t border-white/[0.07] p-6">
                     <img
-                        src="/images/brand/Lira_logo.png"
+                        src={logoSrc}
                         alt="LIRA"
-                        className="h-auto w-[72px] opacity-50"
+                        className={`artist-sidebar-footer-logo h-auto w-[72px] ${artistDashboardTheme === 'light'
+                            ? 'opacity-80'
+                            : 'opacity-50'
+                            }`}
                     />
 
                     <p className="mt-3 text-[10px] leading-5 text-zinc-700">

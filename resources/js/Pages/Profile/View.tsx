@@ -556,48 +556,6 @@ export default function View({ profile }: Props) {
                             </div>
                         </div>
                     </GlassSection>
-
-                    {/* =====================================================
-                        PROFILE URL
-                    ====================================================== */}
-
-                    <div className="relative overflow-hidden rounded-[1.5rem] border border-white/[0.08] bg-[linear-gradient(145deg,rgba(255,255,255,0.03),rgba(255,255,255,0.008))] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
-                        <ChromeSparkle
-                            size="sm"
-                            className="right-8 top-6 opacity-20"
-                        />
-
-                        <div className="relative flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
-                            <div>
-                                <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">
-                                    Public Profile
-                                </p>
-
-                                <p className="mt-2 text-sm text-zinc-500">
-                                    Your LIRA profile
-                                </p>
-                            </div>
-
-                            {isVerified ? (
-                                <a
-                                    href={`/@${profile.username}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="group inline-flex shrink-0 items-center gap-2 text-xs text-zinc-500 transition hover:text-white"
-                                >
-                                    <span className="break-all">
-                                        /@{profile.username}
-                                    </span>
-
-                                    <ArrowUpRight className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                                </a>
-                            ) : (
-                                <span className="text-[9px] uppercase tracking-[0.2em] text-zinc-700">
-                                    Available after verification
-                                </span>
-                            )}
-                        </div>
-                    </div>
                 </div>
             </div>
         </DashboardLayout>

@@ -75,7 +75,7 @@ function GalleryCard({
             <div className="pointer-events-none absolute inset-x-0 top-0 z-40 h-px bg-[linear-gradient(90deg,transparent_5%,rgba(255,255,255,0.32)_35%,rgba(255,255,255,0.12)_55%,transparent_95%)] opacity-70" />
 
             <div className="pointer-events-none absolute left-5 top-5 z-40">
-                <span className="text-[8px] uppercase tracking-[0.2em] text-white/50">
+                <span className="artist-dashboard-media-overlay-text text-[8px] uppercase tracking-[0.2em] text-white/50">
                     {String(index + 1).padStart(2, '0')}
                 </span>
             </div>
@@ -100,7 +100,7 @@ function GalleryCard({
                         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-32 bg-[linear-gradient(to_top,rgba(5,6,7,0.82),transparent)]" />
 
                         <div className="pointer-events-none absolute bottom-5 left-5 z-30">
-                            <span className="text-[8px] uppercase tracking-[0.28em] text-white/45">
+                            <span className="artist-dashboard-media-overlay-text text-[8px] uppercase tracking-[0.28em] text-white/45">
                                 LIRA / GALLERY
                             </span>
                         </div>

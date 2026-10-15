@@ -512,7 +512,7 @@ export default function Edit({
 
                                                     <div>
 
-                                                        <p className="text-[9px] uppercase tracking-[0.2em] text-white/50">
+                                                        <p className="artist-dashboard-media-overlay-text text-[9px] uppercase tracking-[0.2em] text-white/50">
                                                             Current artwork
                                                         </p>
 
@@ -1173,7 +1173,7 @@ function ReleaseTypeDropdown({
                     setOpen((current) => !current)
                 }
                 onKeyDown={handleKeyDown}
-                className={`flex h-[50px] w-full items-center justify-between rounded-2xl border px-4 text-left transition ${open
+                className={`artist-release-type-trigger flex h-[50px] w-full items-center justify-between rounded-2xl border px-4 text-left transition ${open
                         ? 'border-white/20 bg-white/[0.06] ring-1 ring-white/[0.06]'
                         : 'border-white/[0.08] bg-black/30 hover:border-white/[0.15]'
                     }`}
@@ -1222,7 +1222,7 @@ function ReleaseTypeDropdown({
             {open && (
                 <div
                     role="listbox"
-                    className="mt-2 w-full overflow-hidden rounded-2xl border border-white/[0.12] bg-[#08090b] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.65)]"
+                    className="artist-release-type-menu mt-2 w-full overflow-hidden rounded-2xl border border-white/[0.12] bg-[#08090b] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.65)]"
                 >
                     {/* Chrome reflection */}
 
@@ -1248,13 +1248,13 @@ function ReleaseTypeDropdown({
 
                                         setOpen(false);
                                     }}
-                                    className={`group flex w-full items-start gap-3 rounded-xl px-3 py-3.5 text-left transition ${isSelected
+                                    className={`artist-release-type-option group flex w-full items-start gap-3 rounded-xl px-3 py-3.5 text-left transition ${isSelected
                                             ? 'bg-white/[0.08]'
                                             : 'hover:bg-white/[0.045]'
                                         }`}
                                 >
                                     <span
-                                        className={`mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full transition ${isSelected
+                                        className={`artist-release-type-dot mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full transition ${isSelected
                                                 ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.55)]'
                                                 : 'bg-zinc-700 group-hover:bg-zinc-400'
                                             }`}
@@ -1262,7 +1262,7 @@ function ReleaseTypeDropdown({
 
                                     <span className="min-w-0 flex-1">
                                         <span
-                                            className={`block text-sm font-medium transition ${isSelected
+                                            className={`artist-release-type-label block text-sm font-medium transition ${isSelected
                                                     ? 'text-white'
                                                     : 'text-zinc-300 group-hover:text-white'
                                                 }`}
@@ -1273,7 +1273,7 @@ function ReleaseTypeDropdown({
                                         </span>
 
                                         <span
-                                            className={`mt-1 block text-[10px] leading-4 transition ${isSelected
+                                            className={`artist-release-type-description mt-1 block text-[10px] leading-4 transition ${isSelected
                                                     ? 'text-zinc-500'
                                                     : 'text-zinc-600 group-hover:text-zinc-500'
                                                 }`}
@@ -1285,7 +1285,7 @@ function ReleaseTypeDropdown({
                                     </span>
 
                                     {isSelected && (
-                                        <span className="pt-0.5 text-zinc-300">
+                                        <span className="artist-release-type-check pt-0.5 text-zinc-300">
                                             <svg
                                                 viewBox="0 0 20 20"
                                                 fill="none"

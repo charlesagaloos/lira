@@ -566,7 +566,7 @@ export default function Create() {
 
                                                     <div>
 
-                                                        <p className="text-[9px] uppercase tracking-[0.2em] text-white/50">
+                                                        <p className="artist-dashboard-media-overlay-text text-[9px] uppercase tracking-[0.2em] text-white/50">
                                                             Selected artwork
                                                         </p>
 
@@ -989,7 +989,7 @@ export default function Create() {
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(90deg,#fff_0%,#c8f5ff_22%,#a393ff_50%,#f28bd7_76%,#fff_100%)] px-5 py-3.5 text-sm font-semibold text-zinc-950 shadow-[0_8px_30px_rgba(120,200,255,0.12)] transition duration-300 hover:shadow-[0_10px_40px_rgba(160,140,255,0.18)] disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="artist-dashboard-create-submit group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-white/40 bg-[linear-gradient(105deg,#32ddff_0%,#6677ff_20%,#a955ff_38%,#f05abd_51%,#ff8ed3_63%,#7b63ff_78%,#34dcff_94%)] px-5 py-3.5 text-sm font-semibold text-[#08090b] shadow-[0_8px_35px_rgba(90,150,255,0.16)] transition duration-300 hover:scale-[1.015] hover:shadow-[0_12px_50px_rgba(190,80,255,0.24)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                                     >
 
                                         <span>
@@ -1206,7 +1206,7 @@ function ReleaseTypeDropdown({
                     setOpen((current) => !current)
                 }
                 onKeyDown={handleKeyDown}
-                className={`flex h-[50px] w-full items-center justify-between rounded-2xl border px-4 text-left transition ${open
+                className={`artist-release-type-trigger flex h-[50px] w-full items-center justify-between rounded-2xl border px-4 text-left transition ${open
                         ? 'border-white/20 bg-white/[0.06] ring-1 ring-white/[0.06]'
                         : 'border-white/[0.08] bg-black/30 hover:border-white/[0.15]'
                     }`}
@@ -1245,7 +1245,7 @@ function ReleaseTypeDropdown({
             {open && (
                 <div
                     role="listbox"
-                    className="mt-2 w-full overflow-hidden rounded-2xl border border-white/[0.12] bg-[#08090b] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.65)]"
+                    className="artist-release-type-menu mt-2 w-full overflow-hidden rounded-2xl border border-white/[0.12] bg-[#08090b] p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.65)]"
                 >
                     <div className="pointer-events-none absolute left-0 right-0 top-[58px] h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent)]" />
 
@@ -1269,13 +1269,13 @@ function ReleaseTypeDropdown({
 
                                         setOpen(false);
                                     }}
-                                    className={`group flex w-full items-start gap-3 rounded-xl px-3 py-3.5 text-left transition ${isSelected
+                                    className={`artist-release-type-option group flex w-full items-start gap-3 rounded-xl px-3 py-3.5 text-left transition ${isSelected
                                             ? 'bg-white/[0.08]'
                                             : 'hover:bg-white/[0.045]'
                                         }`}
                                 >
                                     <span
-                                        className={`mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full transition ${isSelected
+                                        className={`artist-release-type-dot mt-[6px] h-1.5 w-1.5 shrink-0 rounded-full transition ${isSelected
                                                 ? 'bg-white shadow-[0_0_10px_rgba(255,255,255,0.55)]'
                                                 : 'bg-zinc-700 group-hover:bg-zinc-400'
                                             }`}
@@ -1283,7 +1283,7 @@ function ReleaseTypeDropdown({
 
                                     <span className="min-w-0 flex-1">
                                         <span
-                                            className={`block text-sm font-medium transition ${isSelected
+                                            className={`artist-release-type-label block text-sm font-medium transition ${isSelected
                                                     ? 'text-white'
                                                     : 'text-zinc-300 group-hover:text-white'
                                                 }`}
@@ -1294,7 +1294,7 @@ function ReleaseTypeDropdown({
                                         </span>
 
                                         <span
-                                            className={`mt-1 block text-[10px] leading-4 transition ${isSelected
+                                            className={`artist-release-type-description mt-1 block text-[10px] leading-4 transition ${isSelected
                                                     ? 'text-zinc-500'
                                                     : 'text-zinc-600 group-hover:text-zinc-500'
                                                 }`}
@@ -1306,7 +1306,7 @@ function ReleaseTypeDropdown({
                                     </span>
 
                                     {isSelected && (
-                                        <span className="pt-0.5 text-zinc-300">
+                                        <span className="artist-release-type-check pt-0.5 text-zinc-300">
                                             <svg
                                                 viewBox="0 0 20 20"
                                                 fill="none"

@@ -18,7 +18,7 @@ const sparkles = [
 
 export default function ChromeSparkles() {
     return (
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="artist-dashboard-sparkles pointer-events-none absolute inset-0 overflow-hidden">
             {sparkles.map((sparkle, index) => (
                 <span
                     key={index}
@@ -31,19 +31,19 @@ export default function ChromeSparkles() {
                     }}
                 >
                     {/* Core */}
-                    <span className="absolute inset-0 rounded-full bg-white/80 shadow-[0_0_8px_rgba(255,255,255,0.7),0_0_18px_rgba(160,220,255,0.35)]" />
+                    <span className="artist-dashboard-sparkle-core absolute inset-0 rounded-full bg-white/80 shadow-[0_0_8px_rgba(255,255,255,0.7),0_0_18px_rgba(160,220,255,0.35)]" />
 
                     {/* Vertical chrome reflection */}
                     {sparkle.size > 1 && (
                         <span
-                            className="absolute left-1/2 top-1/2 h-5 w-px -translate-x-1/2 -translate-y-1/2 bg-[linear-gradient(to_bottom,transparent,rgba(255,255,255,0.75),transparent)]"
+                            className="artist-dashboard-sparkle-reflection-vertical absolute left-1/2 top-1/2 h-5 w-px -translate-x-1/2 -translate-y-1/2 bg-[linear-gradient(to_bottom,transparent,rgba(255,255,255,0.75),transparent)]"
                         />
                     )}
 
                     {/* Horizontal chrome reflection */}
                     {sparkle.size > 1 && (
                         <span
-                            className="absolute left-1/2 top-1/2 h-px w-5 -translate-x-1/2 -translate-y-1/2 bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.75),transparent)]"
+                            className="artist-dashboard-sparkle-reflection-horizontal absolute left-1/2 top-1/2 h-px w-5 -translate-x-1/2 -translate-y-1/2 bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.75),transparent)]"
                         />
                     )}
                 </span>

@@ -49,6 +49,8 @@ class HandleInertiaRequests extends Middleware
                     : null,
             ],
 
+            'artistDashboardTheme' => fn() => $request->user()?->dashboard_theme ?? 'dark',
+
             'profile' => fn() => $request->user()?->artistProfile?->only([
                 'id',
                 'username',

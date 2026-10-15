@@ -1449,7 +1449,7 @@ export default function Edit({ profile }: Props) {
                                 </div>
 
                                 <div
-                                    className={`shrink-0 rounded-full border px-4 py-2 text-[9px] uppercase tracking-[0.2em] ${verificationStatus === 'verified'
+                                    className={`artist-profile-published-status ${profile.is_published ? 'is-published' : 'is-unpublished'} shrink-0 rounded-full border px-4 py-2 text-[9px] uppercase tracking-[0.2em] ${verificationStatus === 'verified'
                                         ? 'border-[#7de7ff]/20 bg-[#7de7ff]/[0.04] text-[#7de7ff]'
                                         : verificationStatus ===
                                             'rejected'
@@ -1488,15 +1488,15 @@ export default function Edit({ profile }: Props) {
             </div>
             {isAvatarEditorOpen && avatarPreview && (
                 <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-md"
+                    className="artist-avatar-editor-backdrop fixed inset-0 z-[100] flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-md"
                     onMouseDown={(event) => {
                         if (event.target === event.currentTarget) {
                             closeAvatarEditor();
                         }
                     }}
                 >
-                    <div className="relative flex w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-white/[0.10] bg-[#0b0d0f] shadow-[0_40px_120px_rgba(0,0,0,0.65)]">
-                        <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-7">
+                    <div className="artist-avatar-editor relative flex w-full max-w-3xl flex-col overflow-hidden rounded-[1.5rem] border border-white/[0.10] bg-[#0b0d0f] shadow-[0_40px_120px_rgba(0,0,0,0.65)]">
+                        <div className="artist-avatar-editor-header flex items-center justify-between border-b border-white/[0.07] px-5 py-4 sm:px-7">
                             <div>
                                 <p className="text-[9px] uppercase tracking-[0.28em] text-zinc-600">
                                     Profile / Image
@@ -1509,17 +1509,17 @@ export default function Edit({ profile }: Props) {
                             <button
                                 type="button"
                                 onClick={closeAvatarEditor}
-                                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
+                                className="artist-avatar-editor-close flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
                                 aria-label="Close image editor"
                             >
                                 ×
                             </button>
                         </div>
 
-                        <div className="flex max-h-[70vh] justify-center overflow-auto bg-[#070809] p-5 sm:p-8">
+                        <div className="artist-avatar-editor-canvas flex max-h-[70vh] justify-center overflow-auto bg-[#070809] p-5 sm:p-8">
                             <div
                                 ref={avatarEditorViewportRef}
-                                className="relative max-w-full cursor-grab touch-none overflow-hidden bg-black active:cursor-grabbing"
+                                className="artist-avatar-editor-viewport relative max-w-full cursor-grab touch-none overflow-hidden bg-black active:cursor-grabbing"
                                 style={{
                                     ...(() => {
                                         const aspectRatio =
@@ -1579,10 +1579,10 @@ export default function Edit({ profile }: Props) {
                                 />
 
                                 <div className="pointer-events-none absolute inset-0">
-                                    <div className="absolute inset-0 bg-black/35" />
+                                    <div className="artist-avatar-editor-shade absolute inset-0 bg-black/35" />
 
                                     <div
-                                        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.36)] ${avatarNaturalSize.width <
+                                        className={`artist-avatar-editor-crop absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/90 shadow-[0_0_0_9999px_rgba(0,0,0,0.36)] ${avatarNaturalSize.width <
                                             avatarNaturalSize.height
                                             ? 'aspect-square w-full'
                                             : 'aspect-square h-full'
@@ -1590,21 +1590,21 @@ export default function Edit({ profile }: Props) {
                                     />
 
                                     <div
-                                        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ring-1 ring-white/20 ${avatarNaturalSize.width <
+                                        className={`artist-avatar-editor-crop-ring absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full ring-1 ring-white/20 ${avatarNaturalSize.width <
                                             avatarNaturalSize.height
                                             ? 'aspect-square w-full'
                                             : 'aspect-square h-full'
                                             }`}
                                     />
 
-                                    <div className="absolute inset-x-0 bottom-5 text-center text-[9px] uppercase tracking-[0.2em] text-white/55">
+                                    <div className="artist-avatar-editor-hint absolute inset-x-0 bottom-5 text-center text-[9px] uppercase tracking-[0.2em] text-white/55">
                                         Drag to reposition
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="border-t border-white/[0.07] px-5 py-5 sm:px-7 sm:py-6">
+                        <div className="artist-avatar-editor-controls border-t border-white/[0.07] px-5 py-5 sm:px-7 sm:py-6">
                             <div className="mx-auto max-w-xl">
                                 <div className="flex items-center gap-4">
                                     <button
@@ -1617,7 +1617,7 @@ export default function Edit({ profile }: Props) {
                                                 ),
                                             )
                                         }
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
+                                        className="artist-avatar-editor-zoom flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
                                         aria-label="Zoom out"
                                     >
                                         −
@@ -1632,7 +1632,7 @@ export default function Edit({ profile }: Props) {
                                         onChange={(event) =>
                                             setEditorZoom(Number(event.target.value))
                                         }
-                                        className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-white"
+                                        className="artist-avatar-editor-slider h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-white/[0.08] accent-white"
                                         aria-label="Profile picture zoom"
                                     />
 
@@ -1646,7 +1646,7 @@ export default function Edit({ profile }: Props) {
                                                 ),
                                             )
                                         }
-                                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
+                                        className="artist-avatar-editor-zoom flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/[0.08] text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
                                         aria-label="Zoom in"
                                     >
                                         +
@@ -1665,7 +1665,7 @@ export default function Edit({ profile }: Props) {
                                     <button
                                         type="button"
                                         onClick={resetAvatarEditor}
-                                        className="text-[9px] uppercase tracking-[0.2em] text-zinc-600 transition hover:text-white"
+                                        className="artist-avatar-editor-reset text-[9px] uppercase tracking-[0.2em] text-zinc-600 transition hover:text-white"
                                     >
                                         Reset
                                     </button>
@@ -1674,7 +1674,7 @@ export default function Edit({ profile }: Props) {
                                         <button
                                             type="button"
                                             onClick={closeAvatarEditor}
-                                            className="h-10 rounded-full border border-white/[0.08] px-5 text-xs text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
+                                            className="artist-avatar-editor-cancel h-10 rounded-full border border-white/[0.08] px-5 text-xs text-zinc-500 transition hover:border-white/[0.16] hover:text-white"
                                         >
                                             Cancel
                                         </button>
@@ -1682,7 +1682,7 @@ export default function Edit({ profile }: Props) {
                                         <button
                                             type="button"
                                             onClick={applyAvatarEditor}
-                                            className="h-10 rounded-full border border-white/30 bg-white px-5 text-xs font-medium text-black transition hover:bg-white/90"
+                                            className="artist-avatar-editor-apply h-10 rounded-full border border-white/30 bg-white px-5 text-xs font-medium text-black transition hover:bg-white/90"
                                         >
                                             Apply
                                         </button>

@@ -630,7 +630,7 @@ export default function Create() {
                                                 {!isDragging && (
                                                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                                                         <div className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-black/50 px-5 py-4 text-center opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
-                                                            <div className="relative h-6 w-6 text-white/80">
+                                                            <div className="artist-dashboard-media-overlay-text relative h-6 w-6 text-white/80">
                                                                 <span className="absolute left-1/2 top-0 -translate-x-1/2 text-sm">
                                                                     ↑
                                                                 </span>
@@ -658,7 +658,7 @@ export default function Create() {
                                                 {/* Selected image information */}
                                                 <div className="pointer-events-none absolute bottom-4 left-4 right-4 flex items-end justify-between gap-4">
                                                     <div>
-                                                        <p className="text-[9px] uppercase tracking-[0.2em] text-white/50">
+                                                        <p className="artist-dashboard-media-overlay-text text-[9px] uppercase tracking-[0.2em] text-white/50">
                                                             Selected image
                                                         </p>
 
@@ -711,7 +711,7 @@ export default function Create() {
                                                             ),
                                                         )
                                                     }
-                                                    className="flex-1 accent-white"
+                                                    className="artist-project-image-zoom flex-1 accent-white"
                                                     aria-label="Image zoom"
                                                 />
 
@@ -849,7 +849,7 @@ export default function Create() {
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(90deg,#fff_0%,#c8f5ff_22%,#a393ff_50%,#f28bd7_76%,#fff_100%)] px-5 py-3.5 text-sm font-semibold text-zinc-950 shadow-[0_8px_30px_rgba(120,200,255,0.12)] transition duration-300 hover:shadow-[0_10px_40px_rgba(160,140,255,0.18)] disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="artist-dashboard-create-submit group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-white/40 bg-[linear-gradient(105deg,#32ddff_0%,#6677ff_20%,#a955ff_38%,#f05abd_51%,#ff8ed3_63%,#7b63ff_78%,#34dcff_94%)] px-5 py-3.5 text-sm font-semibold text-[#08090b] shadow-[0_8px_35px_rgba(90,150,255,0.16)] transition duration-300 hover:scale-[1.015] hover:shadow-[0_12px_50px_rgba(190,80,255,0.24)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                                     >
                                         <span>
                                             {processing

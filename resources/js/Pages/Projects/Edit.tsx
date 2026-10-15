@@ -722,7 +722,7 @@ export default function Edit({ project }: Props) {
                                                 {!isDragging && (
                                                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                                                         <div className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-black/50 px-5 py-4 text-center opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100">
-                                                            <div className="relative h-6 w-6 text-white/80">
+                                                            <div className="artist-dashboard-media-overlay-text relative h-6 w-6 text-white/80">
                                                                 <span className="absolute left-1/2 top-0 -translate-x-1/2 text-sm">
                                                                     ↑
                                                                 </span>
@@ -750,7 +750,7 @@ export default function Edit({ project }: Props) {
                                                 {/* Current image */}
                                                 <div className="pointer-events-none absolute bottom-4 left-4 right-4 flex items-end justify-between gap-4">
                                                     <div>
-                                                        <p className="text-[9px] uppercase tracking-[0.2em] text-white/50">
+                                                        <p className="artist-dashboard-media-overlay-text text-[9px] uppercase tracking-[0.2em] text-white/50">
                                                             Current image
                                                         </p>
 

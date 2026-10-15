@@ -954,7 +954,7 @@ export default function Dashboard({
                             Good to see you again,
                             <br />
 
-                            <span className="bg-[linear-gradient(90deg,#fff_0%,#bdefff_24%,#9d8cff_58%,#f08bd7_82%,#fff_100%)] bg-clip-text text-transparent">
+                            <span className="artist-dashboard-greeting-name bg-[linear-gradient(90deg,#fff_0%,#bdefff_24%,#9d8cff_58%,#f08bd7_82%,#fff_100%)] bg-clip-text text-transparent">
                                 {profile.display_name}.
                             </span>
                         </h1>
@@ -1492,7 +1492,7 @@ export default function Dashboard({
                                             {/* Project type */}
 
                                             <div className="absolute bottom-4 left-4">
-                                                <span className="text-[8px] uppercase tracking-[0.25em] text-white/60">
+                                                <span className="artist-dashboard-media-overlay-text text-[8px] uppercase tracking-[0.25em] text-white/60">
                                                     {project.project_type || 'Project'}
                                                 </span>
                                             </div>

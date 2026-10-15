@@ -78,7 +78,7 @@ export default function ConfirmModal({
 
     return (
         <div
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 p-4 backdrop-blur-md"
+            className="artist-confirm-modal-backdrop fixed inset-0 z-[200] flex items-center justify-center bg-black/75 p-4 backdrop-blur-md"
             onMouseDown={(event) => {
                 if (
                     event.target === event.currentTarget &&
@@ -93,7 +93,7 @@ export default function ConfirmModal({
                 aria-modal="true"
                 aria-labelledby="confirm-modal-title"
                 aria-describedby="confirm-modal-description"
-                className="w-full max-w-md overflow-hidden rounded-2xl border border-white/[0.10] bg-[#0b0d0f] shadow-[0_30px_100px_rgba(0,0,0,0.65)]"
+                className="artist-confirm-modal w-full max-w-md overflow-hidden rounded-2xl border border-white/[0.10] bg-[#0b0d0f] shadow-[0_30px_100px_rgba(0,0,0,0.65)]"
             >
                 <div className="flex items-start justify-between border-b border-white/[0.07] p-5 sm:p-6">
                     <div className="flex items-start gap-4">
@@ -124,18 +124,18 @@ export default function ConfirmModal({
                         onClick={onCancel}
                         disabled={isLoading}
                         aria-label="Close confirmation"
-                        className="ml-3 rounded-lg p-1.5 text-zinc-600 transition hover:bg-white/[0.05] hover:text-white disabled:opacity-40"
+                        className="artist-confirm-modal-close ml-3 rounded-lg p-1.5 text-zinc-600 transition hover:bg-white/[0.05] hover:text-white disabled:opacity-40"
                     >
                         <X className="h-4 w-4" />
                     </button>
                 </div>
 
-                <div className="flex flex-col-reverse gap-2 border-t border-white/[0.05] bg-white/[0.015] p-5 sm:flex-row sm:justify-end sm:p-6">
+                <div className="artist-confirm-modal-actions flex flex-col-reverse gap-2 border-t border-white/[0.05] bg-white/[0.015] p-5 sm:flex-row sm:justify-end sm:p-6">
                     <button
                         type="button"
                         onClick={onCancel}
                         disabled={isLoading}
-                        className="inline-flex h-10 items-center justify-center rounded-xl border border-white/[0.08] px-5 text-xs text-zinc-400 transition hover:bg-white/[0.04] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                        className="artist-confirm-modal-cancel inline-flex h-10 items-center justify-center rounded-xl border border-white/[0.08] px-5 text-xs text-zinc-400 transition hover:bg-white/[0.04] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         {cancelText}
                     </button>
@@ -144,7 +144,7 @@ export default function ConfirmModal({
                         type="button"
                         onClick={onConfirm}
                         disabled={isLoading}
-                        className={`inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${styles.button}`}
+                        className={`artist-confirm-modal-confirm artist-confirm-modal-confirm-${variant} inline-flex h-10 items-center justify-center gap-2 rounded-xl border px-5 text-xs font-medium transition disabled:cursor-not-allowed disabled:opacity-50 ${styles.button}`}
                     >
                         {isLoading && (
                             <LoaderCircle className="h-3.5 w-3.5 animate-spin" />

@@ -34,9 +34,23 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        return Inertia::render('Projects/Create');
+        $profile = $request->user()->artistProfile;
+
+        return Inertia::render('Projects/Create', [
+            'profile' => $profile->only([
+                'id',
+                'username',
+                'avatar',
+                'avatar_zoom',
+                'avatar_position_x',
+                'avatar_position_y',
+                'display_name',
+                'verification_status',
+                'is_published',
+            ]),
+        ]);
     }
 
     public function edit(Request $request, int $project): Response

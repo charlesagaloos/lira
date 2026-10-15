@@ -229,7 +229,7 @@ export default function Create() {
 
                                                 <div className="pointer-events-none absolute bottom-4 left-4 right-4 flex items-end justify-between gap-4">
                                                     <div className="min-w-0">
-                                                        <p className="text-[9px] uppercase tracking-[0.2em] text-white/50">
+                                                        <p className="artist-dashboard-media-overlay-text text-[9px] uppercase tracking-[0.2em] text-white/50">
                                                             Selected image
                                                         </p>
 
@@ -455,7 +455,7 @@ export default function Create() {
                                             processing ||
                                             !data.image
                                         }
-                                        className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-[linear-gradient(90deg,#fff_0%,#c8f5ff_22%,#a393ff_50%,#f28bd7_76%,#fff_100%)] px-5 py-3.5 text-sm font-semibold text-zinc-950 shadow-[0_8px_30px_rgba(120,200,255,0.12)] transition duration-300 hover:shadow-[0_10px_40px_rgba(160,140,255,0.18)] disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="artist-dashboard-create-submit group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-white/40 bg-[linear-gradient(105deg,#32ddff_0%,#6677ff_20%,#a955ff_38%,#f05abd_51%,#ff8ed3_63%,#7b63ff_78%,#34dcff_94%)] px-5 py-3.5 text-sm font-semibold text-[#08090b] shadow-[0_8px_35px_rgba(90,150,255,0.16)] transition duration-300 hover:scale-[1.015] hover:shadow-[0_12px_50px_rgba(190,80,255,0.24)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                                     >
                                         <span>
                                             {processing

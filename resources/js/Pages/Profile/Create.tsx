@@ -1220,7 +1220,7 @@ export default function Create() {
                         <button
                             type="submit"
                             disabled={form.processing}
-                            className="group relative inline-flex h-12 shrink-0 items-center justify-center gap-3 overflow-hidden rounded-full border border-white/40 bg-[linear-gradient(105deg,#32ddff_0%,#6677ff_20%,#a955ff_38%,#f05abd_51%,#ff8ed3_63%,#7b63ff_78%,#34dcff_94%)] px-7 text-sm font-medium text-[#08090b] shadow-[0_8px_35px_rgba(90,150,255,0.16)] transition duration-300 hover:scale-[1.015] hover:shadow-[0_12px_50px_rgba(190,80,255,0.24)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+                            className="artist-dashboard-create-submit group relative inline-flex h-12 shrink-0 items-center justify-center gap-3 overflow-hidden rounded-full border border-white/40 bg-[linear-gradient(105deg,#32ddff_0%,#6677ff_20%,#a955ff_38%,#f05abd_51%,#ff8ed3_63%,#7b63ff_78%,#34dcff_94%)] px-7 text-sm font-medium text-[#08090b] shadow-[0_8px_35px_rgba(90,150,255,0.16)] transition duration-300 hover:scale-[1.015] hover:shadow-[0_12px_50px_rgba(190,80,255,0.24)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                         >
                             <span className="pointer-events-none absolute inset-0 bg-[linear-gradient(110deg,transparent_20%,rgba(255,255,255,0.6)_48%,transparent_72%)] opacity-0 transition duration-700 group-hover:translate-x-[25%] group-hover:opacity-100" />
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\ArtistProfileController;
 use App\Http\Controllers\Admin\ArtistVerificationController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ArtistSettingsController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortfolioController;
@@ -27,6 +28,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::get('/dashboard/security', [SecurityController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('security.show');
+
+Route::get('/dashboard/settings', [ArtistSettingsController::class, 'edit'])
+    ->middleware(['auth', 'verified'])
+    ->name('artist-settings.edit');
+
+Route::patch('/dashboard/settings', [ArtistSettingsController::class, 'update'])
+    ->middleware(['auth', 'verified'])
+    ->name('artist-settings.update');
 
 Route::put('/dashboard/security/password', [SecurityController::class, 'updatePassword'])
     ->middleware(['auth', 'verified', 'throttle:5,1'])

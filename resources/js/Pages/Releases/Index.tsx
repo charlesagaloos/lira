@@ -86,7 +86,7 @@ function ReleaseArtwork({
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-28 bg-[linear-gradient(to_top,rgba(5,6,7,0.78),transparent)]" />
 
             <div className="pointer-events-none absolute bottom-4 left-5 z-20">
-                <span className="text-[8px] uppercase tracking-[0.28em] text-white/45">
+                <span className="artist-dashboard-media-overlay-text text-[8px] uppercase tracking-[0.28em] text-white/45">
                     LIRA / MUSIC
                 </span>
             </div>
@@ -129,7 +129,7 @@ function ReleaseCard({
             {/* Release number */}
 
             <div className="pointer-events-none absolute left-5 top-5 z-40">
-                <span className="text-[8px] uppercase tracking-[0.2em] text-white/50">
+                <span className="artist-dashboard-media-overlay-text text-[8px] uppercase tracking-[0.2em] text-white/50">
                     {String(index + 1).padStart(2, '0')}
                 </span>
             </div>

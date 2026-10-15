@@ -11,7 +11,7 @@ import {
     useState,
 } from 'react';
 
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 
 import DashboardLayout from '../../Components/Dashboard/d_layout';
 import templates from '../Public/templates';
@@ -395,8 +395,8 @@ function PaletteButton({
                 }`}
         >
             {active && (
-                <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.06]">
-                    <CheckIcon className="h-3 w-3 text-white" />
+                <div className="artist-portfolio-palette-check-wrap absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.06]">
+                    <CheckIcon className="artist-portfolio-palette-check h-3 w-3 text-white" />
                 </div>
             )}
 
@@ -550,10 +550,10 @@ function CoverImagePreview({
 
 
 
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+            <div className="artist-portfolio-cover-shade pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
             {coverImage && (
-                <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/35 px-4 py-2 text-[9px] uppercase tracking-[0.18em] text-white/70 opacity-0 backdrop-blur-md transition group-hover:opacity-100">
+                <div className="artist-portfolio-cover-drag-hint pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/35 px-4 py-2 text-[9px] uppercase tracking-[0.18em] text-white/70 opacity-0 backdrop-blur-md transition group-hover:opacity-100">
                     Drag to reposition
                 </div>
             )}
@@ -704,7 +704,7 @@ function WireDot({
 
 function DefaultWireframe({ accentColor }: { accentColor: string }) {
     return (
-        <div className="relative min-h-[620px] overflow-hidden bg-[#090a0b] text-white">
+        <div className="artist-portfolio-wireframe relative min-h-[620px] overflow-hidden bg-[#090a0b] text-white">
             <div className="absolute inset-2 border border-white/[0.12]" />
 
             <div className="relative z-10 flex items-center justify-between px-4 py-4">
@@ -766,7 +766,7 @@ function DefaultWireframe({ accentColor }: { accentColor: string }) {
 
 function EditorialWireframe({ accentColor }: { accentColor: string }) {
     return (
-        <div className="overflow-hidden bg-[#08090b] text-white">
+        <div className="artist-portfolio-wireframe overflow-hidden bg-[#08090b] text-white">
             <div className="flex items-center justify-between border-b border-white px-4 py-3">
                 <span className="text-[8px] uppercase tracking-[0.35em]">ARTIST NAME</span>
                 <div className="flex gap-5 text-[6px] uppercase tracking-[0.18em] text-white"><span>About</span><span>Projects</span><span>Galleries</span></div>
@@ -810,8 +810,8 @@ function EditorialWireframe({ accentColor }: { accentColor: string }) {
 
 function CanvasWireframe({ accentColor }: { accentColor: string }) {
     return (
-        <div className="relative min-h-[620px] overflow-hidden bg-[#08090a] text-white">
-            <div className="absolute inset-0 opacity-45 [background-image:radial-gradient(circle,rgba(255,255,255,0.16)_0.7px,transparent_0.8px)] [background-size:10px_10px]" />
+        <div className="artist-portfolio-wireframe relative min-h-[620px] overflow-hidden bg-[#08090a] text-white">
+            <div className="artist-portfolio-wireframe-dot-grid absolute inset-0 opacity-45 [background-image:radial-gradient(circle,rgba(255,255,255,0.16)_0.7px,transparent_0.8px)] [background-size:10px_10px]" />
             <div className="absolute inset-3 border border-white/[0.1]" />
 
             <div className="relative z-10 flex items-center justify-between px-5 py-4">
@@ -848,9 +848,9 @@ function CanvasWireframe({ accentColor }: { accentColor: string }) {
 
 function MotionWireframe({ accentColor }: { accentColor: string }) {
     return (
-        <div className="relative min-h-[620px] overflow-hidden bg-[#090a0b] text-white">
+        <div className="artist-portfolio-wireframe relative min-h-[620px] overflow-hidden bg-[#090a0b] text-white">
             <div className="absolute inset-2 border border-white/[0.12]" />
-            <div className="absolute inset-4 opacity-30 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:52px_52px]" />
+            <div className="artist-portfolio-wireframe-line-grid absolute inset-4 opacity-30 [background-image:linear-gradient(rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:52px_52px]" />
 
             <div className="relative z-10 flex items-center justify-between px-5 py-4">
                 <span className="text-[8px] uppercase tracking-[0.35em]">ARTIST NAME</span>
@@ -889,7 +889,7 @@ function MotionWireframe({ accentColor }: { accentColor: string }) {
 
 function MusicianWireframe({ accentColor }: { accentColor: string }) {
     return (
-        <div className="overflow-hidden bg-[#08090b] text-white">
+        <div className="artist-portfolio-wireframe overflow-hidden bg-[#08090b] text-white">
             <WireNav />
 
             <div className="relative border-b border-white/[0.08] px-4 py-5">
@@ -983,61 +983,74 @@ function WireframePreview({
     return <DefaultWireframe accentColor={accentColor} />;
 }
 
-function PortfolioSettingsLoading() {
+function PortfolioSettingsLoading({
+    theme,
+}: {
+    theme: 'dark' | 'light';
+}) {
     return (
-        <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#050608] px-6 text-white">
-            {/* Atmospheric background */}
-            <div className="pointer-events-none absolute inset-0">
-                <div className="absolute left-1/2 top-1/2 h-[42rem] w-[42rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(139,108,255,0.13)_0%,rgba(53,223,255,0.07)_28%,transparent_68%)] blur-3xl" />
+        <div
+            className="artist-portfolio-loading"
+            data-dashboard-theme={theme}
+            role="status"
+            aria-live="polite"
+        >
+            <div className="artist-portfolio-loading-glow" aria-hidden="true" />
 
-                <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(255,255,255,0.025)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.025)_1px,transparent_1px)] [background-size:56px_56px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
+            <div className="artist-portfolio-loading-card">
+                <div className="artist-portfolio-loading-copy">
+                    <div className="artist-portfolio-loading-brand">
+                        <div className="artist-portfolio-loading-mark">
+                            <span />
+                            <img src="/images/brand/Lira_logo.png" alt="" />
+                        </div>
+                        <span className="artist-portfolio-loading-brand-name">LIRA</span>
+                    </div>
 
-                <span className="absolute left-[18%] top-[24%] h-1 w-1 animate-pulse rounded-full bg-white/70 shadow-[0_0_18px_rgba(255,255,255,0.65)]" />
-                <span className="absolute right-[22%] top-[31%] h-1.5 w-1.5 animate-pulse rounded-full bg-cyan-200/70 shadow-[0_0_20px_rgba(53,223,255,0.7)] [animation-delay:400ms]" />
-                <span className="absolute bottom-[25%] left-[27%] h-1 w-1 animate-pulse rounded-full bg-fuchsia-200/60 shadow-[0_0_18px_rgba(240,90,191,0.65)] [animation-delay:800ms]" />
-            </div>
+                    <p className="artist-portfolio-loading-eyebrow">
+                        Studio <span /> Portfolio settings
+                    </p>
 
-            {/* Loading mark */}
-            <div className="relative z-10 flex w-full max-w-sm flex-col items-center text-center">
-                <div className="relative mb-8 flex h-28 w-28 items-center justify-center">
-                    <div className="absolute inset-0 rounded-full border border-white/[0.07]" />
+                    <h1>
+                        Building your
+                        <span> creative space.</span>
+                    </h1>
 
-                    <div className="absolute inset-2 animate-[spin_10s_linear_infinite] rounded-full border border-dashed border-cyan-200/20" />
+                    <p className="artist-portfolio-loading-description">
+                        Preparing your portfolio controls and live preview.
+                    </p>
 
-                    <div className="absolute inset-5 animate-[spin_7s_linear_infinite_reverse] rounded-full border border-dashed border-fuchsia-200/20" />
+                    <div className="artist-portfolio-loading-progress">
+                        <span />
+                    </div>
 
-                    <div className="absolute inset-[31%] rounded-full bg-[radial-gradient(circle_at_35%_30%,rgba(255,255,255,0.9),rgba(139,108,255,0.35)_28%,rgba(53,223,255,0.12)_58%,transparent_72%)] shadow-[0_0_45px_rgba(139,108,255,0.22)]" />
-
-                    <img
-                        src="/images/brand/Lira_logo.png"
-                        alt="LIRA"
-                        className="relative z-10 h-auto w-14 object-contain opacity-90 sm:w-16"
-                    />
+                    <p className="artist-portfolio-loading-status">
+                        <span />
+                        Loading your workspace
+                    </p>
                 </div>
 
-                <p className="text-[9px] uppercase tracking-[0.42em] text-zinc-600">
-                    LIRA / STUDIO / PORTFOLIO
-                </p>
-
-                <h1 className="mt-4 text-2xl font-light tracking-[-0.03em] text-white sm:text-3xl">
-                    Building your <span className="bg-[linear-gradient(90deg,#fff,#9eeaff,#a393ff,#f28bd7)] bg-clip-text text-transparent">space.</span>
-                </h1>
-
-                <p className="mt-3 max-w-xs text-xs leading-6 text-zinc-500">
-                    Preparing your portfolio settings. Just a moment while we shape everything for you.
-                </p>
-
-                <div className="mt-7 h-px w-32 overflow-hidden bg-white/[0.06]">
-                    <div className="h-full w-1/2 animate-[loading_1.2s_ease-in-out_infinite] bg-[linear-gradient(90deg,transparent,#35dfff,#a393ff,#f28bd7,transparent)]" />
+                <div className="artist-portfolio-loading-preview" aria-hidden="true">
+                    <div className="artist-portfolio-loading-preview-header">
+                        <span />
+                        <span />
+                    </div>
+                    <div className="artist-portfolio-loading-preview-hero">
+                        <span />
+                        <span />
+                        <span />
+                    </div>
+                    <div className="artist-portfolio-loading-preview-grid">
+                        <span />
+                        <span />
+                        <span />
+                    </div>
+                    <div className="artist-portfolio-loading-preview-footer">
+                        <span />
+                        <span />
+                    </div>
                 </div>
             </div>
-
-            <style>{`
-                @keyframes loading {
-                    0% { transform: translateX(-100%); }
-                    100% { transform: translateX(200%); }
-                }
-            `}</style>
         </div>
     );
 }
@@ -1048,6 +1061,9 @@ export default function Settings({
     navigationItems: initialNavigationItems,
     galleryImages: initialGalleryImages,
 }: Props) {
+    const { artistDashboardTheme } = usePage<{
+        artistDashboardTheme: 'dark' | 'light';
+    }>().props;
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     useEffect(() => {
@@ -2415,12 +2431,12 @@ export default function Settings({
     }
 
     if (isInitialLoading) {
-        return <PortfolioSettingsLoading />;
+        return <PortfolioSettingsLoading theme={artistDashboardTheme} />;
     }
 
     return (
         <DashboardLayout>
-            <div className="mx-auto w-full max-w-[1920px] px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-24 lg:px-8 lg:py-10 lg:pb-24 xl:pb-10 2xl:px-10">
+            <div className="artist-portfolio-settings mx-auto w-full max-w-[1920px] px-4 py-6 pb-24 sm:px-6 sm:py-8 sm:pb-24 lg:px-8 lg:py-10 lg:pb-24 xl:pb-10 2xl:px-10">
                 {/* PAGE HEADER */}
 
                 <div className="mb-6 sm:mb-8 lg:mb-10">
@@ -2488,7 +2504,8 @@ export default function Settings({
                                                     }`}
                                             >
                                                 <span
-                                                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-[9px] font-medium tabular-nums transition"
+                                                    className="artist-portfolio-section-number flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-[9px] font-medium tabular-nums transition"
+                                                    data-active={active}
                                                     style={{
                                                         borderColor: active
                                                             ? `${SETTINGS_UI_ACCENT}45`
@@ -2559,7 +2576,8 @@ export default function Settings({
                                                 >
                                                     <div className="flex items-center gap-2">
                                                         <span
-                                                            className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[8px] font-medium tabular-nums"
+                                                            className="artist-portfolio-section-number flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[8px] font-medium tabular-nums"
+                                                            data-active={active}
                                                             style={{
                                                                 borderColor: active
                                                                     ? `${SETTINGS_UI_ACCENT}45`
@@ -2651,8 +2669,8 @@ export default function Settings({
                                                     </div>
 
                                                     {isSelected && (
-                                                        <div className="pointer-events-none absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#7de7ff]/20 bg-[#7de7ff]/[0.08] backdrop-blur-md">
-                                                            <CheckIcon className="h-3.5 w-3.5 text-[#7de7ff]" />
+                                                        <div className="artist-portfolio-template-check pointer-events-none absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full border border-[#7de7ff]/20 bg-[#7de7ff]/[0.08] backdrop-blur-md">
+                                                            <CheckIcon className="artist-portfolio-accent-icon h-3.5 w-3.5 text-[#7de7ff]" />
                                                         </div>
                                                     )}
                                                 </div>
@@ -2955,7 +2973,7 @@ export default function Settings({
                                                                 setCoverImageOffsetY(0);
                                                             }
                                                         }}
-                                                        className="w-full accent-white"
+                                                        className="artist-portfolio-cover-zoom w-full accent-white"
                                                         aria-label="Cover image zoom"
                                                     />
                                                 </div>
@@ -3017,17 +3035,18 @@ export default function Settings({
 
                                         <button
                                             type="button"
+                                            role="switch"
                                             onClick={() => setShowHero((value) => !value)}
-                                            className={`relative h-6 w-11 rounded-full transition ${showHero
-                                                ? 'bg-white'
-                                                : 'bg-white/10'
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showHero
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
                                                 }`}
-                                            aria-pressed={showHero}
+                                            aria-checked={showHero}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showHero
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showHero
                                                     ? 'left-6 bg-black'
-                                                    : 'left-1 bg-white/50'
+                                                    : 'left-1 bg-zinc-700'
                                                     }`}
                                             />
                                         </button>
@@ -3121,17 +3140,18 @@ export default function Settings({
 
                                         <button
                                             type="button"
+                                            role="switch"
                                             onClick={() => setShowAbout((value) => !value)}
-                                            className={`relative h-6 w-11 rounded-full transition ${showAbout
-                                                ? 'bg-white'
-                                                : 'bg-white/10'
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showAbout
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
                                                 }`}
-                                            aria-pressed={showAbout}
+                                            aria-checked={showAbout}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showAbout
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showAbout
                                                     ? 'left-6 bg-black'
-                                                    : 'left-1 bg-white/50'
+                                                    : 'left-1 bg-zinc-700'
                                                     }`}
                                             />
                                         </button>
@@ -3179,17 +3199,18 @@ export default function Settings({
 
                                         <button
                                             type="button"
+                                            role="switch"
                                             onClick={() => setShowWork((value) => !value)}
-                                            className={`relative h-6 w-11 rounded-full transition ${showWork
-                                                ? 'bg-white'
-                                                : 'bg-white/10'
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showWork
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
                                                 }`}
-                                            aria-pressed={showWork}
+                                            aria-checked={showWork}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showWork
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showWork
                                                     ? 'left-6 bg-black'
-                                                    : 'left-1 bg-white/50'
+                                                    : 'left-1 bg-zinc-700'
                                                     }`}
                                             />
                                         </button>
@@ -3258,19 +3279,20 @@ export default function Settings({
 
                                         <button
                                             type="button"
+                                            role="switch"
                                             onClick={() =>
                                                 setShowArtistMessage((value) => !value)
                                             }
-                                            className={`relative h-6 w-11 rounded-full transition ${showArtistMessage
-                                                ? 'bg-white'
-                                                : 'bg-white/10'
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showArtistMessage
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
                                                 }`}
-                                            aria-pressed={showArtistMessage}
+                                            aria-checked={showArtistMessage}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showArtistMessage
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showArtistMessage
                                                     ? 'left-6 bg-black'
-                                                    : 'left-1 bg-white/50'
+                                                    : 'left-1 bg-zinc-700'
                                                     }`}
                                             />
                                         </button>
@@ -3350,13 +3372,13 @@ export default function Settings({
                                             onClick={() =>
                                                 setShowGallery((current) => !current)
                                             }
-                                            className={`relative h-6 w-11 shrink-0 rounded-full border transition ${showGallery
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showGallery
                                                 ? 'border-white/20 bg-white'
                                                 : 'border-white/[0.08] bg-black/40'
                                                 }`}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showGallery
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showGallery
                                                     ? 'left-6 bg-black'
                                                     : 'left-1 bg-zinc-700'
                                                     }`}
@@ -3468,7 +3490,8 @@ export default function Settings({
                                                             }}
                                                         >
                                                             <span
-                                                                className="block text-[9px] uppercase tracking-[0.2em]"
+                                                                className="artist-portfolio-device-label block text-[9px] uppercase tracking-[0.2em]"
+                                                                data-active={active}
                                                                 style={{
                                                                     color: active
                                                                         ? SETTINGS_UI_ACCENT
@@ -3559,7 +3582,8 @@ export default function Settings({
                                                                             columns,
                                                                         })
                                                                     }
-                                                                    className="border px-3 py-3 text-xs transition-colors"
+                                                                    className="artist-portfolio-column-option border px-3 py-3 text-xs transition-colors"
+                                                                    data-active={active}
                                                                     style={{
                                                                         borderColor: active
                                                                             ? SETTINGS_UI_ACCENT
@@ -3651,13 +3675,13 @@ export default function Settings({
                                                             (current) => !current,
                                                         )
                                                     }
-                                                    className={`relative h-6 w-11 shrink-0 rounded-full border transition ${galleryShowCaptions
+                                                    className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${galleryShowCaptions
                                                         ? 'border-white/20 bg-white'
                                                         : 'border-white/[0.08] bg-black/40'
                                                         }`}
                                                 >
                                                     <span
-                                                        className={`absolute top-1 h-4 w-4 rounded-full transition ${galleryShowCaptions
+                                                        className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${galleryShowCaptions
                                                             ? 'left-6 bg-black'
                                                             : 'left-1 bg-zinc-700'
                                                             }`}
@@ -3687,13 +3711,13 @@ export default function Settings({
                                                             (current) => !current,
                                                         )
                                                     }
-                                                    className={`relative h-6 w-11 shrink-0 rounded-full border transition ${galleryShowTitles
+                                                    className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${galleryShowTitles
                                                         ? 'border-white/20 bg-white'
                                                         : 'border-white/[0.08] bg-black/40'
                                                         }`}
                                                 >
                                                     <span
-                                                        className={`absolute top-1 h-4 w-4 rounded-full transition ${galleryShowTitles
+                                                        className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${galleryShowTitles
                                                             ? 'left-6 bg-black'
                                                             : 'left-1 bg-zinc-700'
                                                             }`}
@@ -3723,13 +3747,13 @@ export default function Settings({
                                                             (current) => !current,
                                                         )
                                                     }
-                                                    className={`relative h-6 w-11 shrink-0 rounded-full border transition ${galleryEnableLightbox
+                                                    className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${galleryEnableLightbox
                                                         ? 'border-white/20 bg-white'
                                                         : 'border-white/[0.08] bg-black/40'
                                                         }`}
                                                 >
                                                     <span
-                                                        className={`absolute top-1 h-4 w-4 rounded-full transition ${galleryEnableLightbox
+                                                        className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${galleryEnableLightbox
                                                             ? 'left-6 bg-black'
                                                             : 'left-1 bg-zinc-700'
                                                             }`}
@@ -3865,13 +3889,13 @@ export default function Settings({
                                             role="switch"
                                             aria-checked={showMusic}
                                             onClick={() => setShowMusic((current) => !current)}
-                                            className={`relative h-6 w-11 shrink-0 rounded-full border transition ${showMusic
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showMusic
                                                 ? 'border-white/20 bg-white'
                                                 : 'border-white/[0.08] bg-black/40'
                                                 }`}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showMusic
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showMusic
                                                     ? 'left-6 bg-black'
                                                     : 'left-1 bg-zinc-700'
                                                     }`}
@@ -4055,13 +4079,17 @@ export default function Settings({
                                                 role="switch"
                                                 aria-checked={showMusicLinks}
                                                 onClick={() => setShowMusicLinks((current) => !current)}
-                                                className={`relative h-6 w-11 shrink-0 rounded-full border transition ${showMusicLinks
+                                                style={artistDashboardTheme === 'light' ? {
+                                                    backgroundColor: showMusicLinks ? '#08768a' : '#cbd5dc',
+                                                    borderColor: showMusicLinks ? '#08768a' : '#82919d',
+                                                } : undefined}
+                                                className={`artist-portfolio-switch artist-portfolio-music-links-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showMusicLinks
                                                     ? 'border-white/20 bg-white'
                                                     : 'border-white/[0.08] bg-black/40'
                                                     }`}
                                             >
                                                 <span
-                                                    className={`absolute top-1 h-4 w-4 rounded-full transition ${showMusicLinks
+                                                    className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showMusicLinks
                                                         ? 'left-6 bg-black'
                                                         : 'left-1 bg-zinc-700'
                                                         }`}
@@ -4139,19 +4167,20 @@ export default function Settings({
 
                                         <button
                                             type="button"
+                                            role="switch"
                                             onClick={() =>
                                                 setShowNavigation((value) => !value)
                                             }
-                                            className={`relative h-6 w-11 rounded-full transition ${showNavigation
-                                                ? 'bg-white'
-                                                : 'bg-white/10'
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showNavigation
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
                                                 }`}
-                                            aria-pressed={showNavigation}
+                                            aria-checked={showNavigation}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showNavigation
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showNavigation
                                                     ? 'left-6 bg-black'
-                                                    : 'left-1 bg-white/50'
+                                                    : 'left-1 bg-zinc-700'
                                                     }`}
                                             />
                                         </button>
@@ -4379,6 +4408,7 @@ export default function Settings({
 
                                                                     <button
                                                                         type="button"
+                                                                        role="switch"
                                                                         onClick={() =>
                                                                             updateNavigationItem(
                                                                                 index,
@@ -4388,18 +4418,18 @@ export default function Settings({
                                                                                 },
                                                                             )
                                                                         }
-                                                                        className={`relative h-6 w-11 shrink-0 rounded-full transition ${item.is_visible
-                                                                            ? 'bg-white'
-                                                                            : 'bg-white/10'
+                                                                        className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${item.is_visible
+                                                                            ? 'border-white/20 bg-white'
+                                                                            : 'border-white/[0.08] bg-black/40'
                                                                             }`}
-                                                                        aria-pressed={
+                                                                        aria-checked={
                                                                             item.is_visible
                                                                         }
                                                                     >
                                                                         <span
-                                                                            className={`absolute top-1 h-4 w-4 rounded-full transition ${item.is_visible
+                                                                            className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${item.is_visible
                                                                                 ? 'left-6 bg-black'
-                                                                                : 'left-1 bg-white/50'
+                                                                                : 'left-1 bg-zinc-700'
                                                                                 }`}
                                                                         />
                                                                     </button>
@@ -4433,17 +4463,18 @@ export default function Settings({
 
                                         <button
                                             type="button"
+                                            role="switch"
                                             onClick={() => setShowFooter((value) => !value)}
-                                            className={`relative h-6 w-11 rounded-full transition ${showFooter
-                                                ? 'bg-white'
-                                                : 'bg-white/10'
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showFooter
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
                                                 }`}
-                                            aria-pressed={showFooter}
+                                            aria-checked={showFooter}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showFooter
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showFooter
                                                     ? 'left-6 bg-black'
-                                                    : 'left-1 bg-white/50'
+                                                    : 'left-1 bg-zinc-700'
                                                     }`}
                                             />
                                         </button>
@@ -4504,19 +4535,20 @@ export default function Settings({
 
                                         <button
                                             type="button"
+                                            role="switch"
                                             onClick={() =>
                                                 setShowFooterSocials((value) => !value)
                                             }
-                                            className={`relative h-6 w-11 rounded-full transition ${showFooterSocials
-                                                ? 'bg-white'
-                                                : 'bg-white/10'
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showFooterSocials
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
                                                 }`}
-                                            aria-pressed={showFooterSocials}
+                                            aria-checked={showFooterSocials}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showFooterSocials
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showFooterSocials
                                                     ? 'left-6 bg-black'
-                                                    : 'left-1 bg-white/50'
+                                                    : 'left-1 bg-zinc-700'
                                                     }`}
                                             />
                                         </button>
@@ -4614,19 +4646,20 @@ export default function Settings({
 
                                         <button
                                             type="button"
+                                            role="switch"
                                             onClick={() =>
                                                 setShowPoweredByLira((value) => !value)
                                             }
-                                            className={`relative h-6 w-11 rounded-full transition ${showPoweredByLira
-                                                ? 'bg-white'
-                                                : 'bg-white/10'
+                                            className={`artist-portfolio-switch relative h-6 w-11 shrink-0 rounded-full border transition ${showPoweredByLira
+                                                ? 'border-white/20 bg-white'
+                                                : 'border-white/[0.08] bg-black/40'
                                                 }`}
-                                            aria-pressed={showPoweredByLira}
+                                            aria-checked={showPoweredByLira}
                                         >
                                             <span
-                                                className={`absolute top-1 h-4 w-4 rounded-full transition ${showPoweredByLira
+                                                className={`artist-portfolio-switch-thumb absolute top-1 h-4 w-4 rounded-full transition ${showPoweredByLira
                                                     ? 'left-6 bg-black'
-                                                    : 'left-1 bg-white/50'
+                                                    : 'left-1 bg-zinc-700'
                                                     }`}
                                             />
                                         </button>
@@ -4656,7 +4689,7 @@ export default function Settings({
                                 <button
                                     type="submit"
                                     disabled={saving}
-                                    className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-[linear-gradient(90deg,#fff_0%,#c8f5ff_22%,#a393ff_50%,#f28bd7_76%,#fff_100%)] px-5 py-3.5 text-sm font-semibold text-zinc-950 shadow-[0_8px_30px_rgba(120,200,255,0.12)] transition duration-300 hover:shadow-[0_10px_40px_rgba(160,140,255,0.18)] disabled:cursor-not-allowed disabled:opacity-50 sm:rounded-full"
+                                    className="artist-portfolio-save-button group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/40 bg-[linear-gradient(105deg,#32ddff_0%,#6677ff_20%,#a955ff_38%,#f05abd_51%,#ff8ed3_63%,#7b63ff_78%,#34dcff_94%)] px-5 py-3.5 text-sm font-medium text-[#08090b] shadow-[0_8px_35px_rgba(90,150,255,0.16)] transition duration-300 hover:scale-[1.015] hover:shadow-[0_12px_50px_rgba(190,80,255,0.24)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 sm:rounded-full"
                                 >
                                     <span>
                                         {saving
@@ -4692,7 +4725,7 @@ export default function Settings({
                                 <div className="mt-4 rounded-2xl border border-white/[0.06] bg-black/20 p-3">
                                     <div className="flex items-start gap-3">
                                         <div
-                                            className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
+                                            className="artist-portfolio-preview-check mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border"
                                             style={{
                                                 borderColor: `${SETTINGS_UI_ACCENT}25`,
                                                 backgroundColor: `${SETTINGS_UI_ACCENT}0d`,
@@ -4731,7 +4764,7 @@ export default function Settings({
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="group relative inline-flex flex-[1.6] items-center justify-center gap-2 overflow-hidden rounded-xl bg-[linear-gradient(90deg,#fff_0%,#c8f5ff_22%,#a393ff_50%,#f28bd7_76%,#fff_100%)] px-4 py-3 text-xs font-semibold text-zinc-950 shadow-[0_8px_30px_rgba(120,200,255,0.12)] transition duration-300 hover:shadow-[0_10px_40px_rgba(160,140,255,0.18)] disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
+                                className="artist-portfolio-save-button group relative inline-flex flex-[1.6] items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/40 bg-[linear-gradient(105deg,#32ddff_0%,#6677ff_20%,#a955ff_38%,#f05abd_51%,#ff8ed3_63%,#7b63ff_78%,#34dcff_94%)] px-4 py-3 text-xs font-medium text-[#08090b] shadow-[0_8px_35px_rgba(90,150,255,0.16)] transition duration-300 hover:scale-[1.015] hover:shadow-[0_12px_50px_rgba(190,80,255,0.24)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 sm:text-sm"
                             >
                                 {saving ? 'Saving Changes...' : 'Save Portfolio'}
 

@@ -1,5 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface User {
     id: number;
@@ -23,6 +23,7 @@ interface PageProps {
         user: User;
     };
     profile: Profile | null;
+    artistDashboardTheme: 'dark' | 'light';
 }
 
 interface HeaderProps {
@@ -339,7 +340,7 @@ export default function Header({
 }: HeaderProps) {
     const page = usePage();
 
-    const { auth, profile } =
+    const { auth, profile, artistDashboardTheme } =
         page.props as unknown as PageProps;
 
     const { url } = page;
@@ -349,8 +350,19 @@ export default function Header({
 
     const [accountSettingsOpen, setAccountSettingsOpen] = useState(
         url.startsWith('/dashboard/profile') ||
-        url.startsWith('/dashboard/security'),
+        url.startsWith('/dashboard/security') ||
+        url.startsWith('/dashboard/settings'),
     );
+
+    useEffect(() => {
+        if (
+            url.startsWith('/dashboard/profile') ||
+            url.startsWith('/dashboard/security') ||
+            url.startsWith('/dashboard/settings')
+        ) {
+            setAccountSettingsOpen(true);
+        }
+    }, [url]);
     /*
     |--------------------------------------------------------------------------
     | Verification
@@ -372,6 +384,10 @@ export default function Header({
             url.startsWith('/dashboard/security/')
         ) {
             return 'Security';
+        }
+
+        if (url === '/dashboard/settings' || url.startsWith('/dashboard/settings/')) {
+            return 'Settings';
         }
 
         if (
@@ -448,6 +464,8 @@ export default function Header({
         url === '/dashboard/gallery' ||
         url.startsWith('/dashboard/gallery/');
 
+    const isSettingsActive = url.startsWith('/dashboard/settings');
+
     /*
     |--------------------------------------------------------------------------
     | Close Menu After Navigation
@@ -481,7 +499,9 @@ export default function Header({
                     className="lg:hidden"
                 >
                     <img
-                        src="/images/brand/Lira_logo.png"
+                        src={artistDashboardTheme === 'light'
+                            ? '/images/brand/Lira_logo_black.png'
+                            : '/images/brand/Lira_logo.png'}
                         alt="LIRA"
                         className="w-[68px] opacity-95 xs:w-[74px] sm:w-[82px]"
                     />
@@ -858,6 +878,7 @@ export default function Header({
                             aria-expanded={accountSettingsOpen}
                             className={`flex min-h-[48px] w-full items-center justify-between rounded-xl border px-4 text-sm transition duration-200 ${url.startsWith('/dashboard/profile') ||
                                     url.startsWith('/dashboard/security') ||
+                                    isSettingsActive ||
                                     accountSettingsOpen
                                     ? 'border-white/[0.10] bg-white/[0.055] text-white'
                                     : 'border-transparent text-zinc-500 hover:bg-white/[0.035] hover:text-zinc-200'
@@ -920,13 +941,18 @@ export default function Header({
 
                                 {/* SETTINGS */}
 
-                                <div className="flex min-h-[44px] cursor-not-allowed items-center justify-between rounded-lg px-3 py-2.5 text-sm text-zinc-700">
+                                <Link
+                                    href="/dashboard/settings"
+                                    onClick={closeMobileMenu}
+                                    className={`flex min-h-[44px] items-center justify-between rounded-lg px-3 py-2.5 text-sm transition ${isSettingsActive
+                                        ? 'bg-white/[0.06] text-white'
+                                        : 'text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                        }`}
+                                >
                                     <span>Settings</span>
 
-                                    <span className="text-[8px] uppercase tracking-[0.15em]">
-                                        Soon
-                                    </span>
-                                </div>
+                                    {isSettingsActive && <ActiveIndicator />}
+                                </Link>
                             </div>
                         )}
                     </div>
@@ -957,7 +983,9 @@ export default function Header({
 
                     <div className="mt-4 flex items-center justify-between px-4 pt-2">
                         <img
-                            src="/images/brand/Lira_logo.png"
+                            src={artistDashboardTheme === 'light'
+                                ? '/images/brand/Lira_logo_black.png'
+                                : '/images/brand/Lira_logo.png'}
                             alt="LIRA"
                             className="w-[55px] opacity-35"
                         />
