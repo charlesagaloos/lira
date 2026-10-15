@@ -181,6 +181,11 @@ const faqItems = [
         answer:
             'No. LIRA is for creatives at different points in their journey. You can use your portfolio to introduce yourself, collect your work, and grow your presence over time.',
     },
+    {
+        question: 'Who owns the copyright to the work I upload?',
+        answer:
+            'You keep the copyright and ownership of the creative work you upload. LIRA does not claim ownership of your projects; the platform gives you tools to showcase your work and build your portfolio.',
+    },
 ];
 
 function getImageUrl(path: string | null): string | null {
