@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'artist_profile_id',
@@ -40,5 +41,10 @@ class Project extends Model
     public function artistProfile(): BelongsTo
     {
         return $this->belongsTo(ArtistProfile::class);
+    }
+
+    public function views(): HasMany
+    {
+        return $this->hasMany(ProjectView::class);
     }
 }

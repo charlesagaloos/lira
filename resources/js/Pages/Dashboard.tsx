@@ -1,5 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import DashboardLayout from '../Components/Dashboard/d_layout';
 
@@ -49,11 +49,26 @@ interface Onboarding {
     portfolio_published: boolean;
     verification_status: string;
 }
+
+interface Analytics {
+    daily_views: Array<{
+        date: string;
+        views: number;
+    }>;
+    top_projects: Array<{
+        id: number;
+        title: string;
+        slug: string;
+        views: number;
+    }>;
+}
+
 interface Props {
     profile: Profile | null;
     projects: Project[];
     projectCount: number;
     onboarding: Onboarding | null;
+    analytics: Analytics | null;
 }
 
 function ChromeButton({
@@ -106,10 +121,12 @@ function OnboardingChecklist({
     onboarding,
     isVerified,
     isRejected,
+    profileId,
 }: {
     onboarding: Onboarding;
     isVerified: boolean;
     isRejected: boolean;
+    profileId: number;
 }) {
     const tasks = [
         {
@@ -151,6 +168,77 @@ function OnboardingChecklist({
 
     const completedCount = tasks.filter((task) => task.complete).length;
     const progress = Math.round((completedCount / tasks.length) * 100);
+    const [isChecklistHidden, setIsChecklistHidden] = useState(false);
+    const dismissalKey = `lira:onboarding-dismissed:${profileId}`;
+
+    useEffect(() => {
+        if (progress < 100) {
+            setIsChecklistHidden(false);
+
+            try {
+                window.localStorage.removeItem(dismissalKey);
+            } catch (error) {
+                console.error('Unable to clear onboarding dismissal preference.', error);
+            }
+
+            return;
+        }
+
+        try {
+            setIsChecklistHidden(
+                window.localStorage.getItem(dismissalKey) === 'true',
+            );
+        } catch (error) {
+            console.error('Unable to load onboarding dismissal preference.', error);
+            setIsChecklistHidden(false);
+        }
+    }, [dismissalKey, progress]);
+
+    const dismissChecklist = () => {
+        setIsChecklistHidden(true);
+
+        try {
+            window.localStorage.setItem(dismissalKey, 'true');
+        } catch (error) {
+            console.error('Unable to save onboarding dismissal preference.', error);
+        }
+    };
+
+    const showChecklist = () => {
+        setIsChecklistHidden(false);
+
+        try {
+            window.localStorage.removeItem(dismissalKey);
+        } catch (error) {
+            console.error('Unable to clear onboarding dismissal preference.', error);
+        }
+    };
+
+    if (progress >= 100 && isChecklistHidden) {
+        return (
+            <GlassPanel className="mt-6">
+                <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p className="text-sm font-medium text-emerald-200">
+                            Onboarding complete
+                        </p>
+
+                        <p className="mt-1 text-xs text-zinc-500">
+                            Your creative space is fully set up and ready to go.
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={showChecklist}
+                        className="self-start rounded-full border border-white/10 px-4 py-2 text-xs text-zinc-300 transition hover:border-white/20 hover:text-white sm:self-auto"
+                    >
+                        Show checklist
+                    </button>
+                </div>
+            </GlassPanel>
+        );
+    }
 
     return (
         <GlassPanel className="mt-6">
@@ -195,6 +283,56 @@ function OnboardingChecklist({
                         style={{ width: `${progress}%` }}
                     />
                 </div>
+
+                {progress >= 100 && (
+                    <div className="mt-5 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 shadow-[0_0_25px_rgba(16,185,129,0.1)]">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex items-start gap-3">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-emerald-300/30 bg-emerald-400/10 text-emerald-200">
+                                    <svg
+                                        aria-hidden="true"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        className="h-5 w-5"
+                                    >
+                                        <path
+                                            d="M12 3.5 13.8 9l5.7 1.8-5.7 1.8L12 18l-1.8-5.4L4.5 10.8 10.2 9 12 3.5Z"
+                                            stroke="currentColor"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="1.5"
+                                        />
+                                        <path
+                                            d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15Z"
+                                            stroke="currentColor"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="1.5"
+                                        />
+                                    </svg>
+                                </div>
+
+                                <div>
+                                    <p className="text-sm font-medium text-emerald-200">
+                                        Congratulations! You completed onboarding.
+                                    </p>
+
+                                    <p className="mt-1 text-xs leading-5 text-emerald-100/80">
+                                        Your creative space is fully set up and ready to go.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={dismissChecklist}
+                                className="self-start rounded-full border border-emerald-200/20 px-4 py-2 text-xs font-medium text-emerald-100 transition hover:border-emerald-200/40 hover:bg-emerald-200/[0.06] sm:self-center"
+                            >
+                                Got it
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="mt-6 divide-y divide-white/[0.06]">
                     {tasks.map((task, index) => {
@@ -264,6 +402,272 @@ function OnboardingChecklist({
                 </div>
             </div>
         </GlassPanel>
+    );
+}
+
+function ArtistInsights({
+    username,
+    analytics,
+}: {
+    username: string;
+    analytics: Analytics;
+}) {
+    const [period, setPeriod] = useState<7 | 30>(7);
+    const [copyStatus, setCopyStatus] = useState<'copied' | 'failed' | null>(
+        null,
+    );
+
+    const currentDays = analytics.daily_views.slice(-period);
+    const previousDays = analytics.daily_views.slice(-period * 2, -period);
+    const currentViews = currentDays.reduce((total, day) => total + day.views, 0);
+    const previousViews = previousDays.reduce((total, day) => total + day.views, 0);
+    const highestDailyViews = Math.max(
+        1,
+        ...currentDays.map((day) => day.views),
+    );
+    const changePercent =
+        previousViews > 0
+            ? Math.round(((currentViews - previousViews) / previousViews) * 100)
+            : null;
+    const portfolioUrl = `${window.location.origin}/@${username}`;
+
+    const copyWithFallback = (text: string): boolean => {
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.setAttribute('readonly', '');
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        document.body.appendChild(textArea);
+        textArea.select();
+
+        try {
+            return document.execCommand('copy');
+        } finally {
+            textArea.remove();
+        }
+    };
+
+    const copyPortfolioLink = async () => {
+        try {
+            if (navigator.clipboard?.writeText) {
+                try {
+                    await navigator.clipboard.writeText(portfolioUrl);
+                    setCopyStatus('copied');
+                    return;
+                } catch (error) {
+                    console.warn(
+                        'Clipboard API failed; trying the browser fallback.',
+                        error,
+                    );
+                }
+            }
+
+            if (!copyWithFallback(portfolioUrl)) {
+                throw new Error('The browser could not copy the portfolio link.');
+            }
+
+            setCopyStatus('copied');
+        } catch (error) {
+            console.error('Unable to copy portfolio link.', error);
+            setCopyStatus('failed');
+        }
+    };
+
+    return (
+        <section className="mt-14" aria-labelledby="artist-insights-heading">
+            <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+                <div>
+                    <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">
+                        Audience
+                    </p>
+
+                    <h2
+                        id="artist-insights-heading"
+                        className="mt-2 text-2xl font-light tracking-[-0.04em] text-white"
+                    >
+                        Portfolio insights
+                    </h2>
+
+                    <p className="mt-2 text-xs text-zinc-500">
+                        See how visitors are discovering your creative work.
+                    </p>
+                </div>
+
+                <div className="flex flex-col items-start gap-2 sm:items-end">
+                    <button
+                        type="button"
+                        onClick={copyPortfolioLink}
+                        className="inline-flex h-10 items-center gap-2 rounded-full border border-white/[0.10] bg-white/[0.025] px-4 text-xs font-medium text-zinc-300 transition hover:border-white/[0.18] hover:bg-white/[0.06] hover:text-white"
+                    >
+                        {copyStatus === 'copied'
+                            ? 'Link copied'
+                            : 'Copy portfolio link'}
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                    </button>
+
+                    {copyStatus === 'failed' && (
+                        <div
+                            role="status"
+                            className="max-w-sm text-[10px] text-rose-300 sm:text-right"
+                        >
+                            <p>
+                                Automatic copy isn't available here. Select and
+                                copy this link:
+                            </p>
+                            <p className="mt-1 select-all break-all text-zinc-400">
+                                {portfolioUrl}
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <div className="mt-6 grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.8fr)]">
+                <GlassPanel>
+                    <div className="p-6 sm:p-8">
+                        <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-start">
+                            <div>
+                                <p className="text-[9px] uppercase tracking-[0.25em] text-zinc-600">
+                                    Portfolio visits
+                                </p>
+
+                                <div className="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-2">
+                                    <span className="text-4xl font-light tracking-[-0.05em] text-white">
+                                        {currentViews.toLocaleString()}
+                                    </span>
+
+                                    <span
+                                        className={`text-xs ${
+                                            changePercent === null
+                                                ? 'text-zinc-500'
+                                                : changePercent >= 0
+                                                  ? 'text-emerald-300'
+                                                  : 'text-rose-300'
+                                        }`}
+                                    >
+                                        {changePercent === null
+                                            ? currentViews > 0
+                                                ? 'New activity'
+                                                : 'No views yet'
+                                            : `${changePercent > 0 ? '+' : ''}${changePercent}%`}
+                                        {changePercent !== null && (
+                                            <span className="ml-1 text-zinc-600">
+                                                vs previous {period} days
+                                            </span>
+                                        )}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div
+                                className="inline-flex rounded-full border border-white/[0.08] bg-black/20 p-1"
+                                aria-label="Select analytics period"
+                            >
+                                {([7, 30] as const).map((days) => (
+                                    <button
+                                        key={days}
+                                        type="button"
+                                        onClick={() => setPeriod(days)}
+                                        aria-pressed={period === days}
+                                        className={`rounded-full px-3 py-1.5 text-[10px] transition ${
+                                            period === days
+                                                ? 'bg-white/[0.10] text-white'
+                                                : 'text-zinc-500 hover:text-zinc-300'
+                                        }`}
+                                    >
+                                        {days} days
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div
+                            className="mt-8 flex h-40 items-end gap-1.5 sm:gap-2"
+                            role="img"
+                            aria-label={`Portfolio visits over the last ${period} days`}
+                        >
+                            {currentDays.map((day) => (
+                                <div
+                                    key={day.date}
+                                    className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2"
+                                    title={`${day.date}: ${day.views} ${
+                                        day.views === 1 ? 'visit' : 'visits'
+                                    }`}
+                                >
+                                    <div className="flex h-full w-full items-end">
+                                        <div
+                                            className={`w-full rounded-t-sm ${
+                                                day.views > 0
+                                                    ? 'bg-[linear-gradient(to_top,#35dfff,#a855f7)]'
+                                                    : 'h-px bg-white/[0.08]'
+                                            }`}
+                                            style={
+                                                day.views > 0
+                                                    ? {
+                                                          height: `${Math.max(
+                                                              6,
+                                                              (day.views /
+                                                                  highestDailyViews) *
+                                                                  100,
+                                                          )}%`,
+                                                      }
+                                                    : undefined
+                                            }
+                                        />
+                                    </div>
+
+                                    <span className="text-[8px] text-zinc-600">
+                                        {day.date.slice(5)}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </GlassPanel>
+
+                <GlassPanel>
+                    <div className="p-6 sm:p-8">
+                        <p className="text-[9px] uppercase tracking-[0.25em] text-zinc-600">
+                            Last 30 days
+                        </p>
+
+                        <h3 className="mt-2 text-lg font-light text-white">
+                            Most-viewed projects
+                        </h3>
+
+                        {analytics.top_projects.length > 0 ? (
+                            <div className="mt-5 divide-y divide-white/[0.06]">
+                                {analytics.top_projects.map((project, index) => (
+                                    <Link
+                                        key={project.id}
+                                        href={`/@${username}/project/${project.slug}`}
+                                        className="group flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+                                    >
+                                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/[0.08] text-[10px] text-zinc-500">
+                                            {String(index + 1).padStart(2, '0')}
+                                        </span>
+
+                                        <span className="min-w-0 flex-1 truncate text-xs text-zinc-300 transition group-hover:text-white">
+                                            {project.title}
+                                        </span>
+
+                                        <span className="shrink-0 text-[10px] text-zinc-500">
+                                            {project.views.toLocaleString()}{' '}
+                                            {project.views === 1 ? 'view' : 'views'}
+                                        </span>
+                                    </Link>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="mt-4 text-xs leading-5 text-zinc-500">
+                                Project visits will appear here as visitors explore
+                                your work.
+                            </p>
+                        )}
+                    </div>
+                </GlassPanel>
+            </div>
+        </section>
     );
 }
 
@@ -379,7 +783,13 @@ function DashboardAvatar({
 
 /*Dashboard */
 
-export default function Dashboard({ profile, projects, projectCount, onboarding }: Props) {
+export default function Dashboard({
+    profile,
+    projects,
+    projectCount,
+    onboarding,
+    analytics,
+}: Props) {
     /* NEW USER */
 
 
@@ -705,6 +1115,7 @@ export default function Dashboard({ profile, projects, projectCount, onboarding 
                         onboarding={onboarding}
                         isVerified={isVerified}
                         isRejected={isRejected}
+                        profileId={profile.id}
                     />
                 )}
 
@@ -844,6 +1255,13 @@ export default function Dashboard({ profile, projects, projectCount, onboarding 
                     </GlassPanel>
 
                 </div>
+
+                {isVerified && profile.is_published && analytics && (
+                    <ArtistInsights
+                        username={profile.username}
+                        analytics={analytics}
+                    />
+                )}
 
                 {/* =========================================================
                     PORTFOLIO PREVIEW

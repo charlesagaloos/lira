@@ -1,6 +1,8 @@
 import { Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 import DashboardLayout from '../../Components/Dashboard/d_layout';
+import ConfirmModal from '../../Components/UI/ConfirmModal';
 import {
     ArrowRight,
     ArrowUpRight,
@@ -180,21 +182,27 @@ function GalleryCard({
 }
 
 export default function Index({ galleryImages: initialGalleryImages, flash }: Props) {
+    const [deleteTarget, setDeleteTarget] = useState<GalleryImage | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
     const galleryImages = [...initialGalleryImages].sort(
         (a, b) => a.sort_order - b.sort_order,
     );
 
     function deleteGalleryImage(image: GalleryImage) {
-        if (
-            !window.confirm(
-                `Delete "${image.title || 'Untitled Image'}"?`,
-            )
-        ) {
+        setDeleteTarget(image);
+    }
+
+    function confirmDeleteGalleryImage() {
+        if (!deleteTarget || isDeleting) {
             return;
         }
 
-        router.delete(`/dashboard/gallery/${image.id}`, {
+        setIsDeleting(true);
+        router.delete(`/dashboard/gallery/${deleteTarget.id}`, {
             preserveScroll: true,
+            onSuccess: () => setDeleteTarget(null),
+            onFinish: () => setIsDeleting(false),
         });
     }
 
@@ -470,6 +478,24 @@ export default function Index({ galleryImages: initialGalleryImages, flash }: Pr
                     </p>
                 </footer>
             </div>
+            <ConfirmModal
+                isOpen={deleteTarget !== null}
+                title="Delete gallery image?"
+                description={
+                    deleteTarget
+                        ? `"${deleteTarget.title || 'Untitled Image'}" will be permanently deleted. This action cannot be undone.`
+                        : ''
+                }
+                confirmText="Delete image"
+                variant="danger"
+                isLoading={isDeleting}
+                onConfirm={confirmDeleteGalleryImage}
+                onCancel={() => {
+                    if (!isDeleting) {
+                        setDeleteTarget(null);
+                    }
+                }}
+            />
         </DashboardLayout>
     );
 }

@@ -136,6 +136,12 @@ class PublicPortfolioPrivacyTest extends TestCase
             'is_visible' => true,
         ]);
 
+        PortfolioSetting::create([
+            'artist_profile_id' => $profile->id,
+            'template' => 'motion',
+            'accent_color' => '#ff00aa',
+        ]);
+
         $this->get(route('portfolio.project', [
             'username' => $profile->username,
             'slug' => $project->slug,
@@ -145,7 +151,10 @@ class PublicPortfolioPrivacyTest extends TestCase
                 fn(Assert $page) => $page
                     ->component('Public/Project')
                     ->where('profile.username', 'project-privacy-artist')
+                    ->where('profile.portfolio_settings.template', 'motion')
+                    ->where('profile.portfolio_settings.accent_color', '#ff00aa')
                     ->where('project.title', 'Public Artwork')
+                    ->where('project.thumbnail_position_x', 50)
                     ->missing('profile.user_id')
                     ->missing('profile.rejection_reason')
                     ->missing('profile.verification_status')
@@ -260,4 +269,3 @@ class PublicPortfolioPrivacyTest extends TestCase
             );
     }
 }
-

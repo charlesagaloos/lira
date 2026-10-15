@@ -1,6 +1,8 @@
 import { Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 import DashboardLayout from '../../Components/Dashboard/d_layout';
+import ConfirmModal from '../../Components/UI/ConfirmModal';
 import {
     ArrowRight,
     ArrowUpRight,
@@ -101,20 +103,12 @@ function ReleaseArtwork({
 function ReleaseCard({
     release,
     index,
+    onDelete,
 }: {
     release: Release;
     index: number;
+    onDelete: () => void;
 }) {
-    function deleteRelease() {
-        if (!window.confirm(`Delete "${release.title}"?`)) {
-            return;
-        }
-
-        router.delete(
-            `/dashboard/releases/${release.id}`,
-        );
-    }
-
     function toggleVisibility() {
         router.patch(
             `/dashboard/releases/${release.id}/visibility`,
@@ -307,7 +301,7 @@ function ReleaseCard({
 
                         <button
                             type="button"
-                            onClick={deleteRelease}
+                            onClick={onDelete}
                             className="text-[10px] uppercase tracking-[0.18em] text-zinc-700 transition hover:text-red-400"
                         >
                             Delete
@@ -407,6 +401,9 @@ export default function Index({
     profile,
     releases,
 }: Props) {
+    const [deleteTarget, setDeleteTarget] = useState<Release | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
     const visibleReleases = releases.filter(
         (release) => release.is_visible,
     );
@@ -420,6 +417,18 @@ export default function Index({
             (release) => release.release_type,
         ),
     ).size;
+
+    function confirmDeleteRelease() {
+        if (!deleteTarget || isDeleting) {
+            return;
+        }
+
+        setIsDeleting(true);
+        router.delete(`/dashboard/releases/${deleteTarget.id}`, {
+            onSuccess: () => setDeleteTarget(null),
+            onFinish: () => setIsDeleting(false),
+        });
+    }
 
     return (
         <DashboardLayout>
@@ -645,6 +654,9 @@ export default function Index({
                                         key={release.id}
                                         release={release}
                                         index={index}
+                                        onDelete={() =>
+                                            setDeleteTarget(release)
+                                        }
                                     />
                                 ),
                             )}
@@ -744,6 +756,24 @@ export default function Index({
 
             </div>
 
+            <ConfirmModal
+                isOpen={deleteTarget !== null}
+                title="Delete release?"
+                description={
+                    deleteTarget
+                        ? `"${deleteTarget.title}" will be permanently deleted. This action cannot be undone.`
+                        : ''
+                }
+                confirmText="Delete release"
+                variant="danger"
+                isLoading={isDeleting}
+                onConfirm={confirmDeleteRelease}
+                onCancel={() => {
+                    if (!isDeleting) {
+                        setDeleteTarget(null);
+                    }
+                }}
+            />
         </DashboardLayout>
     );
 }
