@@ -1,4 +1,5 @@
 import { Link } from '@inertiajs/react';
+import type { PublicTheme } from '../lib/usePublicTheme';
 
 function InstagramIcon() {
     return (
@@ -99,9 +100,16 @@ function ArrowUpRight() {
     );
 }
 
-export default function Footer() {
+export default function Footer({
+    theme = 'dark',
+}: {
+    theme?: PublicTheme;
+}) {
     return (
-        <footer className="relative overflow-hidden border-t border-white/[0.08] bg-[#050607] text-white">
+        <footer
+            data-public-theme={theme}
+            className="public-footer relative overflow-hidden border-t border-white/[0.08] bg-[#050607] text-white"
+        >
             {/* =====================================================
                 ATMOSPHERIC CHROME LIGHT
             ====================================================== */}
@@ -124,7 +132,13 @@ export default function Footer() {
 
                     <div>
                         <Link href="/" aria-label="LIRA home" className="group inline-block">
-                            <img src="/images/brand/Lira_logo.png" alt="LIRA" className="h-auto w-[150px] transition duration-300 group-hover:brightness-125"/>
+                            <img
+                                src={theme === 'light'
+                                    ? '/images/brand/Lira_logo_black.png'
+                                    : '/images/brand/Lira_logo.png'}
+                                alt="LIRA"
+                                className="h-auto w-[150px] transition duration-300 group-hover:brightness-125"
+                            />
                         </Link>
 
                         <p className="mt-7 max-w-sm text-sm leading-6 text-zinc-500">
@@ -163,7 +177,7 @@ export default function Footer() {
                             </a>
 
                             <a
-                                href="/#artists"
+                                href="/artists"
                                 className="group flex items-center gap-2 text-sm text-zinc-400 transition duration-200 hover:text-white"
                             >
                                 Artists

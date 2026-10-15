@@ -1,5 +1,7 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { Link, useForm } from '@inertiajs/react';
+import usePublicTheme from '../../lib/usePublicTheme';
+import PublicThemeToggle from '../../Components/PublicThemeToggle';
 
 type ResetPasswordProps = {
     email: string;
@@ -50,6 +52,7 @@ function ArrowRight() {
 }
 
 export default function ResetPassword({ email, token }: ResetPasswordProps) {
+    const { theme, toggleTheme } = usePublicTheme();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -85,7 +88,8 @@ export default function ResetPassword({ email, token }: ResetPasswordProps) {
 
     return (
 
-        <main className="relative min-h-screen overflow-hidden bg-[#050607] text-white">
+        <main className="auth-page relative min-h-screen overflow-hidden bg-[#050607] text-white" data-public-theme={theme}>
+            <PublicThemeToggle theme={theme} onToggle={toggleTheme} />
             {toast && (
                 <div
                     role="status"

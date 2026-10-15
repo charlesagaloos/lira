@@ -1,5 +1,7 @@
 import { FormEvent } from 'react';
 import { Link, useForm } from '@inertiajs/react';
+import usePublicTheme from '../../lib/usePublicTheme';
+import PublicThemeToggle from '../../Components/PublicThemeToggle';
 
 function MailIcon() {
     return (
@@ -104,6 +106,7 @@ type PageProps = {
 
 
 export default function ForgotPassword() {
+    const { theme, toggleTheme } = usePublicTheme();
     const form = useForm({
         email: '',
     });
@@ -117,7 +120,8 @@ export default function ForgotPassword() {
     }
 
     return (
-        <main className="min-h-screen overflow-hidden bg-[#050607] text-white">
+        <main className="auth-page min-h-screen overflow-hidden bg-[#050607] text-white" data-public-theme={theme}>
+            <PublicThemeToggle theme={theme} onToggle={toggleTheme} />
             <div className="grid min-h-screen lg:grid-cols-2">
                 {/* Global chrome atmosphere */}
                 <div className="pointer-events-none fixed inset-0 z-0">
@@ -126,7 +130,7 @@ export default function ForgotPassword() {
                 </div>
 
                 {/* Left brand panel */}
-                <section className="relative hidden overflow-hidden border-r border-white/[0.07] lg:flex">
+                <section className="auth-art-panel relative hidden overflow-hidden border-r border-white/[0.07] lg:flex">
                     <div className="pointer-events-none absolute left-[15%] top-[20%] h-[520px] w-[520px] rounded-full bg-[radial-gradient(circle,rgba(55,220,255,0.055),rgba(125,85,255,0.04)_38%,rgba(245,80,190,0.025)_55%,transparent_72%)] blur-[100px]" />
 
                     <div className="absolute left-10 top-8 z-20 xl:left-16">
@@ -197,7 +201,7 @@ export default function ForgotPassword() {
                         </div>
 
                         {/* Brand message */}
-                        <div className="max-w-xl">
+                        <div className="auth-brand-message max-w-xl">
                             <p className="mb-5 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-zinc-600">
                                 <span className="relative h-px w-8 bg-[linear-gradient(90deg,#35dfff,#8b6cff,#f05abf)]" />
                                 Account recovery

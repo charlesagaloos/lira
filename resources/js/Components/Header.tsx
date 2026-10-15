@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import type { PublicTheme } from '../lib/usePublicTheme';
 
 interface AuthUser {
     id: number;
@@ -9,6 +10,24 @@ interface AuthProps {
     auth?: {
         user?: AuthUser | null;
     };
+}
+
+interface HeaderProps {
+    theme?: PublicTheme;
+    onToggleTheme?: () => void;
+}
+
+function ThemeIcon({ theme }: { theme: PublicTheme }) {
+    return theme === 'light' ? (
+        <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
+            <path d="M16.2 12.2A6.8 6.8 0 0 1 7.8 3.8a6.9 6.9 0 1 0 8.4 8.4Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+        </svg>
+    ) : (
+        <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4" aria-hidden="true">
+            <circle cx="10" cy="10" r="3.2" stroke="currentColor" strokeWidth="1.4" />
+            <path d="M10 1.8V3.4M10 16.6v1.6M18.2 10h-1.6M3.4 10H1.8m14-5.8-1.1 1.1M5.3 14.7l-1.1 1.1m11.6 0-1.1-1.1M5.3 5.3 4.2 4.2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </svg>
+    );
 }
 
 function MenuIcon() {
@@ -47,7 +66,10 @@ function CloseIcon() {
     );
 }
 
-export default function Header() {
+export default function Header({
+    theme = 'dark',
+    onToggleTheme,
+}: HeaderProps) {
     const props = usePage().props as unknown as AuthProps;
     const isAuthenticated = Boolean(props.auth?.user);
 
@@ -58,7 +80,10 @@ export default function Header() {
     };
 
     return (
-        <header className="fixed inset-x-0 top-0 z-50 w-full border-b border-white/[0.06] bg-[#050607]/65 backdrop-blur-xl">
+        <header
+            data-public-theme={theme}
+            className="public-header fixed inset-x-0 top-0 z-50 w-full border-b border-white/[0.06] bg-[#050607]/65 backdrop-blur-xl"
+        >
             <div className="mx-auto flex min-h-[68px] w-full max-w-[1920px] items-center gap-3 px-4 py-2 sm:h-[76px] sm:px-6 lg:px-10 xl:px-16">
 
                 {/* =====================================================
@@ -70,7 +95,9 @@ export default function Header() {
                     className="group shrink-0"
                 >
                     <img
-                        src="/images/brand/Lira_logo.png"
+                        src={theme === 'light'
+                            ? '/images/brand/Lira_logo_black.png'
+                            : '/images/brand/Lira_logo.png'}
                         alt="LIRA"
                         className="h-auto w-[88px] transition duration-300 group-hover:brightness-125 sm:w-[110px] lg:w-[132px]"
                     />
@@ -88,7 +115,7 @@ export default function Header() {
                     </a>
 
                     <a
-                        href="/#artists"
+                        href="/artists"
                         className="text-sm text-zinc-400 transition duration-200 hover:text-white"
                     >
                         Artists
@@ -106,6 +133,17 @@ export default function Header() {
                     RIGHT ACTIONS
                 ====================================================== */}
                 <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-4 lg:gap-7">
+                    {onToggleTheme && (
+                        <button
+                            type="button"
+                            onClick={onToggleTheme}
+                            className="public-theme-toggle inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.035] text-zinc-300 transition hover:border-white/30 hover:text-white sm:h-10 sm:w-10"
+                            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+                            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+                        >
+                            <ThemeIcon theme={theme} />
+                        </button>
+                    )}
 
                     {/* Sign In / Dashboard */}
                     {isAuthenticated ? (
@@ -196,7 +234,7 @@ export default function Header() {
                     </a>
 
                     <a
-                        href="/#artists"
+                        href="/artists"
                         onClick={closeMobileMenu}
                         className="flex min-h-[48px] items-center justify-between rounded-xl px-4 text-sm text-zinc-400 transition hover:bg-white/[0.035] hover:text-white"
                     >

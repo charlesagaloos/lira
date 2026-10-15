@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
 import Header from '../Components/Header';
 import Footer from '../Components/Footer';
+import usePublicTheme from '../lib/usePublicTheme';
 
 interface Artist {
     id: number;
@@ -166,14 +167,18 @@ function getImageUrl(path: string | null): string | null {
 }
 
 export default function Home({ artists }: Props) {
+    const { theme, toggleTheme } = usePublicTheme();
     const heroArtist = artists[0] ?? null;
     const heroImage = heroArtist
         ? getImageUrl(heroArtist.cover_image ?? heroArtist.avatar)
         : null;
 
     return (
-        <main className="min-h-screen overflow-hidden bg-[#030405] text-white">
-            <Header />
+        <main
+            className="public-site min-h-screen overflow-hidden bg-[#030405] text-white"
+            data-public-theme={theme}
+        >
+            <Header theme={theme} onToggleTheme={toggleTheme} />
 
             {/* =========================================================
                 HERO
@@ -212,7 +217,7 @@ export default function Home({ artists }: Props) {
 
                             {/* Liquid chrome typography */}
                             <span className="relative inline-block">
-                                <span className="bg-[linear-gradient(102deg,#ffffff_0%,#7c8a93_12%,#ffffff_22%,#58656e_34%,#f9fbfc_43%,#b6c1c7_52%,#ffffff_62%,#66737c_73%,#ffffff_84%,#aab5bb_92%,#ffffff_100%)] bg-clip-text text-transparent drop-shadow-[0_0_28px_rgba(180,220,255,0.13)]">
+                                <span className="public-title-gradient bg-[linear-gradient(102deg,#ffffff_0%,#7c8a93_12%,#ffffff_22%,#58656e_34%,#f9fbfc_43%,#b6c1c7_52%,#ffffff_62%,#66737c_73%,#ffffff_84%,#aab5bb_92%,#ffffff_100%)] bg-clip-text text-transparent drop-shadow-[0_0_28px_rgba(180,220,255,0.13)]">
                                     Your space.
                                 </span>
 
@@ -366,7 +371,7 @@ export default function Home({ artists }: Props) {
                         {/* =================================================
                             MAIN PORTFOLIO
                         ================================================= */}
-                        <div className="absolute left-[1%] top-12 z-10 h-[530px] w-[84%] lg:h-[590px]">
+                        <div className="public-portfolio-preview absolute left-[1%] top-12 z-10 h-[530px] w-[84%] lg:h-[590px]">
 
                             {/* Main outer bloom */}
                             <div className="pointer-events-none absolute -inset-[14px] rounded-[2.45rem] bg-[linear-gradient(120deg,rgba(255,255,255,0.12),rgba(50,220,255,0.07),transparent_35%,rgba(145,90,255,0.08),rgba(255,80,190,0.07),rgba(255,255,255,0.10))] blur-2xl" />
@@ -467,7 +472,7 @@ export default function Home({ artists }: Props) {
                                         {/* Inner chrome edge */}
                                         <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.35)]" />
 
-                                        <span className="absolute bottom-4 left-4 text-[8px] uppercase tracking-[0.2em] text-white/65">
+                                        <span className="absolute bottom-4 left-4 text-[8px] uppercase tracking-[0.2em] text-black/60">
                                             Project 02
                                         </span>
 
@@ -507,7 +512,7 @@ export default function Home({ artists }: Props) {
                             <div className="pointer-events-none absolute -inset-[2px] rounded-[1.35rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.55),rgba(70,220,255,0.18),transparent_35%,rgba(160,90,255,0.18),rgba(255,100,210,0.14),rgba(255,255,255,0.45))]" />
 
                             {/* Card */}
-                            <div className="relative rounded-[1.25rem] border border-white/15 bg-[#111315]/95 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl">
+                            <div className="relative rounded-[1.25rem] border border-white/15 bg-[#101214]/95 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.65)] backdrop-blur-xl">
 
                                 <div className="flex items-center justify-between">
 
@@ -600,10 +605,10 @@ export default function Home({ artists }: Props) {
                                 Real stories.
                             </h2>
                         </div>
-                        <a href="#artists" className="hidden items-center gap-2 text-sm text-zinc-400 transition hover:text-white sm:flex">
+                        <Link href="/artists" className="hidden items-center gap-2 text-sm text-zinc-400 transition hover:text-white sm:flex">
                             Explore all artists
                             <ArrowUpRight />
-                        </a>
+                        </Link>
                     </div>
 
                     {artists.length > 0 ? (
@@ -615,7 +620,7 @@ export default function Home({ artists }: Props) {
                                     <Link
                                         key={artist.id}
                                         href={`/@${artist.username}`}
-                                        className="group relative overflow-hidden bg-[#070809] transition duration-500 hover:bg-[#0b0d0e]"
+                                        className="public-artist-card group relative overflow-hidden bg-[#070809] transition duration-500 hover:bg-[#0b0d0e]"
                                     >
                                         <div className="relative aspect-[0.82/1] overflow-hidden">
                                             {image ? (
@@ -633,7 +638,7 @@ export default function Home({ artists }: Props) {
 
                                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/5 to-transparent opacity-90" />
 
-                                            <div className="absolute inset-x-6 bottom-6">
+                                            <div className="public-artist-card-overlay absolute inset-x-6 bottom-6">
                                                 <div className="flex items-end justify-between gap-4">
                                                     <div>
                                                         <p className="text-[9px] uppercase tracking-[0.28em] text-white/45">
@@ -666,10 +671,10 @@ export default function Home({ artists }: Props) {
                         </div>
                     )}
 
-                    <a href="#artists" className="mt-8 flex items-center justify-center gap-2 text-sm text-zinc-400 transition hover:text-white sm:hidden">
+                    <Link href="/artists" className="mt-8 flex items-center justify-center gap-2 text-sm text-zinc-400 transition hover:text-white sm:hidden">
                         Explore all artists
                         <ArrowUpRight />
-                    </a>
+                    </Link>
                 </div>
             </section>
 
@@ -678,7 +683,7 @@ export default function Home({ artists }: Props) {
             ========================================================= */}
             <section className="border-b border-white/10">
                 <div className="relative mx-auto min-h-[280px] max-w-7xl overflow-hidden px-6 sm:px-8 lg:px-10">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_left,rgba(80,220,255,0.04),transparent_35%),radial-gradient(ellipse_at_30%_70%,rgba(170,90,255,0.03),transparent_35%),linear-gradient(90deg,#111416,#070809)]" />
+                    <div className="public-quote-background absolute inset-0 bg-[radial-gradient(ellipse_at_left,rgba(80,220,255,0.04),transparent_35%),radial-gradient(ellipse_at_30%_70%,rgba(170,90,255,0.03),transparent_35%),linear-gradient(90deg,#111416,#070809)]" />
 
                     <div className="relative flex min-h-[280px] items-center justify-center px-6 text-center lg:justify-end lg:text-left lg:pr-20">
                         <div className="max-w-xl">
@@ -720,7 +725,7 @@ export default function Home({ artists }: Props) {
                             Your work deserves
                             <br />
 
-                            <span className="bg-[linear-gradient(100deg,#f8fbff,#8d9aa2_20%,#ffffff_38%,#5ee6ff_48%,#a855f7_61%,#f05abf_72%,#ffffff_88%)] bg-clip-text text-transparent">
+                            <span className="public-title-gradient bg-[linear-gradient(100deg,#f8fbff,#8d9aa2_20%,#ffffff_38%,#5ee6ff_48%,#a855f7_61%,#f05abf_72%,#ffffff_88%)] bg-clip-text text-transparent">
                                 your own space.
                             </span>
                         </h2>
@@ -802,7 +807,7 @@ export default function Home({ artists }: Props) {
                     <h2 className="mt-4 text-5xl font-semibold leading-[0.9] tracking-[-0.065em] sm:text-7xl">
                         Start with your own
                         <br />
-                        <span className="bg-[linear-gradient(102deg,#ffffff_0%,#8a979f_18%,#ffffff_32%,#5ee6ff_46%,#a855f7_60%,#f05abf_73%,#ffffff_90%)] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(180,220,255,0.10)]">space.</span>
+                        <span className="public-title-gradient bg-[linear-gradient(102deg,#ffffff_0%,#8a979f_18%,#ffffff_32%,#5ee6ff_46%,#a855f7_60%,#f05abf_73%,#ffffff_90%)] bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(180,220,255,0.10)]">space.</span>
                     </h2>
 
                     <p className="mx-auto mt-4 max-w-lg text-sm leading-6 text-zinc-500">
@@ -825,7 +830,7 @@ export default function Home({ artists }: Props) {
                 </div>
             </section>
 
-            <Footer />
+            <Footer theme={theme} />
         </main>
     );
 }
