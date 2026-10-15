@@ -15,6 +15,8 @@ class HomeController extends Controller
         $artists = ArtistProfile::query()
             ->where('is_published', true)
             ->where('verification_status', 'verified')
+            ->withCount('portfolioViews')
+            ->orderByDesc('portfolio_views_count')
             ->orderByDesc('created_at')
             ->limit(4)
             ->get([

@@ -152,6 +152,18 @@
     background-image: linear-gradient(115deg, #f5f8fa, #e8eef3) !important;
 }
 
+.public-faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.public-faq-item[open] .public-faq-icon {
+    transform: rotate(45deg);
+}
+
+[data-public-theme='light'] .public-faq-item summary:hover {
+    color: #075d6b !important;
+}
+
 [data-public-theme='light'] .public-artist-card {
     background-color: #e5ebf0 !important;
 }

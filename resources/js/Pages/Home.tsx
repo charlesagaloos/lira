@@ -150,6 +150,39 @@ const features = [
     },
 ];
 
+const faqItems = [
+    {
+        question: 'Who is LIRA for?',
+        answer:
+            'LIRA is for independent artists and creatives at every stage, including musicians, photographers, designers, visual artists, and other makers who want a home for their work.',
+    },
+    {
+        question: 'What is LIRA?',
+        answer:
+            'LIRA is a creative portfolio platform where you can shape your artist identity, bring your work together, and share a dedicated space with the people who want to discover it.',
+    },
+    {
+        question: 'What can I showcase in my portfolio?',
+        answer:
+            'Build your portfolio with the sections that fit your work, such as projects, gallery images, artist information, and music releases with listening links.',
+    },
+    {
+        question: 'Can I customize how my portfolio looks?',
+        answer:
+            'Yes. Choose a portfolio template and personalize its colors, imagery, layout, and visible sections to make the space feel like yours.',
+    },
+    {
+        question: 'Can I share my portfolio with anyone?',
+        answer:
+            'Yes. Once your artist profile is verified and your portfolio is published, it is publicly available at your LIRA portfolio address and can be shared with anyone.',
+    },
+    {
+        question: 'Do I need to be an established professional artist?',
+        answer:
+            'No. LIRA is for creatives at different points in their journey. You can use your portfolio to introduce yourself, collect your work, and grow your presence over time.',
+    },
+];
+
 function getImageUrl(path: string | null): string | null {
     if (!path) {
         return null;
@@ -597,7 +630,7 @@ export default function Home({ artists }: Props) {
                     <div className="flex items-end justify-between gap-6 border-b border-white/10 pb-8">
                         <div>
                             <p className="text-[10px] uppercase tracking-[0.38em] text-zinc-500">
-                                Featured artists
+                                Most viewed artists
                             </p>
                             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.055em] sm:text-6xl">
                                 Real artists.
@@ -715,27 +748,29 @@ export default function Home({ artists }: Props) {
                 id="for-artists"
                 className="border-b border-white/10"
             >
-                <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 sm:px-8 lg:grid-cols-2 lg:px-10 lg:py-28">
+                <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 sm:px-8 lg:grid-cols-2 lg:items-center lg:px-10 lg:py-28">
                     <div>
                         <p className="text-[10px] uppercase tracking-[0.35em] text-zinc-500">
-                            For artists
+                            About LIRA
                         </p>
 
                         <h2 className="mt-4 max-w-xl text-4xl font-semibold leading-[0.95] tracking-[-0.06em] sm:text-6xl">
-                            Your work deserves
+                            A home for your
                             <br />
 
                             <span className="public-title-gradient bg-[linear-gradient(100deg,#f8fbff,#8d9aa2_20%,#ffffff_38%,#5ee6ff_48%,#a855f7_61%,#f05abf_72%,#ffffff_88%)] bg-clip-text text-transparent">
-                                your own space.
+                                creative world.
                             </span>
                         </h2>
                     </div>
 
                     <div className="lg:pt-8">
                         <p className="max-w-xl text-base leading-7 text-zinc-400 sm:text-lg">
-                            Build a portfolio around your creative identity.
-                            Choose what you show, how it looks, and how people
-                            discover your work.
+                            LIRA helps independent artists bring their
+                            identity and work together in one personal
+                            portfolio. Shape how you present your projects,
+                            creative practice, and story, then share your
+                            space with the people you want to reach.
                         </p>
 
                         <div className="mt-8 grid grid-cols-2 gap-8 border-t border-white/10 pt-8">
@@ -743,7 +778,7 @@ export default function Home({ artists }: Props) {
                                 <p className="text-3xl font-semibold">01</p>
 
                                 <p className="mt-2 text-xs uppercase tracking-[0.2em] text-zinc-600">
-                                    Your identity
+                                    Your creative identity
                                 </p>
                             </div>
 
@@ -751,7 +786,7 @@ export default function Home({ artists }: Props) {
                                 <p className="text-3xl font-semibold">∞</p>
 
                                 <p className="mt-2 text-xs uppercase tracking-[0.2em] text-zinc-600">
-                                    Your creativity
+                                    Room to grow
                                 </p>
                             </div>
                         </div>
@@ -775,21 +810,18 @@ export default function Home({ artists }: Props) {
                     </div>
 
                     <div className="mt-10 divide-y divide-white/10 border-y border-white/10">
-                        {[
-                            'Who is LIRA for?',
-                            'Can I customize my portfolio?',
-                            'Can I share my portfolio anywhere?',
-                        ].map((question) => (
-                            <div
-                                key={question}
-                                className="flex items-center justify-between py-5"
-                            >
-                                <span className="text-sm text-zinc-300">
+                        {faqItems.map(({ question, answer }) => (
+                            <details key={question} className="public-faq-item group">
+                                <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-sm font-medium text-zinc-300 outline-none transition hover:text-white focus-visible:ring-2 focus-visible:ring-cyan-300/50">
                                     {question}
-                                </span>
-
-                                <span className="text-zinc-600">+</span>
-                            </div>
+                                    <span className="public-faq-icon shrink-0 text-lg font-light text-zinc-500 transition-transform">
+                                        +
+                                    </span>
+                                </summary>
+                                <p className="max-w-3xl pb-5 pr-8 text-sm leading-6 text-zinc-500">
+                                    {answer}
+                                </p>
+                            </details>
                         ))}
                     </div>
                 </div>

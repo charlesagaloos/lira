@@ -66,6 +66,35 @@ class PublicArtistDirectoryTest extends TestCase
                 ->where('filters.type', 'Musician'));
     }
 
+    public function test_landing_page_orders_published_verified_artists_by_portfolio_views(): void
+    {
+        $popularArtist = $this->createArtist('popular-artist', 'Popular Artist');
+        $newerArtist = $this->createArtist('newer-artist', 'Newer Artist');
+        $unverifiedArtist = $this->createArtist(
+            'unverified-artist',
+            'Unverified Artist',
+            VerificationStatus::Pending,
+        );
+
+        foreach (range(1, 3) as $_) {
+            $popularArtist->portfolioViews()->create([
+                'viewed_at' => now(),
+            ]);
+        }
+
+        $unverifiedArtist->portfolioViews()->create([
+            'viewed_at' => now(),
+        ]);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertInertia(fn(Assert $page) => $page
+                ->component('Home')
+                ->where('artists.0.id', $popularArtist->id)
+                ->where('artists.1.id', $newerArtist->id)
+                ->has('artists', 2));
+    }
+
     private function createArtist(
         string $username,
         string $displayName,
