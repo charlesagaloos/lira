@@ -1,4 +1,5 @@
 import { Link, usePage } from '@inertiajs/react';
+import { LayoutDashboard } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import {
@@ -28,62 +29,13 @@ interface SidebarProps {
     onToggle: () => void;
 }
 
+const activeIconColor = '[&_svg]:text-cyan-100';
+
 /*
 |--------------------------------------------------------------------------
 | NAV ICONS
 |--------------------------------------------------------------------------
 */
-
-function OverviewIcon() {
-    return (
-        <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            className="h-4 w-4"
-            aria-hidden="true"
-        >
-            <rect
-                x="3.5"
-                y="3.5"
-                width="5"
-                height="5"
-                rx="1"
-                stroke="currentColor"
-                strokeWidth="1.2"
-            />
-
-            <rect
-                x="11.5"
-                y="3.5"
-                width="5"
-                height="5"
-                rx="1"
-                stroke="currentColor"
-                strokeWidth="1.2"
-            />
-
-            <rect
-                x="3.5"
-                y="11.5"
-                width="5"
-                height="5"
-                rx="1"
-                stroke="currentColor"
-                strokeWidth="1.2"
-            />
-
-            <rect
-                x="11.5"
-                y="11.5"
-                width="5"
-                height="5"
-                rx="1"
-                stroke="currentColor"
-                strokeWidth="1.2"
-            />
-        </svg>
-    );
-}
 
 function ProfileIcon() {
     return (
@@ -488,12 +440,16 @@ export default function Sidebar({
                             ? 'justify-center'
                             : 'justify-between px-4'
                             } ${isOverviewActive
-                                ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                ? `border border-white/[0.08] bg-white/[0.045] text-white ${activeIconColor}`
                                 : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                             }`}
                     >
                         <span className="flex items-center gap-3">
-                            <OverviewIcon />
+                            <LayoutDashboard
+                                className="h-4 w-4 shrink-0"
+                                strokeWidth={1.5}
+                                aria-hidden="true"
+                            />
 
                             {!collapsed && (
                                 <span>Overview</span>
@@ -530,7 +486,7 @@ export default function Sidebar({
                                     ? 'justify-center'
                                     : 'justify-between px-4'
                                     } ${isProjectsActive
-                                        ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                        ? `border border-white/[0.08] bg-white/[0.045] text-white ${activeIconColor}`
                                         : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                                     }`}
                             >
@@ -564,7 +520,7 @@ export default function Sidebar({
                                     ? 'justify-center'
                                     : 'justify-between px-4'
                                     } ${isGalleryActive
-                                        ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                        ? `border border-white/[0.08] bg-white/[0.045] text-white ${activeIconColor}`
                                         : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                                     }`}
                             >
@@ -598,7 +554,7 @@ export default function Sidebar({
                                     ? 'justify-center'
                                     : 'justify-between px-4'
                                     } ${isReleasesActive
-                                        ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                        ? `border border-white/[0.08] bg-white/[0.045] text-white ${activeIconColor}`
                                         : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                                     }`}
                             >
@@ -634,7 +590,7 @@ export default function Sidebar({
                                     ? 'justify-center'
                                     : 'justify-between px-4'
                                     } ${isPortfolioActive
-                                        ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                        ? `border border-white/[0.08] bg-white/[0.045] text-white ${activeIconColor}`
                                         : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                                     }`}
                             >
@@ -806,9 +762,10 @@ export default function Sidebar({
                             className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
                                 ? 'justify-center'
                                 : 'justify-between px-4'
-                                } ${url === '/dashboard/admin' ||
+                                } ${url === '/dashboard' || url === '/dashboard/' ||
+                                    url === '/dashboard/admin' ||
                                     url.startsWith('/dashboard/admin/')
-                                    ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                    ? `border border-white/[0.08] bg-white/[0.045] text-white ${activeIconColor}`
                                     : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                                 }`}
                         >
@@ -852,7 +809,7 @@ export default function Sidebar({
                                 ? 'justify-center'
                                 : 'justify-between px-4'
                                 } ${isAccountSettingsActive || accountSettingsOpen
-                                    ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                    ? `border border-white/[0.08] bg-white/[0.045] text-white ${isAccountSettingsActive ? activeIconColor : ''}`
                                     : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                                 }`}
                             title={collapsed ? 'Account Settings' : undefined}
@@ -883,7 +840,7 @@ export default function Sidebar({
                                             : '/dashboard/profile/create'
                                     }
                                     className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${isProfileActive
-                                        ? 'bg-white/[0.06] text-white'
+                                            ? `bg-white/[0.06] text-white ${activeIconColor}`
                                         : 'text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                                         }`}
                                 >
@@ -901,7 +858,7 @@ export default function Sidebar({
                                 <Link
                                     href="/dashboard/security"
                                     className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${isSecurityActive
-                                            ? 'bg-white/[0.06] text-white'
+                                            ? `bg-white/[0.06] text-white ${activeIconColor}`
                                             : 'text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
                                         }`}
                                 >
