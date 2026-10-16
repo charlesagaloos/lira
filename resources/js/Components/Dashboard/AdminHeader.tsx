@@ -9,6 +9,7 @@ import {
     LogOut,
     Menu,
     Settings,
+    ShieldAlert,
     ShieldCheck,
     Users,
     X,
@@ -33,6 +34,13 @@ const adminLinks = [
         href: '/dashboard/admin',
         icon: LayoutDashboard,
         active: (url: string) => url === '/dashboard/admin',
+    },
+    {
+        label: 'Activity & Security',
+        href: '/dashboard/admin/activity-logs',
+        icon: ShieldAlert,
+        active: (url: string) =>
+            url.startsWith('/dashboard/admin/activity-logs'),
     },
     {
         label: 'Artist Verifications',
@@ -80,9 +88,11 @@ export default function AdminHeader({
                         LIRA / ADMIN
                     </p>
                     <p className="mt-1 text-xs text-zinc-400">
-                        {url.startsWith('/dashboard/admin/verifications')
-                            ? 'Artist Verifications'
-                            : 'Administration'}
+                        {url.startsWith('/dashboard/admin/activity-logs')
+                            ? 'Activity & Security'
+                            : url.startsWith('/dashboard/admin/verifications')
+                              ? 'Artist Verifications'
+                              : 'Administration'}
                     </p>
                 </div>
 

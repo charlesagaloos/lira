@@ -17,7 +17,11 @@ createInertiaApp({
         createRoot(el).render(
             <>
                 <App {...props} />
-                <FlashAlert />
+                <FlashAlert initialFlash={props.initialPage.props.flash as {
+                    success?: string | null;
+                    error?: string | null;
+                    status?: string | null;
+                }} />
             </>,
         );
     },

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\SocialAccount;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -21,7 +22,7 @@ class GoogleAuthController extends Controller
             ->redirect();
     }
 
-    public function callback()
+    public function callback(Request $request)
     {
         $googleUser = Socialite::driver('google')->user();
 
@@ -57,12 +58,13 @@ class GoogleAuthController extends Controller
                 ]);
         }
 
-        DB::transaction(function () use ($googleUser, $email, &$user) {
+        DB::transaction(function () use ($googleUser, $email, $request, &$user) {
             $user = User::create([
                 'name' => $googleUser->getName() ?: $googleUser->getEmail(),
                 'email' => $email,
                 'password' => Str::random(40),
                 'email_verified_at' => now(),
+                'registration_ip_address' => $request->ip(),
             ]);
 
             SocialAccount::create([

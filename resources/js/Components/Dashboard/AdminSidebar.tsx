@@ -5,6 +5,7 @@ import {
     ArrowRight,
     CheckCircle2,
     LayoutDashboard,
+    ShieldAlert,
     Users,
 } from 'lucide-react';
 
@@ -20,6 +21,13 @@ const navigation = [
         href: '/dashboard/admin',
         icon: LayoutDashboard,
         active: (url: string) => url === '/dashboard/admin',
+        section: 'Administration',
+    },
+    {
+        label: 'Activity & Security',
+        href: '/dashboard/admin/activity-logs',
+        icon: ShieldAlert,
+        active: (url: string) => url.startsWith('/dashboard/admin/activity-logs'),
         section: 'Administration',
     },
     {

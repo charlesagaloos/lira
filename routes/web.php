@@ -14,6 +14,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PortfolioSettingsController;
 use App\Http\Controllers\ReleaseController;
 use App\Http\Controllers\Admin\ArtistController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\SecurityController;
 use Illuminate\Support\Facades\Route;
@@ -87,6 +88,22 @@ Route::post('/dashboard/admin/verifications/{profile}/reject', [ArtistVerificati
 Route::get('/dashboard/admin/artists', [ArtistController::class, 'index'])
     ->middleware(['auth', 'verified', 'admin'])
     ->name('admin.artists.index');
+
+Route::get('/dashboard/admin/activity-logs', [ActivityLogController::class, 'index'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('admin.activity-logs.index');
+
+Route::post('/dashboard/admin/activity-logs/blocked-ips', [ActivityLogController::class, 'blockIp'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('admin.activity-logs.block-ip');
+
+Route::post('/dashboard/admin/activity-logs/{activityLog}/review', [ActivityLogController::class, 'review'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('admin.activity-logs.review');
+
+Route::delete('/dashboard/admin/activity-logs/blocked-ips/{blockedIp}', [ActivityLogController::class, 'unblockIp'])
+    ->middleware(['auth', 'verified', 'admin'])
+    ->name('admin.activity-logs.unblock-ip');
 
 Route::get('/dashboard/admin/artists/{profile}', [ArtistController::class, 'show'])
     ->middleware(['auth', 'verified', 'admin'])

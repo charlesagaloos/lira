@@ -13,8 +13,21 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'email_verified_at', 'dashboard_theme'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable([
+    'name',
+    'email',
+    'password',
+    'email_verified_at',
+    'dashboard_theme',
+    'registration_ip_address',
+    'last_login_ip_address',
+])]
+#[Hidden([
+    'password',
+    'remember_token',
+    'registration_ip_address',
+    'last_login_ip_address',
+])]
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */

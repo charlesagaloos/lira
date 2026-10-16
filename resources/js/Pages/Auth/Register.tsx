@@ -853,6 +853,10 @@ export default function Register() {
 
                             {/* Terms */}
                             <p className="mt-6 text-center text-xs leading-5 text-zinc-600">
+                                We retain your sign-up and latest sign-in IPs while your account exists, and keep security-related activity logs for up to one year to help protect accounts and prevent abuse. See our Privacy Policy.
+                            </p>
+
+                            <p className="mt-3 text-center text-xs leading-5 text-zinc-600">
                                 By creating an account, you agree to our{' '}
                                 <a
                                     href="#"

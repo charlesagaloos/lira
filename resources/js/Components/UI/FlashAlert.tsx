@@ -11,6 +11,12 @@ interface InertiaPageProps {
     flash?: FlashProps;
 }
 
+interface FlashAlertProps {
+    initialFlash?: FlashProps;
+    type?: 'success' | 'error';
+    message?: string;
+}
+
 function CheckIcon() {
     return (
         <svg
@@ -81,7 +87,11 @@ function CloseIcon() {
     );
 }
 
-export default function FlashAlert() {
+export default function FlashAlert({
+    initialFlash,
+    type: initialType,
+    message: initialMessage,
+}: FlashAlertProps) {
     const [visible, setVisible] = useState(false);
     const [message, setMessage] = useState<string | null>(null);
     const [type, setType] = useState<'success' | 'error'>('success');
@@ -112,23 +122,18 @@ export default function FlashAlert() {
     }
 
     useEffect(() => {
-        const removeListener = router.on('success', (event) => {
-            const pageProps =
-                event.detail.page.props as InertiaPageProps;
+        if (initialMessage) {
+            showAlert(initialMessage, initialType ?? 'success');
+        }
 
+        const showFlash = (pageProps: InertiaPageProps) => {
             const flash = pageProps.flash;
 
             if (flash?.success) {
                 showAlert(flash.success, 'success');
-                return;
-            }
-
-            if (flash?.error) {
+            } else if (flash?.error) {
                 showAlert(flash.error, 'error');
-                return;
-            }
-
-            if (flash?.status) {
+            } else if (flash?.status) {
                 const status = flash.status.toLowerCase();
 
                 if (status === 'passwords.reset') {
@@ -136,10 +141,7 @@ export default function FlashAlert() {
                         'Your password has been reset successfully.',
                         'success',
                     );
-                    return;
-                }
-
-                if (
+                } else if (
                     status === 'passwords.sent' ||
                     status === 'passwords.throttled' ||
                     status.includes('sent') ||
@@ -151,12 +153,16 @@ export default function FlashAlert() {
                             : 'If an account exists for this email, a password reset link has been sent.',
                         'success',
                     );
-                    return;
+                } else {
+                    showAlert(flash.status, 'success');
                 }
-
-                showAlert(flash.status, 'success');
             }
+        };
 
+        showFlash({ flash: initialFlash });
+
+        const removeListener = router.on('success', (event) => {
+            showFlash(event.detail.page.props as InertiaPageProps);
         });
 
         return () => {

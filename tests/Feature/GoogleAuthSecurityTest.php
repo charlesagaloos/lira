@@ -22,12 +22,16 @@ class GoogleAuthSecurityTest extends TestCase
             'name' => 'Verified Artist',
         ]);
 
-        $response = $this->get(route('auth.google.callback'));
+        $response = $this->withServerVariables([
+            'REMOTE_ADDR' => '203.0.113.15',
+        ])->get(route('auth.google.callback'));
 
         $user = User::where('email', 'verified@example.com')->first();
 
         $this->assertNotNull($user);
         $this->assertNotNull($user->email_verified_at);
+        $this->assertSame('203.0.113.15', $user->registration_ip_address);
+        $this->assertSame('203.0.113.15', $user->last_login_ip_address);
 
         $this->assertDatabaseHas('social_accounts', [
             'user_id' => $user->id,
