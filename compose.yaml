@@ -1,0 +1,20 @@
+﻿services:
+  lira-db:
+    image: mariadb:10.4.32
+    container_name: lira-portable-db
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3319:3306"
+    env_file:
+      - .env.docker
+    volumes:
+      - lira_portable_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  lira_portable_data:
