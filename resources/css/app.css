@@ -172,38 +172,6 @@
     border-color: rgba(255, 255, 255, 0.45) !important;
 }
 
-.public-portfolio-theme-toggle {
-    position: fixed;
-    right: 1rem;
-    bottom: 1rem;
-    z-index: 60;
-    display: inline-flex;
-    width: 2.5rem;
-    height: 2.5rem;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 9999px;
-    background: rgba(5, 6, 7, 0.78);
-    color: #f3f6fa;
-    backdrop-filter: blur(12px);
-    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
-}
-
-.public-portfolio-theme-toggle:hover {
-    border-color: rgba(255, 255, 255, 0.4);
-}
-
-[data-public-theme='light'] .public-portfolio-theme-toggle {
-    border-color: rgba(37, 57, 72, 0.2);
-    background: rgba(255, 255, 255, 0.88);
-    color: #334956;
-}
-
-[data-public-theme='light'] .public-portfolio-theme-toggle:hover {
-    border-color: rgba(37, 57, 72, 0.38);
-}
-
 .auth-page[data-public-theme='light'] {
     background-color: #f3f6f9 !important;
     color: #1d2b36 !important;
@@ -296,44 +264,6 @@
     border-color: rgba(37, 57, 72, 0.2) !important;
     background-color: rgba(255, 255, 255, 0.88) !important;
     color: #334956 !important;
-}
-
-.public-portfolio-root[data-public-theme='light'] main {
-    --portfolio-surface: #edf2f6 !important;
-    --portfolio-muted: #586875 !important;
-    --portfolio-border: #d6e0e7 !important;
-    --portfolio-card: #ffffff !important;
-    --portfolio-card-text: #1d2b36 !important;
-    --editorial-bg: #f3f6f9 !important;
-    --editorial-text: #1d2b36 !important;
-    --editorial-surface: #edf2f6 !important;
-    --editorial-muted: #586875 !important;
-    --editorial-border: #d6e0e7 !important;
-    --editorial-card-bg: #ffffff !important;
-    --editorial-card-text: #1d2b36 !important;
-    --motion-bg: #f3f6f9 !important;
-    --motion-text: #1d2b36 !important;
-    --motion-surface: #ffffff !important;
-    --motion-muted: #586875 !important;
-    --motion-border: #d6e0e7 !important;
-    --canvas-bg: #f3f6f9 !important;
-    --canvas-text: #1d2b36 !important;
-    --canvas-muted: #586875 !important;
-    --canvas-surface: #ffffff !important;
-    --canvas-border: #d6e0e7 !important;
-    --canvas-card: #ffffff !important;
-    --musician-bg: #f3f6f9 !important;
-    --musician-text: #1d2b36 !important;
-    --musician-surface: #ffffff !important;
-    --musician-muted: #586875 !important;
-    --musician-border: #d6e0e7 !important;
-    background-color: #f3f6f9 !important;
-    color: #1d2b36 !important;
-}
-
-.public-portfolio-root[data-public-theme='light'] .canvas-page::before {
-    opacity: 0.08;
-    background: radial-gradient(ellipse at center, transparent 25%, rgba(37, 57, 72, 0.08) 100%);
 }
 
 .artist-portfolio-loading {
