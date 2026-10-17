@@ -124,14 +124,20 @@ export default function Index({
     return (
         <AdminLayout>
             <Head title="Activity & Security" />
-            <div className="mx-auto max-w-[1600px] px-5 py-8 sm:px-8 lg:px-10">
+            <div className="mx-auto max-w-[1400px] px-5 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
                 <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
-                        <p className="text-[9px] uppercase tracking-[0.3em] text-zinc-600">
-                            Administration / Trust & Safety
-                        </p>
-                        <h1 className="mt-2 text-3xl font-light tracking-[-0.05em] text-white sm:text-4xl">
-                            Activity &amp; Security
+                        <div className="mb-5 flex items-center gap-3">
+                            <span className="h-px w-8 bg-[linear-gradient(90deg,#ffffff,#7d8991,transparent)]" />
+                            <span className="text-[9px] uppercase tracking-[0.35em] text-zinc-600">
+                                Administration / Trust & Safety
+                            </span>
+                        </div>
+                        <h1 className="text-4xl font-light tracking-[-0.055em] text-white sm:text-5xl">
+                            Activity &amp;
+                            <span className="bg-[linear-gradient(90deg,#fff_0%,#bdefff_24%,#9d8cff_58%,#f08bd7_82%,#fff_100%)] bg-clip-text text-transparent">
+                                &nbsp;Security
+                            </span>
                         </h1>
                         <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
                             Review account and portfolio activity, investigate flagged events, and manage temporary authentication IP blocks.
@@ -279,10 +285,10 @@ export default function Index({
                             </select>
                             <select value={flagged} onChange={(event) => setFlagged(event.target.value)} className="h-10 rounded-xl border border-white/10 bg-[#101214] px-3 text-xs text-white">
                                 <option value="all">All activity</option>
-                                                <option value="flagged">Needs review</option>
-                                                <option value="reviewed">Reviewed flags</option>
-                                                <option value="normal">Not flagged</option>
-                                            </select>
+                                <option value="flagged">Needs review</option>
+                                <option value="reviewed">Reviewed flags</option>
+                                <option value="normal">Not flagged</option>
+                            </select>
                             <button type="submit" className="h-10 rounded-xl border border-white/10 px-4 text-xs text-zinc-200 transition hover:bg-white/[0.05]">Apply filters</button>
                         </form>
                     </div>
