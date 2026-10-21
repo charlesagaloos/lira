@@ -409,7 +409,7 @@ export default function Home({ artists }: Props) {
                         {/* =================================================
                             MAIN PORTFOLIO
                         ================================================= */}
-                        <div className="public-portfolio-preview absolute left-[1%] top-12 z-10 h-[530px] w-[84%] lg:h-[590px]">
+                        <div className="public-home-portfolio-preview public-portfolio-preview absolute left-[1%] top-12 z-10 h-[530px] w-[84%] lg:h-[590px]">
 
                             {/* Main outer bloom */}
                             <div className="pointer-events-none absolute -inset-[14px] rounded-[2.45rem] bg-[linear-gradient(120deg,rgba(255,255,255,0.12),rgba(50,220,255,0.07),transparent_35%,rgba(145,90,255,0.08),rgba(255,80,190,0.07),rgba(255,255,255,0.10))] blur-2xl" />
@@ -541,7 +541,7 @@ export default function Home({ artists }: Props) {
                         {/* =================================================
                             FLOATING YOUR SPACE CARD
                         ================================================= */}
-                        <div className="absolute bottom-2 right-[1%] z-20 w-56">
+                        <div className="public-home-portfolio-preview absolute bottom-2 right-[1%] z-20 w-56">
 
                             {/* Outer chrome bloom */}
                             <div className="pointer-events-none absolute -inset-[9px] rounded-[1.4rem] bg-[linear-gradient(135deg,rgba(255,255,255,0.10),rgba(50,220,255,0.07),transparent_40%,rgba(165,90,255,0.08),rgba(255,90,200,0.07),rgba(255,255,255,0.10))] blur-xl" />
@@ -828,6 +828,41 @@ export default function Home({ artists }: Props) {
                                 </p>
                             </details>
                         ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* =========================================================
+                INTERACTIVE DEMO
+            ========================================================= */}
+            <section className="border-b border-white/10">
+                <div className="mx-auto max-w-7xl px-6 py-20 sm:px-8 lg:px-10 lg:py-24">
+                    <div className="public-demo-card relative overflow-hidden rounded-3xl border border-cyan-300/20 bg-[radial-gradient(ellipse_at_top_left,rgba(34,211,238,0.12),transparent_52%),rgba(255,255,255,0.025)] p-7 sm:p-10 lg:flex lg:items-center lg:justify-between lg:gap-12 lg:p-14">
+                        <div className="max-w-2xl">
+                            <p className="public-demo-badge inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/[0.07] px-3 py-1.5 text-[9px] font-medium uppercase tracking-[0.22em] text-cyan-200">
+                                <span className="public-demo-badge-dot h-1.5 w-1.5 rounded-full bg-cyan-300" />
+                                Interactive demo
+                            </p>
+
+                            <h2 className="mt-5 text-3xl font-semibold tracking-[-0.05em] sm:text-4xl">
+                                Try the portfolio studio.
+                            </h2>
+
+                            <p className="mt-4 max-w-xl text-sm leading-7 text-zinc-400">
+                                Explore the portfolio themes, colors, sections,
+                                gallery, and more with a sample artist. This is
+                                a preview only: your changes stay in this browser
+                                and are never saved.
+                            </p>
+                        </div>
+
+                        <Link
+                            href="/demo"
+                            className="group mt-7 inline-flex shrink-0 items-center gap-3 rounded-full border border-cyan-200/50 bg-cyan-200 px-6 py-3.5 text-sm font-semibold text-[#071014] transition hover:bg-cyan-100 lg:mt-0"
+                        >
+                            Explore the demo
+                            <ArrowUpRight />
+                        </Link>
                     </div>
                 </div>
             </section>

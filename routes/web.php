@@ -1,21 +1,22 @@
 <?php
 
-use App\Http\Controllers\ArtistProfileController;
-use App\Http\Controllers\Admin\ArtistVerificationController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\ArtistController;
+use App\Http\Controllers\Admin\ArtistVerificationController;
+use App\Http\Controllers\ArtistProfileController;
 use App\Http\Controllers\ArtistSettingsController;
+use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortfolioController;
+use App\Http\Controllers\PortfolioDemoController;
+use App\Http\Controllers\PortfolioSettingsController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\PublicPortfolioController;
 use App\Http\Controllers\PublicProjectController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\PortfolioSettingsController;
 use App\Http\Controllers\ReleaseController;
-use App\Http\Controllers\Admin\ArtistController;
-use App\Http\Controllers\Admin\ActivityLogController;
-use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\SecurityController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,9 @@ Route::get('/', [HomeController::class, 'index'])
 
 Route::get('/artists', [HomeController::class, 'artists'])
     ->name('artists.index');
+
+Route::get('/demo', [PortfolioDemoController::class, 'show'])
+    ->name('portfolio.demo');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])

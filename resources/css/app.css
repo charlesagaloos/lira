@@ -23,6 +23,21 @@
     color: #1d2b36 !important;
 }
 
+.public-site[data-public-theme='light'] .public-demo-card {
+    border-color: rgba(8, 118, 138, 0.3) !important;
+    background-image: radial-gradient(ellipse at top left, rgba(8, 118, 138, 0.12), transparent 52%), linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(232, 238, 243, 0.9)) !important;
+}
+
+.public-site[data-public-theme='light'] .public-demo-badge {
+    border-color: rgba(8, 118, 138, 0.32) !important;
+    background-color: rgba(8, 118, 138, 0.08) !important;
+    color: #075d6b !important;
+}
+
+.public-site[data-public-theme='light'] .public-demo-badge-dot {
+    background-color: #08768a !important;
+}
+
 .public-site[data-public-theme='light'] [class*='bg-[#030405']:not(.public-portfolio-preview):not(.public-portfolio-preview *),
 .public-site[data-public-theme='light'] [class*='bg-[#050607']:not(.public-portfolio-preview):not(.public-portfolio-preview *),
 .public-site[data-public-theme='light'] [class*='bg-[#070809']:not(.public-portfolio-preview):not(.public-portfolio-preview *),
@@ -59,10 +74,53 @@
     color: #fff !important;
 }
 
+.public-site[data-public-theme='light'] .portfolio-demo-settings .portfolio-demo-field {
+    border-color: rgba(37, 57, 72, 0.2) !important;
+    background-color: rgba(255, 255, 255, 0.92) !important;
+    color: #1d2b36 !important;
+}
+
+.public-site[data-public-theme='light'] .portfolio-demo-settings .portfolio-demo-field::placeholder {
+    color: #74838e !important;
+}
+
+.public-site[data-public-theme='light'] .portfolio-demo-settings select.portfolio-demo-field option {
+    background-color: #fff;
+    color: #1d2b36;
+}
+
+.public-site[data-public-theme='light'] .portfolio-demo-badge {
+    color: #075d6b !important;
+}
+
+.public-site[data-public-theme='light'] .portfolio-demo-settings .portfolio-demo-info-icon {
+    color: #075d6b !important;
+}
+
+.public-site[data-public-theme='light'] .portfolio-demo-preview-chrome [class*='text-zinc-']:not(.public-portfolio-preview):not(.public-portfolio-preview *) {
+    color: #a1a1aa !important;
+}
+
+.public-site[data-public-theme='light'] .portfolio-demo-preview-chrome [class~='text-white']:not(.public-portfolio-preview):not(.public-portfolio-preview *) {
+    color: #fff !important;
+}
+
 .public-site[data-public-theme='light'] .public-artist-card-overlay,
 .public-site[data-public-theme='light'] .public-artist-card-overlay [class~='text-white'],
 .public-site[data-public-theme='light'] .public-artist-card-overlay [class*='text-white/'] {
     color: #fff !important;
+}
+
+.public-site[data-public-theme='light'] .public-home-portfolio-preview:not(.public-portfolio-preview) [class*='text-zinc-']:not(.public-portfolio-preview):not(.public-portfolio-preview *) {
+    color: #c2cbd3 !important;
+}
+
+.public-site[data-public-theme='light'] .public-home-portfolio-preview.public-portfolio-preview [class*='text-zinc-'] {
+    color: #c2cbd3 !important;
+}
+
+.public-site[data-public-theme='light'] .public-artist-card-overlay [class*='text-white/']:not(.public-portfolio-preview):not(.public-portfolio-preview *) {
+    color: rgba(255, 255, 255, 0.82) !important;
 }
 
 [data-public-theme='light'] .public-header {
