@@ -6,6 +6,7 @@ import {
     CheckCircle2,
     LayoutDashboard,
     ShieldAlert,
+    UserCog,
     Users,
 } from 'lucide-react';
 
@@ -28,6 +29,13 @@ const navigation = [
         href: '/dashboard/admin/activity-logs',
         icon: ShieldAlert,
         active: (url: string) => url.startsWith('/dashboard/admin/activity-logs'),
+        section: 'Administration',
+    },
+    {
+        label: 'User Management',
+        href: '/dashboard/admin/users',
+        icon: UserCog,
+        active: (url: string) => url.startsWith('/dashboard/admin/users'),
         section: 'Administration',
     },
     {
@@ -75,6 +83,13 @@ export default function AdminSidebar({
     onToggle,
 }: AdminSidebarProps) {
     const { url } = usePage();
+    const { profile, artistDashboardTheme } = usePage<{
+        profile: { id: number } | null;
+        artistDashboardTheme: 'dark' | 'light';
+    }>().props;
+    const logoSrc = artistDashboardTheme === 'light'
+        ? '/images/brand/Lira_logo_black.png'
+        : '/images/brand/Lira_logo.png';
 
     return (
         <aside
@@ -92,7 +107,7 @@ export default function AdminSidebar({
                     className="group"
                 >
                     <img
-                        src="/images/brand/Lira_logo.png"
+                        src={logoSrc}
                         alt="LIRA"
                         className={`h-auto object-contain opacity-95 transition-all duration-300 group-hover:brightness-125 ${collapsed ? 'w-[38px]' : 'w-[112px]'
                             }`}
@@ -177,47 +192,50 @@ export default function AdminSidebar({
 
                 <div className="my-8 h-px shrink-0 bg-white/[0.06]" />
 
-                {!collapsed && (
-                    <p className="px-4 text-[8px] uppercase tracking-[0.3em] text-zinc-700">
-                        Other
-                    </p>
+                {profile && (
+                    <>
+                        {!collapsed && (
+                            <p className="px-4 text-[8px] uppercase tracking-[0.3em] text-zinc-700">
+                                Other
+                            </p>
+                        )}
+
+                        <nav className="mt-4">
+                            <Link
+                                href="/dashboard"
+                                title={collapsed ? 'Artist Dashboard' : undefined}
+                                className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
+                                    ? 'justify-center'
+                                    : 'justify-between px-4'
+                                    } ${url === '/dashboard' ||
+                                        url === '/dashboard/'
+                                        ? 'border border-white/[0.08] bg-white/[0.045] text-white'
+                                        : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
+                                    }`}
+                            >
+                                <span className="flex items-center gap-3">
+                                    <ArrowLeft
+                                        className="h-4 w-4 shrink-0"
+                                        strokeWidth={1.5}
+                                    />
+
+                                    {!collapsed && (
+                                        <span>Artist Dashboard</span>
+                                    )}
+                                </span>
+                            </Link>
+                        </nav>
+                    </>
                 )}
-
-                <nav className="mt-4">
-                    <Link
-                        href="/dashboard"
-                        title={collapsed ? 'Artist Dashboard' : undefined}
-                        className={`group relative flex items-center rounded-xl px-3 py-3 text-sm transition duration-200 ${collapsed
-                            ? 'justify-center'
-                            : 'justify-between px-4'
-                            } ${url === '/dashboard' ||
-                                url === '/dashboard/'
-                                ? 'border border-white/[0.08] bg-white/[0.045] text-white'
-                                : 'border border-transparent text-zinc-500 hover:bg-white/[0.025] hover:text-zinc-200'
-                            }`}
-                    >
-                        <span className="flex items-center gap-3">
-                            <ArrowLeft
-                                className="h-4 w-4 shrink-0"
-                                strokeWidth={1.5}
-                            />
-
-                            {!collapsed && (
-                                <span>Artist Dashboard</span>
-                            )}
-                        </span>
-
-                    </Link>
-                </nav>
             </div>
 
             {/* Brand footer */}
             {!collapsed && (
                 <div className="shrink-0 border-t border-white/[0.07] p-6">
                     <img
-                        src="/images/brand/Lira_logo.png"
+                        src={logoSrc}
                         alt="LIRA"
-                        className="h-auto w-[72px] opacity-50"
+                        className={`h-auto w-[72px] ${artistDashboardTheme === 'light' ? 'opacity-90' : 'opacity-50'}`}
                     />
 
                     <p className="mt-3 text-[10px] leading-5 text-zinc-700">

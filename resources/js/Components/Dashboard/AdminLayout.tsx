@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import { usePage } from '@inertiajs/react';
 
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
@@ -13,6 +14,9 @@ interface AdminLayoutProps {
 const ADMIN_SIDEBAR_STORAGE_KEY = 'lira-admin-sidebar-collapsed';
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+    const { artistDashboardTheme } = usePage<{
+        artistDashboardTheme: 'dark' | 'light';
+    }>().props;
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     useEffect(() => {
@@ -35,7 +39,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     }
 
     return (
-        <main className="min-h-screen bg-[#050607] text-white">
+        <main
+            className="admin-dashboard min-h-screen bg-[#050607] text-white"
+            data-dashboard-theme={artistDashboardTheme}
+        >
             <div className="min-h-screen">
                 <AdminSidebar
                     collapsed={sidebarCollapsed}
@@ -50,11 +57,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     }`}
                 >
                     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-                        <div className="absolute inset-0 bg-[#050607]" />
+                        <div className="admin-dashboard-backdrop-base absolute inset-0 bg-[#050607]" />
 
-                        <div className="absolute inset-0 bg-[linear-gradient(135deg,#050607_0%,#080a0c_45%,#050607_100%)]" />
+                        <div className="admin-dashboard-backdrop-atmosphere absolute inset-0 bg-[linear-gradient(135deg,#050607_0%,#080a0c_45%,#050607_100%)]" />
 
-                        <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)]" />
+                        <div className="admin-dashboard-backdrop-reflection absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)]" />
 
                         <ChromeSparkles />
                     </div>

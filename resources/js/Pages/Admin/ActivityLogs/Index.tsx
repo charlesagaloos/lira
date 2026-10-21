@@ -143,11 +143,11 @@ export default function Index({
                             Review account and portfolio activity, investigate flagged events, and manage temporary authentication IP blocks.
                         </p>
                     </div>
-                    <div className="rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] px-5 py-4">
-                        <p className="text-[9px] uppercase tracking-[0.2em] text-amber-200/65">
+                    <div className="admin-flagged-review-card rounded-2xl border border-amber-300/15 bg-amber-300/[0.04] px-5 py-4">
+                        <p className="admin-flagged-review-label text-[9px] uppercase tracking-[0.2em] text-amber-200/65">
                             Flagged for review
                         </p>
-                        <p className="mt-1 text-2xl font-light text-amber-100">
+                        <p className="admin-flagged-review-count mt-1 text-2xl font-light text-amber-100">
                             {flaggedCount}
                         </p>
                     </div>

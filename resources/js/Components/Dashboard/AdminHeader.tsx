@@ -1,4 +1,4 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import type { PageProps as InertiaPageProps } from '@inertiajs/core';
 import {
@@ -8,10 +8,13 @@ import {
     LayoutDashboard,
     LogOut,
     Menu,
+    Moon,
     Settings,
     ShieldAlert,
     ShieldCheck,
     Users,
+    UserCog,
+    Sun,
     X,
 } from 'lucide-react';
 
@@ -26,6 +29,7 @@ interface AdminPageProps extends InertiaPageProps {
             email: string;
         };
     };
+    profile: { id: number } | null;
 }
 
 const adminLinks = [
@@ -43,11 +47,23 @@ const adminLinks = [
             url.startsWith('/dashboard/admin/activity-logs'),
     },
     {
+        label: 'User Management',
+        href: '/dashboard/admin/users',
+        icon: UserCog,
+        active: (url: string) => url.startsWith('/dashboard/admin/users'),
+    },
+    {
         label: 'Artist Verifications',
         href: '/dashboard/admin/verifications',
         icon: CheckCircle2,
         active: (url: string) =>
             url.startsWith('/dashboard/admin/verifications'),
+    },
+    {
+        label: 'Artists Directory',
+        href: '/dashboard/admin/artists',
+        icon: Users,
+        active: (url: string) => url.startsWith('/dashboard/admin/artists'),
     },
 ];
 
@@ -56,12 +72,36 @@ export default function AdminHeader({
 }: AdminHeaderProps) {
     const page = usePage();
 
-    const { auth } = page.props as typeof page.props & {
+    const { auth, profile } = page.props as typeof page.props & {
         auth: AdminPageProps['auth'];
+        profile: AdminPageProps['profile'];
     };
 
     const url = page.url;
+    const { artistDashboardTheme } = page.props as typeof page.props & {
+        artistDashboardTheme: 'dark' | 'light';
+    };
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [savingTheme, setSavingTheme] = useState(false);
+
+    function toggleTheme() {
+        if (savingTheme) {
+            return;
+        }
+
+        setSavingTheme(true);
+        router.patch(
+            '/dashboard/settings',
+            {
+                dashboard_theme:
+                    artistDashboardTheme === 'light' ? 'dark' : 'light',
+            },
+            {
+                preserveScroll: true,
+                onFinish: () => setSavingTheme(false),
+            },
+        );
+    }
 
     return (
         <header
@@ -77,7 +117,9 @@ export default function AdminHeader({
                     className="lg:hidden"
                 >
                     <img
-                        src="/images/brand/Lira_logo.png"
+                        src={artistDashboardTheme === 'light'
+                            ? '/images/brand/Lira_logo_black.png'
+                            : '/images/brand/Lira_logo.png'}
                         alt="LIRA"
                         className="w-[68px] opacity-95 sm:w-[78px]"
                     />
@@ -90,35 +132,55 @@ export default function AdminHeader({
                     <p className="mt-1 text-xs text-zinc-400">
                         {url.startsWith('/dashboard/admin/activity-logs')
                             ? 'Activity & Security'
+                            : url.startsWith('/dashboard/admin/users')
+                              ? 'User Management'
                             : url.startsWith('/dashboard/admin/verifications')
                               ? 'Artist Verifications'
-                              : 'Administration'}
+                              : url.startsWith('/dashboard/admin/artists')
+                                ? 'Artists Directory'
+                                : 'Administration'}
                     </p>
                 </div>
 
-                <div className="ml-auto hidden items-center gap-4 lg:flex">
-                    <div className="text-right">
-                        <p className="text-xs text-zinc-200">
-                            {auth.user.name}
-                        </p>
-                        <p className="mt-1 text-[9px] text-zinc-600">
-                            Administrator
-                        </p>
-                    </div>
-
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.05] text-zinc-300">
-                        <ShieldCheck className="h-4 w-4" />
-                    </div>
-
-                    <Link
-                        href="/logout"
-                        method="post"
-                        as="button"
-                        aria-label="Log out"
-                        className="text-zinc-500 transition hover:text-white"
+                <div className="ml-auto flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={toggleTheme}
+                        disabled={savingTheme}
+                        aria-label={`Switch to ${artistDashboardTheme === 'light' ? 'dark' : 'light'} theme`}
+                        title={`Switch to ${artistDashboardTheme === 'light' ? 'dark' : 'light'} theme`}
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.10] bg-white/[0.04] text-zinc-300 transition hover:bg-white/[0.08] hover:text-white disabled:cursor-wait disabled:opacity-60"
                     >
-                        <LogOut className="h-4 w-4" />
-                    </Link>
+                        {artistDashboardTheme === 'light' ? (
+                            <Moon className="h-4 w-4" />
+                        ) : (
+                            <Sun className="h-4 w-4" />
+                        )}
+                    </button>
+
+                    <div className="hidden items-center gap-4 lg:flex">
+                        <div className="text-right">
+                            <p className="text-xs text-zinc-200">
+                                {auth.user.name}
+                            </p>
+                            <p className="mt-1 text-[9px] text-zinc-600">
+                                Administrator
+                            </p>
+                        </div>
+
+                        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.12] bg-white/[0.05] text-zinc-300">
+                            <ShieldCheck className="h-4 w-4" />
+                        </div>
+                        <Link
+                            href="/logout"
+                            method="post"
+                            as="button"
+                            aria-label="Log out"
+                            className="text-zinc-500 transition hover:text-white"
+                        >
+                            <LogOut className="h-4 w-4" />
+                        </Link>
+                    </div>
                 </div>
 
                 <button
@@ -181,14 +243,16 @@ export default function AdminHeader({
 
                     <div className="my-4 h-px bg-white/[0.07]" />
 
-                    <Link
-                        href="/dashboard"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className="flex min-h-12 items-center gap-3 rounded-xl px-4 text-sm text-zinc-400 transition hover:bg-white/[0.04] hover:text-white"
-                    >
-                        <ArrowLeft className="h-4 w-4" />
-                        Back to Artist Dashboard
-                    </Link>
+                    {profile && (
+                        <Link
+                            href="/dashboard"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="flex min-h-12 items-center gap-3 rounded-xl px-4 text-sm text-zinc-400 transition hover:bg-white/[0.04] hover:text-white"
+                        >
+                            <ArrowLeft className="h-4 w-4" />
+                            Back to Artist Dashboard
+                        </Link>
+                    )}
 
                     <Link
                         href="/logout"

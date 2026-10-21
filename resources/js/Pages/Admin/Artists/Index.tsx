@@ -1,5 +1,5 @@
 
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     useEffect,
     useRef,
@@ -242,6 +242,9 @@ function getVisiblePages(
 
 
 export default function Index({ profiles, filters, counts }: Props) {
+    const { artistDashboardTheme } = usePage<{
+        artistDashboardTheme: 'dark' | 'light';
+    }>().props;
     const [search, setSearch] = useState(filters.search);
     const [deleteTarget, setDeleteTarget] =
         useState<ArtistProfile | null>(null);
@@ -919,13 +922,14 @@ export default function Index({ profiles, filters, counts }: Props) {
                     <div
                         ref={menuRef}
                         role="menu"
+                        data-dashboard-theme={artistDashboardTheme}
                         style={{
                             position: 'fixed',
                             top: menuPosition.top,
                             left: menuPosition.left,
                             width: MENU_WIDTH,
                         }}
-                        className="z-[91] rounded-xl border border-white/[0.12] bg-[#171b22] p-1.5 text-left shadow-2xl shadow-black/70"
+                        className="admin-artist-actions-menu z-[91] rounded-xl border border-white/[0.12] bg-[#171b22] p-1.5 text-left shadow-2xl shadow-black/70"
                     >
                         <Link
                             role="menuitem"

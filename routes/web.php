@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\ArtistController;
 use App\Http\Controllers\Admin\ArtistVerificationController;
 use App\Http\Controllers\ArtistProfileController;
@@ -92,6 +93,11 @@ Route::post('/dashboard/admin/verifications/{profile}/reject', [ArtistVerificati
 Route::get('/dashboard/admin/artists', [ArtistController::class, 'index'])
     ->middleware(['auth', 'verified', 'admin'])
     ->name('admin.artists.index');
+
+Route::resource('/dashboard/admin/users', AdminUserController::class)
+    ->except('show')
+    ->middleware(['auth', 'verified', 'admin'])
+    ->names('admin.users');
 
 Route::get('/dashboard/admin/activity-logs', [ActivityLogController::class, 'index'])
     ->middleware(['auth', 'verified', 'admin'])

@@ -980,12 +980,13 @@ export default function Index({
 
 
             {confirmation?.action === 'reject' ? (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
+                <div className="artist-confirm-modal-backdrop fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
                     <div
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="reject-modal-title"
-                        className="w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#101012] shadow-2xl"
+                        aria-describedby="reject-modal-description"
+                        className="artist-confirm-modal w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-[#101012] shadow-2xl"
                     >
                         <div className="border-b border-white/[0.07] p-6">
                             <div className="flex items-start gap-3">
@@ -1001,7 +1002,10 @@ export default function Index({
                                         Reject verification request
                                     </h2>
 
-                                    <p className="mt-2 text-sm leading-6 text-zinc-500">
+                                    <p
+                                        id="reject-modal-description"
+                                        className="mt-2 text-sm leading-6 text-zinc-500"
+                                    >
                                         Provide feedback for{' '}
                                         <span className="text-zinc-200">
                                             {confirmation.profile.display_name}
@@ -1054,12 +1058,12 @@ export default function Index({
                             </div>
                         </div>
 
-                        <div className="flex flex-col-reverse gap-2 border-t border-white/[0.07] p-5 sm:flex-row sm:justify-end">
+                        <div className="artist-confirm-modal-actions flex flex-col-reverse gap-2 border-t border-white/[0.07] p-5 sm:flex-row sm:justify-end">
                             <button
                                 type="button"
                                 onClick={closeConfirmation}
                                 disabled={isSubmitting}
-                                className="rounded-xl border border-white/10 px-4 py-3 text-xs text-zinc-300 transition hover:bg-white/[0.05] disabled:opacity-50"
+                                className="artist-confirm-modal-cancel rounded-xl border border-white/10 px-4 py-3 text-xs text-zinc-300 transition hover:bg-white/[0.05] disabled:opacity-50"
                             >
                                 Cancel
                             </button>
@@ -1068,7 +1072,7 @@ export default function Index({
                                 type="button"
                                 onClick={confirmAction}
                                 disabled={isSubmitting}
-                                className="inline-flex items-center justify-center gap-2 rounded-xl border border-rose-400/20 bg-rose-400/[0.08] px-4 py-3 text-xs text-rose-200 transition hover:bg-rose-400/[0.14] disabled:cursor-not-allowed disabled:opacity-50"
+                                className="artist-confirm-modal-confirm artist-confirm-modal-confirm-danger inline-flex items-center justify-center gap-2 rounded-xl border border-rose-400/20 bg-rose-400/[0.08] px-4 py-3 text-xs text-rose-200 transition hover:bg-rose-400/[0.14] disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 <X className="h-3.5 w-3.5" />
                                 {isSubmitting ? 'Submitting...' : 'Reject Request'}

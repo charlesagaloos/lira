@@ -684,6 +684,103 @@
     background-image: linear-gradient(to right, transparent, rgba(57, 72, 86, 0.6), transparent) !important;
 }
 
+[data-dashboard-theme='light'] .admin-dashboard-backdrop-base {
+    background-color: #f2f5f8 !important;
+}
+
+[data-dashboard-theme='light'] .admin-dashboard-backdrop-atmosphere {
+    background-image: linear-gradient(135deg, #f8fafc 0%, #edf1f5 48%, #f7f9fb 100%) !important;
+}
+
+[data-dashboard-theme='light'] .admin-dashboard-backdrop-reflection {
+    background-image: linear-gradient(90deg, transparent, rgba(31, 47, 61, 0.16), transparent) !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] [class~='text-transparent'] {
+    background-image: linear-gradient(90deg, #1d2b36 0%, #08768a 35%, #6435a6 65%, #a81d52 85%, #1d2b36 100%) !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] [class*='text-amber-'] {
+    color: #8a5700 !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] [class*='text-yellow-'] {
+    color: #805900 !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] [class*='text-purple-'] {
+    color: #6937a5 !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] select,
+.admin-dashboard[data-dashboard-theme='light'] option {
+    color-scheme: light;
+    border-color: rgba(31, 47, 61, 0.18) !important;
+    background-color: #fff !important;
+    color: #253746 !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] select:focus {
+    border-color: rgba(8, 118, 138, 0.48) !important;
+    outline-color: rgba(8, 118, 138, 0.3);
+}
+
+.admin-dashboard[data-dashboard-theme='light'] option {
+    color-scheme: light;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] [class*='bg-[#0b0d10'],
+.admin-dashboard[data-dashboard-theme='light'] [class*='bg-[#101012'],
+.admin-dashboard[data-dashboard-theme='light'] [class*='bg-[#101214'],
+.admin-dashboard[data-dashboard-theme='light'] [class*='bg-[#171b22'],
+.admin-dashboard[data-dashboard-theme='light'] [class*='bg-[#252b34'] {
+    background-color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] [class*='text-[#c4a2ff]'] {
+    color: #6435a6 !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] [class*='text-[#ff9cbb]'] {
+    color: #a81d52 !important;
+}
+
+[data-dashboard-theme='light'].admin-artist-actions-menu {
+    border-color: rgba(31, 47, 61, 0.18) !important;
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 20px 50px rgba(28, 42, 54, 0.2) !important;
+}
+
+[data-dashboard-theme='light'].admin-artist-actions-menu [class*='text-zinc-'] {
+    color: #435260 !important;
+}
+
+[data-dashboard-theme='light'].admin-artist-actions-menu [class*='text-[#ff9cbb]'] {
+    color: #a81d52 !important;
+}
+
+[data-dashboard-theme='light'].admin-artist-actions-menu [class*='border-white/'] {
+    border-color: rgba(31, 47, 61, 0.14) !important;
+}
+
+[data-dashboard-theme='light'].admin-artist-actions-menu [class*='hover:bg-white/']:hover {
+    background-color: rgba(57, 76, 91, 0.07) !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] .admin-flagged-review-card {
+    border-color: rgba(138, 87, 0, 0.28) !important;
+    background-color: rgba(255, 248, 225, 0.88) !important;
+    box-shadow: 0 8px 24px rgba(117, 78, 0, 0.06);
+}
+
+.admin-dashboard[data-dashboard-theme='light'] .admin-flagged-review-card .admin-flagged-review-label {
+    color: #694700 !important;
+}
+
+.admin-dashboard[data-dashboard-theme='light'] .admin-flagged-review-card .admin-flagged-review-count {
+    color: #633f00 !important;
+}
+
 [data-dashboard-theme='light'] aside {
     /* background-color: rgba(255, 255, 255, 0.94) !important; */
     border-color: #dce3e9 !important;
