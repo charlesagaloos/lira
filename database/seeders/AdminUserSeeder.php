@@ -19,7 +19,7 @@ class AdminUserSeeder extends Seeder
 
         if (blank($name) && blank($email) && blank($password)) {
             $this->command?->warn(
-                'Admin user seeding skipped. Set ADMIN_NAME, ADMIN_EMAIL, and ADMIN_PASSWORD to configure it.'
+                'Superadmin user seeding skipped. Set ADMIN_NAME, ADMIN_EMAIL, and ADMIN_PASSWORD to configure it.'
             );
 
             return;
@@ -27,30 +27,31 @@ class AdminUserSeeder extends Seeder
 
         if (blank($name) || blank($email) || blank($password)) {
             throw new RuntimeException(
-                'Admin user seeding requires ADMIN_NAME, ADMIN_EMAIL, and ADMIN_PASSWORD.'
+                'Superadmin user seeding requires ADMIN_NAME, ADMIN_EMAIL, and ADMIN_PASSWORD.'
             );
         }
 
-        $admin = User::withTrashed()->firstOrNew([
+        $superadmin = User::withTrashed()->firstOrNew([
             'email' => $email,
         ]);
 
-        if ($admin->exists && $admin->artistProfile()->exists()) {
+        if ($superadmin->exists && $superadmin->artistProfile()->exists()) {
             throw new RuntimeException(
-                'The configured admin account already has an artist profile. '
-                .'Use a dedicated email address for the admin-only account.'
+                'The configured superadmin account already has an artist profile. '
+                .'Use a dedicated email address for the superadmin-only account.'
             );
         }
 
-        $admin->forceFill([
+        $superadmin->forceFill([
             'name' => $name,
             'email' => $email,
             'password' => $password,
-            'email_verified_at' => $admin->email_verified_at ?? now(),
+            'email_verified_at' => $superadmin->email_verified_at ?? now(),
             'is_admin' => true,
+            'is_super_admin' => true,
             'deleted_at' => null,
         ])->save();
 
-        $this->command?->info("Admin account [{$email}] is ready.");
+        $this->command?->info("Superadmin account [{$email}] is ready.");
     }
 }

@@ -50,7 +50,10 @@ class AdminUserController extends Controller
                 'per_page' => $perPage,
             ],
             'adminOnlyCount' => $this->adminOnlyUsers()->count(),
-            'activeAdminCount' => User::query()->where('is_admin', true)->count(),
+            'activeAdminCount' => User::query()
+                ->where('is_admin', true)
+                ->where('is_super_admin', false)
+                ->count(),
             'currentUserId' => $request->user()->id,
         ]);
     }
@@ -138,6 +141,7 @@ class AdminUserController extends Controller
         $deleted = DB::transaction(function () use ($user): bool {
             $activeAdmins = User::query()
                 ->where('is_admin', true)
+                ->where('is_super_admin', false)
                 ->lockForUpdate()
                 ->get(['id']);
 
@@ -163,13 +167,16 @@ class AdminUserController extends Controller
     {
         return User::query()
             ->where('is_admin', true)
+            ->where('is_super_admin', false)
             ->whereDoesntHave('artistProfile');
     }
 
     private function ensureAdminOnly(User $user): void
     {
         abort_unless(
-            $user->is_admin && ! $user->artistProfile()->exists(),
+            $user->is_admin
+                && ! $user->is_super_admin
+                && ! $user->artistProfile()->exists(),
             404,
         );
     }

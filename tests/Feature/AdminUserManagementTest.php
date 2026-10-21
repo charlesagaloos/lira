@@ -28,6 +28,11 @@ class AdminUserManagementTest extends TestCase
             'is_admin' => true,
             'name' => 'Artist Admin',
         ]);
+        User::factory()->create([
+            'is_admin' => true,
+            'is_super_admin' => true,
+            'name' => 'Superadmin',
+        ]);
 
         ArtistProfile::create([
             'user_id' => $artist->id,
@@ -236,6 +241,53 @@ class AdminUserManagementTest extends TestCase
 
         $this->assertNotSoftDeleted('users', [
             'id' => $artistAdmin->id,
+        ]);
+    }
+
+    public function test_superadmin_is_hidden_from_admin_user_management_and_cannot_be_edited_or_deleted(): void
+    {
+        $admin = User::factory()->create(['is_admin' => true]);
+        $superadmin = User::factory()->create([
+            'is_admin' => true,
+            'is_super_admin' => true,
+            'name' => 'Protected Superadmin',
+        ]);
+
+        $this->actingAs($superadmin)
+            ->get(route('admin.dashboard'))
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/Users/Index')
+                ->where('adminOnlyCount', 1)
+                ->where('activeAdminCount', 1)
+                ->where('users.data.0.id', $admin->id)
+                ->missing('users.data.1'));
+
+        $this->actingAs($admin)
+            ->get(route('admin.users.edit', $superadmin))
+            ->assertNotFound();
+
+        $this->actingAs($admin)
+            ->put(route('admin.users.update', $superadmin), [
+                'name' => 'Changed Name',
+                'email' => 'changed@example.com',
+                'password' => '',
+                'password_confirmation' => '',
+            ])
+            ->assertNotFound();
+
+        $this->actingAs($admin)
+            ->delete(route('admin.users.destroy', $superadmin))
+            ->assertNotFound();
+
+        $this->assertSame('Protected Superadmin', $superadmin->fresh()->name);
+        $this->assertTrue($superadmin->fresh()->is_super_admin);
+        $this->assertNotSoftDeleted('users', [
+            'id' => $superadmin->id,
         ]);
     }
 
