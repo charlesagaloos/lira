@@ -43,6 +43,34 @@ class GoogleAuthSecurityTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
+    public function test_google_login_sends_an_admin_without_an_artist_profile_to_the_admin_dashboard(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin-google@example.com',
+            'is_admin' => true,
+        ]);
+
+        SocialAccount::create([
+            'user_id' => $admin->id,
+            'provider' => 'google',
+            'provider_id' => 'google-admin-123',
+        ]);
+
+        $this->mockGoogleUser([
+            'email' => $admin->email,
+            'email_verified' => true,
+            'sub' => 'google-admin-123',
+            'name' => $admin->name,
+        ]);
+
+        $this->withSession([
+            'url.intended' => route('dashboard'),
+        ])->get(route('auth.google.callback'))
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->assertAuthenticatedAs($admin);
+    }
+
     public function test_unverified_google_email_cannot_create_an_account(): void
     {
         $this->mockGoogleUser([
@@ -100,15 +128,16 @@ class GoogleAuthSecurityTest extends TestCase
             ->once()
             ->with('google')
             ->andReturn(
-                new class ($googleUser) {
-            public function __construct(
-            private GoogleUser $user,
-            ) {}
+                new class($googleUser)
+                {
+                    public function __construct(
+                        private GoogleUser $user,
+                    ) {}
 
-            public function user(): GoogleUser
-            {
-                return $this->user;
-            }
+                    public function user(): GoogleUser
+                    {
+                        return $this->user;
+                    }
                 }
             );
     }

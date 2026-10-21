@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\SocialAccount;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -43,7 +44,7 @@ class GoogleAuthController extends Controller
         if ($socialAccount) {
             Auth::login($socialAccount->user, true);
 
-            return redirect()->intended('/dashboard');
+            return $this->redirectAuthenticatedUser($socialAccount->user);
         }
 
         $user = User::query()
@@ -75,6 +76,15 @@ class GoogleAuthController extends Controller
         });
 
         Auth::login($user, true);
+
+        return $this->redirectAuthenticatedUser($user);
+    }
+
+    private function redirectAuthenticatedUser(User $user): RedirectResponse
+    {
+        if ($user->isAdminOnly()) {
+            return redirect()->route('admin.dashboard');
+        }
 
         return redirect()->intended('/dashboard');
     }
